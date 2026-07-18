@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt – Melli's Krabbelzwerge</title>
+  <meta name="description" content="Kontaktiert Melli's Krabbelzwerge in Essen-Stoppenberg – Platz anfragen, Besichtigung vereinbaren oder Fragen stellen.">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="regenbogen-leiste"></div>
+
+  <header class="header">
+    <div class="container">
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a href="index.html" class="nav-logo">
+          <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge">
+          <span class="nav-logo-text">
+            <strong>Melli's Krabbelzwerge</strong>
+            <span>Großtagespflege</span>
+          </span>
+        </a>
+        <button class="nav-toggle" aria-expanded="false" aria-label="Menü öffnen">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="index.html">Start</a></li>
+          <li><a href="ueber-uns.html">Über uns</a></li>
+          <li><a href="konzept.html">Konzept</a></li>
+          <li><a href="tagesablauf.html">Tagesablauf</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="kontakt.html" class="nav-cta aktiv">Kontakt</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="seiten-kopf">
+      <div class="container">
+        <nav class="brotkruemel" aria-label="Brotkrümelnavigation">
+          <a href="index.html">Start</a> <span>›</span> <span>Kontakt</span>
+        </nav>
+        <h1>Wir freuen uns auf euch! 💌</h1>
+        <p>Ob Platzanfrage, Besichtigung oder einfach eine Frage – schreibt uns, wir melden uns schnellstmöglich zurück.</p>
+      </div>
+    </section>
+
+    <section class="abschnitt abschnitt-hell">
+      <div class="container kontakt-raster">
+
+        <div class="kontakt-info">
+          <div class="info-karte einblenden">
+            <span class="karte-icon">📍</span>
+            <div>
+              <h3>Adresse</h3>
+              <p>Melli's Krabbelzwerge<br>Im Looscheid 82<br>45141 Essen-Stoppenberg</p>
+            </div>
+          </div>
+          <div class="info-karte einblenden">
+            <span class="karte-icon">📞</span>
+            <div>
+              <h3>Telefon</h3>
+              <p><a href="tel:+4920100000000">0201 / 00 00 00 00</a><br>
+              <small>Am besten erreichbar: 12:30 – 14:00 Uhr</small></p>
+            </div>
+          </div>
+          <div class="info-karte einblenden">
+            <span class="karte-icon">✉️</span>
+            <div>
+              <h3>E-Mail</h3>
+              <p><a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></p>
+            </div>
+          </div>
+          <div class="info-karte einblenden">
+            <span class="karte-icon">🕐</span>
+            <div>
+              <h3>Betreuungszeiten</h3>
+              <p>Mo – Do: 7:30 – 15:30 Uhr<br>Fr: 7:30 – 14:30 Uhr</p>
+            </div>
+          </div>
+          <div class="info-karte einblenden">
+            <span class="karte-icon">🚌</span>
+            <div>
+              <h3>Anfahrt</h3>
+              <p>Gut erreichbar mit Bus &amp; Bahn über die Haltestellen in Essen-Stoppenberg.
+                 Parkplätze zum Bringen und Abholen sind direkt vor der Tür.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="einblenden">
+          <form class="formular" id="kontaktformular" novalidate>
+            <h2 style="margin-bottom: 1.4rem;">Schreibt uns eine Nachricht ✏️</h2>
+
+            <div class="formular-reihe">
+              <div class="feld">
+                <label for="name">Name <span class="pflicht">*</span></label>
+                <input type="text" id="name" name="name" placeholder="Vor- und Nachname" autocomplete="name" required>
+                <span class="fehlermeldung"></span>
+              </div>
+              <div class="feld">
+                <label for="email">E-Mail <span class="pflicht">*</span></label>
+                <input type="email" id="email" name="email" placeholder="name@beispiel.de" autocomplete="email" required>
+                <span class="fehlermeldung"></span>
+              </div>
+            </div>
+
+            <div class="formular-reihe">
+              <div class="feld">
+                <label for="telefon">Telefon <small>(optional)</small></label>
+                <input type="tel" id="telefon" name="telefon" placeholder="0201 / 123456" autocomplete="tel">
+                <span class="fehlermeldung"></span>
+              </div>
+              <div class="feld">
+                <label for="betreff">Betreff <span class="pflicht">*</span></label>
+                <select id="betreff" name="betreff" required>
+                  <option value="">Bitte auswählen …</option>
+                  <option value="platzanfrage">Platzanfrage</option>
+                  <option value="besichtigung">Besichtigungstermin</option>
+                  <option value="rueckruf">Bitte um Rückruf</option>
+                  <option value="sonstiges">Sonstiges</option>
+                </select>
+                <span class="fehlermeldung"></span>
+              </div>
+            </div>
+
+            <div class="feld">
+              <label for="nachricht">Eure Nachricht <span class="pflicht">*</span></label>
+              <textarea id="nachricht" name="nachricht" placeholder="Erzählt uns kurz, worum es geht – z. B. Alter eures Kindes und gewünschter Betreuungsstart …" required></textarea>
+              <span class="fehlermeldung"></span>
+            </div>
+
+            <div class="feld">
+              <label class="checkbox-feld">
+                <input type="checkbox" id="datenschutz" name="datenschutz" required>
+                <span>Ich habe die <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen
+                und bin mit der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage einverstanden.
+                <span class="pflicht">*</span></span>
+              </label>
+              <span class="fehlermeldung"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primaer" style="width: 100%;">Nachricht senden 🚀</button>
+            <p style="margin-top: 0.9rem; font-size: 0.88rem; color: var(--tinte-hell); text-align: center;">
+              <span class="pflicht">*</span> Pflichtfelder
+            </p>
+          </form>
+
+          <div class="formular formular-erfolg" id="formular-erfolg">
+            <span class="erfolg-icon">✅</span>
+            <h2>Vielen Dank!</h2>
+            <p style="color: var(--tinte-hell); margin: 0.6rem 0 1.4rem;">
+              Eure Nachricht wurde in eurem E-Mail-Programm geöffnet – einfach absenden,
+              und wir melden uns so schnell wie möglich bei euch zurück.
+            </p>
+            <button type="button" class="btn btn-sekundaer" id="formular-nochmal">Neue Nachricht schreiben</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="abschnitt">
+      <div class="container">
+        <div class="abschnitt-kopf einblenden">
+          <span class="ueberschrift-klein">So findet ihr uns</span>
+          <h2>Im Looscheid 82, <span class="unterstrichen">Essen-Stoppenberg</span></h2>
+        </div>
+        <div class="bild-rahmen einblenden">
+          <iframe
+            title="Karte: Im Looscheid 82, 45141 Essen"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=7.055%2C51.475%2C7.095%2C51.495&amp;layer=mapnik&amp;marker=51.485%2C7.075"
+            style="width: 100%; height: 380px; border: 0; display: block;"
+            loading="lazy"></iframe>
+        </div>
+        <p style="text-align: center; margin-top: 0.8rem; font-size: 0.9rem;">
+          <a href="https://www.openstreetmap.org/?mlat=51.485&amp;mlon=7.075#map=15/51.485/7.075" target="_blank" rel="noopener">Größere Karte auf OpenStreetMap öffnen</a>
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-oben">
+        <div>
+          <div class="footer-logo">
+            <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge">
+            <strong>Melli's Krabbelzwerge</strong>
+          </div>
+          <p>„Alles was ein Kind braucht, um glücklich zu sein." – Großtagespflege in Essen-Stoppenberg.</p>
+        </div>
+        <div>
+          <h3>Seiten</h3>
+          <ul>
+            <li><a href="index.html">Start</a></li>
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="konzept.html">Konzept</a></li>
+            <li><a href="tagesablauf.html">Tagesablauf</a></li>
+            <li><a href="galerie.html">Galerie</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Kontakt</h3>
+          <ul>
+            <li>📍 Im Looscheid 82<br>45141 Essen-Stoppenberg</li>
+            <li>📞 <a href="tel:+4920100000000">0201 / 00 00 00 00</a></li>
+            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Betreuungszeiten</h3>
+          <ul>
+            <li>Mo – Do: 7:30 – 15:30 Uhr</li>
+            <li>Fr: 7:30 – 14:30 Uhr</li>
+            <li>Sa &amp; So: geschlossen</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-unten">
+        <span>© 2026 Melli's Krabbelzwerge – Alle Rechte vorbehalten</span>
+        <span>
+          <a href="impressum.html">Impressum</a> ·
+          <a href="datenschutz.html">Datenschutz</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="nach-oben" aria-label="Nach oben scrollen">↑</button>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
