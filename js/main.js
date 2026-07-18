@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initNavigation();
   initNachObenKnopf();
   initEinblendungen();
+  initSchreibmaschine();
   initAkkordeon();
   initZaehler();
   initKontaktformular();
@@ -83,6 +84,48 @@ function initEinblendungen() {
     el.style.transitionDelay = `${Math.min(i % 4, 3) * 90}ms`;
     beobachter.observe(el);
   });
+}
+
+/* --------------------------------------------------------------------------
+   Schreibmaschinen-Effekt: Text in [data-tippen] wird Zeichen für Zeichen
+   getippt, sobald das Element sichtbar wird.
+   -------------------------------------------------------------------------- */
+function initSchreibmaschine() {
+  const elemente = document.querySelectorAll("[data-tippen]");
+  if (!elemente.length) return;
+
+  const bewegungReduziert =
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Ohne Beobachter oder bei reduzierter Bewegung: Text einfach stehen lassen
+  if (bewegungReduziert || !("IntersectionObserver" in window)) return;
+
+  function tippe(el) {
+    const text = el.textContent;
+    el.textContent = "";
+    el.classList.add("tippt");
+    let i = 0;
+
+    const intervall = setInterval(() => {
+      el.textContent = text.slice(0, ++i);
+      if (i >= text.length) {
+        clearInterval(intervall);
+        // Cursor nach kurzem Nachblinken ausblenden
+        setTimeout(() => el.classList.remove("tippt"), 1600);
+      }
+    }, 38);
+  }
+
+  const beobachter = new IntersectionObserver((eintraege) => {
+    eintraege.forEach((eintrag) => {
+      if (eintrag.isIntersecting) {
+        tippe(eintrag.target);
+        beobachter.unobserve(eintrag.target);
+      }
+    });
+  }, { threshold: 0.6 });
+
+  elemente.forEach((el) => beobachter.observe(el));
 }
 
 /* --------------------------------------------------------------------------

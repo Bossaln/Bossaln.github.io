@@ -923,11 +923,62 @@ a { color: var(--blau); }
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
 
-.einblenden.sichtbar { opacity: 1; transform: translateY(0); }
+/* Richtungsvarianten: Zweispalter gleiten sanft von links bzw. rechts herein */
+.zweispaltig > .einblenden:first-child { transform: translateX(-36px); }
+.zweispaltig > .einblenden:last-child { transform: translateX(36px); }
+
+/* Zeitstrahl-Punkte kommen von links, passend zur Linie */
+.zeit-punkt.einblenden { transform: translateX(-36px); }
+
+/* Galerie-Kacheln und CTA-Banner wachsen leicht auf */
+.galerie-kachel.einblenden { transform: translateY(18px) scale(0.94); }
+.cta-banner.einblenden { transform: translateY(22px) scale(0.97); }
+
+.einblenden.sichtbar { opacity: 1; transform: none; }
+
+/* --------------------------------------------------------------------------
+   Sanfte Einstiegs-Animation beim Seitenaufruf
+   -------------------------------------------------------------------------- */
+@keyframes aufsteigen {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hero-inhalt > div:first-child > * { animation: aufsteigen 0.6s ease both; }
+.hero-inhalt > div:first-child > *:nth-child(1) { animation-delay: 0.05s; }
+.hero-inhalt > div:first-child > *:nth-child(2) { animation-delay: 0.15s; }
+.hero-inhalt > div:first-child > *:nth-child(3) { animation-delay: 0.25s; }
+.hero-inhalt > div:first-child > *:nth-child(4) { animation-delay: 0.35s; }
+.hero-inhalt > div:first-child > *:nth-child(5) { animation-delay: 0.45s; }
+
+.seiten-kopf .brotkruemel { animation: aufsteigen 0.5s ease both; }
+.seiten-kopf h1 { animation: aufsteigen 0.6s ease 0.1s both; }
+.seiten-kopf p { animation: aufsteigen 0.6s ease 0.22s both; }
+
+/* --------------------------------------------------------------------------
+   Schreibmaschinen-Effekt (Slogan)
+   -------------------------------------------------------------------------- */
+[data-tippen] { min-height: 1.7em; }
+
+.tippt::after {
+  content: "|";
+  margin-left: 2px;
+  color: var(--orange);
+  font-weight: 700;
+  animation: blinken 0.8s steps(1) infinite;
+}
+
+@keyframes blinken {
+  50% { opacity: 0; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .einblenden { opacity: 1; transform: none; transition: none; }
   .hero-bild img, .deko { animation: none; }
+  .hero-inhalt > div:first-child > *,
+  .seiten-kopf .brotkruemel,
+  .seiten-kopf h1,
+  .seiten-kopf p { animation: none; }
   html { scroll-behavior: auto; }
 }
 
