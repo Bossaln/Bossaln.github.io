@@ -4,6 +4,10 @@ Website der Großtagespflege **Melli's Krabbelzwerge** in Essen-Stoppenberg.
 
 > „Alles was ein Kind braucht, um glücklich zu sein."
 
+> **Hinweis:** Alle Inhaltstexte sind aktuell bewusst Lorem-ipsum-Platzhalter,
+> damit der Fokus auf dem Design liegt. Die echten Texte werden später
+> eingesetzt. Navigation, Footer und Logo sind bereits final beschriftet.
+
 ## Seiten
 
 | Datei | Inhalt |
