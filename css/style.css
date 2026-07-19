@@ -19,9 +19,12 @@
   --weiss: #ffffff;
   --wolke: #fdf3e3;
 
-  /* Ruhiger, warmer Akzent-Verlauf statt Regenbogen
-     (Variablenname bleibt, damit alle Verwendungen erhalten bleiben) */
-  --regenbogen: linear-gradient(90deg, var(--orange), var(--gelb));
+  --regenbogen: linear-gradient(90deg,
+      var(--rot), var(--orange), var(--gelb),
+      var(--gruen), var(--blau), var(--lila));
+  --regenbogen-senkrecht: linear-gradient(180deg,
+      var(--rot), var(--orange), var(--gelb),
+      var(--gruen), var(--blau), var(--lila));
 
   --schrift-titel: "Baloo 2", "Comic Sans MS", "Segoe UI", "Trebuchet MS", sans-serif;
   --schrift-text: "Nunito", "Segoe UI", sans-serif;
@@ -187,9 +190,9 @@ a { color: var(--blau); }
   position: relative;
   padding: 4.5rem 0 5.5rem;
   background:
-    radial-gradient(circle at 12% 20%, rgba(247, 201, 72, 0.22), transparent 40%),
-    radial-gradient(circle at 88% 15%, rgba(244, 144, 12, 0.10), transparent 40%),
-    radial-gradient(circle at 80% 85%, rgba(247, 201, 72, 0.16), transparent 45%),
+    radial-gradient(circle at 12% 20%, rgba(247, 201, 72, 0.25), transparent 40%),
+    radial-gradient(circle at 88% 15%, rgba(61, 155, 233, 0.18), transparent 40%),
+    radial-gradient(circle at 80% 85%, rgba(242, 138, 178, 0.20), transparent 45%),
     var(--creme);
   overflow: hidden;
 }
@@ -365,8 +368,10 @@ a { color: var(--blau); }
 
 .karte:hover { transform: translateY(-8px); box-shadow: var(--schatten-hover); }
 
-.karte:nth-child(2n + 1) { border-top-color: var(--orange); }
-.karte:nth-child(2n + 2) { border-top-color: var(--gelb); }
+.karte:nth-child(4n + 1) { border-top-color: var(--rot); }
+.karte:nth-child(4n + 2) { border-top-color: var(--gelb); }
+.karte:nth-child(4n + 3) { border-top-color: var(--gruen); }
+.karte:nth-child(4n + 4) { border-top-color: var(--blau); }
 
 .karte-icon {
   display: inline-grid;
@@ -465,7 +470,7 @@ a { color: var(--blau); }
   bottom: 8px;
   width: 5px;
   border-radius: 3px;
-  background: linear-gradient(180deg, var(--orange), var(--gelb), var(--orange));
+  background: var(--regenbogen-senkrecht);
 }
 
 .zeit-punkt {
@@ -493,7 +498,15 @@ a { color: var(--blau); }
   box-shadow: 0 0 0 3px var(--weiss);
 }
 
-.zeit-punkt:nth-child(2n)::before { border-color: var(--gelb); }
+.zeit-punkt:nth-child(4n + 1)::before { border-color: var(--rot); }
+.zeit-punkt:nth-child(4n + 2)::before { border-color: var(--gruen); }
+.zeit-punkt:nth-child(4n + 3)::before { border-color: var(--blau); }
+.zeit-punkt:nth-child(4n + 4)::before { border-color: var(--orange); }
+
+.zeit-punkt:nth-child(4n + 1) .uhrzeit { background: var(--rot); }
+.zeit-punkt:nth-child(4n + 2) .uhrzeit { background: var(--gruen); }
+.zeit-punkt:nth-child(4n + 3) .uhrzeit { background: var(--blau); }
+.zeit-punkt:nth-child(4n + 4) .uhrzeit { background: var(--orange); }
 
 .zeit-punkt .uhrzeit {
   display: inline-block;
@@ -632,12 +645,12 @@ a { color: var(--blau); }
   object-fit: cover;
 }
 
-.gk-1 { background: linear-gradient(135deg, #ffeed9, #ffd9a8); }
-.gk-2 { background: linear-gradient(135deg, #fff3c4, #ffe4b8); }
-.gk-3 { background: linear-gradient(135deg, #fdf0dd, #f9ddba); }
-.gk-4 { background: linear-gradient(135deg, #fff0e4, #ffe2c2); }
-.gk-5 { background: linear-gradient(135deg, #fdf6e0, #fbe6c0); }
-.gk-6 { background: linear-gradient(135deg, #fff2d8, #ffdfb3); }
+.gk-1 { background: linear-gradient(135deg, #ffe3e3, #ffd0a3); }
+.gk-2 { background: linear-gradient(135deg, #fff3c4, #d8f3b6); }
+.gk-3 { background: linear-gradient(135deg, #d0f0fd, #d5ccff); }
+.gk-4 { background: linear-gradient(135deg, #ffe0ef, #ffe9c9); }
+.gk-5 { background: linear-gradient(135deg, #d6f7f2, #fef2c0); }
+.gk-6 { background: linear-gradient(135deg, #e6dcff, #ffdcdc); }
 
 /* --------------------------------------------------------------------------
    Kontakt
@@ -801,8 +814,9 @@ a { color: var(--blau); }
 }
 
 .zeiten-tabelle thead {
-  background: linear-gradient(90deg, #e8830a, var(--orange));
+  background: var(--regenbogen);
   color: var(--weiss);
+  text-shadow: 0 1px 3px rgba(61, 53, 70, 0.45);
   font-family: var(--schrift-titel);
 }
 
@@ -814,7 +828,8 @@ a { color: var(--blau); }
    CTA-Banner
    -------------------------------------------------------------------------- */
 .cta-banner {
-  background: linear-gradient(120deg, #e8830a, var(--orange) 55%, var(--gelb) 130%);
+  background: var(--regenbogen);
+  text-shadow: 0 1px 4px rgba(61, 53, 70, 0.35);
   border-radius: var(--radius);
   padding: 3rem 2rem;
   text-align: center;
