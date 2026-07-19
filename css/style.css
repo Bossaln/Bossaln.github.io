@@ -452,55 +452,86 @@ a { color: var(--blau); }
    -------------------------------------------------------------------------- */
 .zeitstrahl {
   position: relative;
-  max-width: 720px;
+  max-width: 920px;
   margin-inline: auto;
-  padding-left: 2.4rem;
+  padding-left: 2.6rem;
 }
 
 .zeitstrahl::before {
   content: "";
   position: absolute;
-  left: 10px;
+  left: 11px;
   top: 8px;
   bottom: 8px;
   width: 5px;
   border-radius: 3px;
-  background: var(--regenbogen);
+  background: linear-gradient(180deg, var(--orange), var(--gelb), var(--orange));
 }
 
 .zeit-punkt {
   position: relative;
-  padding: 1rem 1.4rem;
-  margin-bottom: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.4rem;
   background: var(--weiss);
   border-radius: var(--radius);
   box-shadow: var(--schatten);
+  transition: transform var(--uebergang), box-shadow var(--uebergang);
 }
+
+.zeit-punkt:hover { transform: translateY(-4px); box-shadow: var(--schatten-hover); }
 
 .zeit-punkt::before {
   content: "";
   position: absolute;
-  left: -2.02rem;
-  top: 1.45rem;
-  width: 16px;
-  height: 16px;
+  left: -2.22rem;
+  top: 1.35rem;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--weiss);
-  border: 4px solid var(--orange);
+  border: 5px solid var(--orange);
+  box-shadow: 0 0 0 3px var(--weiss);
 }
 
 .zeit-punkt:nth-child(2n)::before { border-color: var(--gelb); }
 
 .zeit-punkt .uhrzeit {
+  display: inline-block;
+  background: linear-gradient(90deg, #e8830a, var(--orange));
+  color: var(--weiss);
   font-family: var(--schrift-titel);
-  font-weight: 800;
-  color: var(--orange);
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+  padding: 0.22rem 0.95rem;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(244, 144, 12, 0.3);
 }
 
-.zeit-punkt h3 { font-size: 1.15rem; margin: 0.15rem 0 0.2rem; }
+.zeit-punkt h3 { font-size: 1.2rem; margin: 0.55rem 0 0.25rem; }
 
-.zeit-punkt p { color: var(--tinte-hell); font-size: 0.98rem; }
+.zeit-punkt p { color: var(--tinte-hell); font-size: 0.97rem; }
+
+/* Ab Desktop-Breite: mittiger Zeitstrahl, Karten abwechselnd links/rechts */
+@media (min-width: 900px) {
+  .zeitstrahl { padding-left: 0; }
+
+  .zeitstrahl::before {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .zeit-punkt { width: calc(50% - 3rem); }
+
+  .zeit-punkt:nth-child(odd) { margin-right: auto; text-align: right; }
+  .zeit-punkt:nth-child(even) { margin-left: auto; }
+
+  .zeit-punkt:nth-child(odd)::before { left: auto; right: calc(-3rem - 9px); }
+  .zeit-punkt:nth-child(even)::before { left: calc(-3rem - 9px); }
+
+  /* rechte Karten gleiten von rechts herein */
+  .zeit-punkt:nth-child(even).einblenden:not(.sichtbar) { transform: translateX(36px); }
+}
 
 /* --------------------------------------------------------------------------
    Akkordeon (FAQ / Eingewöhnung)

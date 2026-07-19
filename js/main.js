@@ -74,8 +74,15 @@ function initEinblendungen() {
   const beobachter = new IntersectionObserver((eintraege) => {
     eintraege.forEach((eintrag) => {
       if (eintrag.isIntersecting) {
-        eintrag.target.classList.add("sichtbar");
-        beobachter.unobserve(eintrag.target);
+        const el = eintrag.target;
+        el.classList.add("sichtbar");
+        beobachter.unobserve(el);
+        // Nach der Animation Klassen entfernen, damit Hover-Effekte
+        // (transform) nicht von .einblenden.sichtbar überschrieben werden
+        setTimeout(() => {
+          el.classList.remove("einblenden", "sichtbar");
+          el.style.transitionDelay = "";
+        }, 1100);
       }
     });
   }, { threshold: 0.12 });
