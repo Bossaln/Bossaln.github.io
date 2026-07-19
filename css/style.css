@@ -383,6 +383,11 @@ a { color: var(--blau); }
 
 .karte p { color: var(--tinte-hell); font-size: 0.98rem; }
 
+/* Team-Karten: längere Vorstellungstexte linksbündig */
+.karte.team-karte { text-align: left; }
+.karte.team-karte h3 { text-align: center; }
+.karte.team-karte p + p { margin-top: 0.7rem; }
+
 /* --------------------------------------------------------------------------
    Zwei-Spalten-Layout (Bild + Text)
    -------------------------------------------------------------------------- */
@@ -586,6 +591,14 @@ a { color: var(--blau); }
   font-size: 1rem;
   font-weight: 700;
   text-align: center;
+}
+
+.foto-kachel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .gk-1 { background: linear-gradient(135deg, #ffeed9, #ffd9a8); }

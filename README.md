@@ -4,9 +4,8 @@ Website der Großtagespflege **Melli's Krabbelzwerge** in Essen-Stoppenberg.
 
 > „Alles was ein Kind braucht, um glücklich zu sein."
 
-> **Hinweis:** Alle Inhaltstexte sind aktuell bewusst Lorem-ipsum-Platzhalter,
-> damit der Fokus auf dem Design liegt. Die echten Texte werden später
-> eingesetzt. Navigation, Footer und Logo sind bereits final beschriftet.
+Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
+· www.mellis-krabbelzwerge.de
 
 ## Seiten
 
@@ -43,7 +42,6 @@ python3 -m http.server 8000
 ## Vor dem Livegang anpassen
 
 - [ ] Echte Telefonnummer und E-Mail-Adresse eintragen (Platzhalter: `0201 / 00 00 00 00`, `info@mellis-krabbelzwerge.de`)
-- [ ] Namen im Impressum und in der Datenschutzerklärung ergänzen
-- [ ] Kartenausschnitt in `kontakt.html` auf die exakten Koordinaten setzen
-- [ ] Echte Fotos in der Galerie ergänzen (Einverständnis beachten!)
-- [ ] Betreuungszeiten und Fakten (Plätze, Team) prüfen
+- [ ] Kartenausschnitt in `kontakt.html` auf die exakten Koordinaten setzen (aktuell grob auf Stoppenberg zentriert)
+- [ ] Fotos in besserer Auflösung einsetzen – die aktuellen Bilder (`assets/img/team.jpg`, `spielzimmer.jpg`, `garten.jpg`, `raum.jpg`) stammen aus dem eingescannten Flyer
+- [ ] Betreuungszeiten prüfen (aktuell: Mo–Do 7:30–15:30, Fr 7:30–14:30 – nicht aus dem Flyer belegt)
