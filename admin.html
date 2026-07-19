@@ -46,6 +46,16 @@
       border-radius: 12px; padding: 1rem 1.3rem;
       font-size: 0.95rem; color: var(--tinte-hell); margin-bottom: 1.5rem;
     }
+    .portal-details summary {
+      cursor: pointer; font-family: var(--schrift-titel);
+      font-size: 1.2rem; font-weight: 700; list-style-position: outside;
+    }
+    .portal-details[open] summary { margin-bottom: 1.2rem; }
+    .portal-details .feld label {
+      font-weight: 700; font-size: 0.85rem; color: var(--tinte-hell);
+    }
+    .html-feld { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    .html-hinweis { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
     #portal { display: none; }
   </style>
 </head>
@@ -154,6 +164,13 @@
           auf denen das jeweilige Bild verwendet wird.
         </p>
         <div class="bild-zeile">
+          <img id="vorschau-bild_logo" src="assets/img/logo.png" alt="Logo" style="object-fit: contain; background: var(--weiss);">
+          <div class="feld" style="margin: 0;">
+            <label for="upload-bild_logo">Logo (Kopfzeile, Startseite, Fußzeile)</label>
+            <input type="file" id="upload-bild_logo" accept="image/*">
+          </div>
+        </div>
+        <div class="bild-zeile">
           <img id="vorschau-bild_team" src="assets/img/team.jpg" alt="Teamfoto">
           <div class="feld" style="margin: 0;">
             <label for="upload-bild_team">Teamfoto (Über uns, Startseite)</label>
@@ -182,6 +199,13 @@
           </div>
         </div>
       </div>
+
+      <h2 style="font-size: 1.4rem; margin: 2rem 0 1rem;">📝 Alle Texte der Website</h2>
+      <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+        Hier lässt sich jeder Text der Website bearbeiten – nach Seiten sortiert.
+        Einfach eine Seite aufklappen.
+      </p>
+      <div id="dynamische-bereiche"></div>
 
       <div class="portal-karte">
         <h2>💾 Speichern &amp; Veröffentlichen</h2>

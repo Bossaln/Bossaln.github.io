@@ -30,6 +30,12 @@
       if (typeof wert === "string") el.textContent = wert;
     });
 
+    // Felder mit einfacher Formatierung (fett, Zeilenumbrüche, farbige Wörter)
+    document.querySelectorAll("[data-cms-html]").forEach((el) => {
+      const wert = daten[el.dataset.cmsHtml];
+      if (typeof wert === "string") el.innerHTML = wert;
+    });
+
     document.querySelectorAll("[data-cms-bild]").forEach((el) => {
       const wert = daten[el.dataset.cmsBild];
       if (typeof wert === "string" && wert) el.src = wert;

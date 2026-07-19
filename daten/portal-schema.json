@@ -1,0 +1,1340 @@
+[
+  {
+    "schluessel": "start_01",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: ☀️ Großtagespflege in Essen-Stoppenberg"
+  },
+  {
+    "schluessel": "start_02",
+    "seite": "Startseite",
+    "art": "html",
+    "label": "Überschrift: Willkommen bei Melli's Krabbelzwergen"
+  },
+  {
+    "schluessel": "start_03",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: In unserer liebevollen Großtagespflege im Looscheid 82 betre…"
+  },
+  {
+    "schluessel": "start_04",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Button/Link: Platz anfragen"
+  },
+  {
+    "schluessel": "start_05",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Button/Link: Unser Konzept"
+  },
+  {
+    "schluessel": "start_06",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Darum zu uns"
+  },
+  {
+    "schluessel": "start_07",
+    "seite": "Startseite",
+    "art": "html",
+    "label": "Überschrift: Was uns besonders macht"
+  },
+  {
+    "schluessel": "start_08",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Bei uns steht das Wohl eures Kindes an erster Stelle – jeden…"
+  },
+  {
+    "schluessel": "start_09",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Zwischentitel: Liebevolle Betreuung"
+  },
+  {
+    "schluessel": "start_10",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Kleine Gruppen und feste Bezugspersonen geben eurem Kind Sic…"
+  },
+  {
+    "schluessel": "start_11",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Zwischentitel: Spielen & Entdecken"
+  },
+  {
+    "schluessel": "start_12",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Basteln, Singen, Toben und Matschen – wir fördern die Neugie…"
+  },
+  {
+    "schluessel": "start_13",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Zwischentitel: Gesunde Ernährung"
+  },
+  {
+    "schluessel": "start_14",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Frisch zubereitete Mahlzeiten und gemeinsames Essen gehören …"
+  },
+  {
+    "schluessel": "start_15",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Zwischentitel: Raus an die Luft"
+  },
+  {
+    "schluessel": "start_16",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Ob Garten, Spielplatz oder Spaziergang – wir sind bei (fast)…"
+  },
+  {
+    "schluessel": "start_17",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Über uns"
+  },
+  {
+    "schluessel": "start_18",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Überschrift: Ein zweites Zuhause für eure Zwerge"
+  },
+  {
+    "schluessel": "start_19",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Wir sind Melanie und Ivonne – zwei Schwestern aus Essen-Stop…"
+  },
+  {
+    "schluessel": "start_20",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: In unserem 112 m² großen Haus mit rund 300 m² Außengelände i…"
+  },
+  {
+    "schluessel": "start_21",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Button/Link: Mehr über uns erfahren"
+  },
+  {
+    "schluessel": "start_22",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Betreuungszeiten"
+  },
+  {
+    "schluessel": "start_23",
+    "seite": "Startseite",
+    "art": "html",
+    "label": "Überschrift: Wann wir für euch da sind"
+  },
+  {
+    "schluessel": "start_24",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Tabellenkopf: Tag"
+  },
+  {
+    "schluessel": "start_25",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Tabellenkopf: Uhrzeit"
+  },
+  {
+    "schluessel": "start_26",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Tabellenfeld: Montag – Donnerstag"
+  },
+  {
+    "schluessel": "start_27",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Tabellenfeld: Freitag"
+  },
+  {
+    "schluessel": "start_28",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Tabellenfeld: Samstag & Sonntag"
+  },
+  {
+    "schluessel": "start_29",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Individuelle Bring- und Abholzeiten sprechen wir gerne persö…"
+  },
+  {
+    "schluessel": "start_30",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Überschrift: Neugierig geworden? 🧸"
+  },
+  {
+    "schluessel": "start_31",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Text: Vereinbart gerne einen Kennenlern-Termin und schaut euch uns…"
+  },
+  {
+    "schluessel": "start_32",
+    "seite": "Startseite",
+    "art": "text",
+    "label": "Button/Link: Jetzt Kontakt aufnehmen"
+  },
+  {
+    "schluessel": "ueberuns_01",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Überschrift: Wir sind die Krabbelzwerge 👋"
+  },
+  {
+    "schluessel": "ueberuns_02",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Lernt uns kennen – die Menschen, die euren Kindern jeden Tag…"
+  },
+  {
+    "schluessel": "ueberuns_03",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Überschrift: Herzlich willkommen bei uns!"
+  },
+  {
+    "schluessel": "ueberuns_04",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Melli's Krabbelzwerge ist eine Großtagespflege im Herzen von…"
+  },
+  {
+    "schluessel": "ueberuns_05",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Als Großtagespflege bieten wir das Beste aus zwei Welten: di…"
+  },
+  {
+    "schluessel": "ueberuns_06",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Unser Motto „Alles was ein Kind braucht, um glücklich zu sei…"
+  },
+  {
+    "schluessel": "ueberuns_07",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Unser Team"
+  },
+  {
+    "schluessel": "ueberuns_08",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Überschrift: Die Gesichter hinter den Krabbelzwergen"
+  },
+  {
+    "schluessel": "ueberuns_09",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Zwei Schwestern, ein Herzensprojekt"
+  },
+  {
+    "schluessel": "ueberuns_10",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Hinter Melli's Krabbelzwergen stehen wir – Melanie Graw und …"
+  },
+  {
+    "schluessel": "ueberuns_11",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: „Wir genießen die Arbeit mit Kindern sehr und freuen uns dar…"
+  },
+  {
+    "schluessel": "ueberuns_12",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Melanie Graw"
+  },
+  {
+    "schluessel": "ueberuns_13",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Kindertagespflegeperson"
+  },
+  {
+    "schluessel": "ueberuns_14",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Ich wurde 1980 in Essen geboren und wohne in einem Mehr-Gene…"
+  },
+  {
+    "schluessel": "ueberuns_15",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: In unserem Garten wohnen außerdem rund 100 Brieftauben, sech…"
+  },
+  {
+    "schluessel": "ueberuns_16",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Nach meiner Ausbildung zur Rechtsanwaltsfachangestellten (19…"
+  },
+  {
+    "schluessel": "ueberuns_17",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Ivonne Braß"
+  },
+  {
+    "schluessel": "ueberuns_18",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Staatl. geprüfte Kinderpflegerin"
+  },
+  {
+    "schluessel": "ueberuns_19",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Ich wurde 1981 in Essen geboren und wohne mit meinem Mann un…"
+  },
+  {
+    "schluessel": "ueberuns_20",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: 2004 habe ich meine Ausbildung zur staatlich geprüften Kinde…"
+  },
+  {
+    "schluessel": "ueberuns_21",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Von Oktober 2012 bis August 2014 war ich als Kindertagespfle…"
+  },
+  {
+    "schluessel": "ueberuns_22",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Beide Betreuerinnen verfügen über die Pflegeerlaubnis des Ju…"
+  },
+  {
+    "schluessel": "ueberuns_23",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Unsere Räumlichkeiten"
+  },
+  {
+    "schluessel": "ueberuns_24",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Überschrift: Viel Platz zum Spielen & Toben"
+  },
+  {
+    "schluessel": "ueberuns_25",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Wir haben uns entschieden, unsere Großtagespflege außerhäusi…"
+  },
+  {
+    "schluessel": "ueberuns_26",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: 112 m² Haus, 300 m² Garten"
+  },
+  {
+    "schluessel": "ueberuns_27",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: In unserem 112 m² großen Haus im Looscheid 82 stehen den kle…"
+  },
+  {
+    "schluessel": "ueberuns_28",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Dazu kommen ein kleines Bad für Erwachsene und ein eigenes K…"
+  },
+  {
+    "schluessel": "ueberuns_29",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Mitten im schönen Stoppenberg"
+  },
+  {
+    "schluessel": "ueberuns_30",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Unsere Großtagespflegestelle liegt im schönen Essener Stadtt…"
+  },
+  {
+    "schluessel": "ueberuns_31",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Auch mit öffentlichen Verkehrsmitteln sind wir bequem zu err…"
+  },
+  {
+    "schluessel": "ueberuns_32",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Unsere Werte"
+  },
+  {
+    "schluessel": "ueberuns_33",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Überschrift: Wofür wir stehen"
+  },
+  {
+    "schluessel": "ueberuns_34",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Geborgenheit"
+  },
+  {
+    "schluessel": "ueberuns_35",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Jedes Kind bekommt bei uns die Nähe und Sicherheit, die es b…"
+  },
+  {
+    "schluessel": "ueberuns_36",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Individualität"
+  },
+  {
+    "schluessel": "ueberuns_37",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Jeder Zwerg ist einzigartig – wir holen jedes Kind da ab, wo…"
+  },
+  {
+    "schluessel": "ueberuns_38",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Partnerschaft"
+  },
+  {
+    "schluessel": "ueberuns_39",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Eine offene, ehrliche Zusammenarbeit mit euch Eltern ist uns…"
+  },
+  {
+    "schluessel": "ueberuns_40",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Zwischentitel: Freude"
+  },
+  {
+    "schluessel": "ueberuns_41",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Lachen gehört bei uns zum Alltag – denn glückliche Kinder le…"
+  },
+  {
+    "schluessel": "ueberuns_42",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Überschrift: Lust, uns kennenzulernen?"
+  },
+  {
+    "schluessel": "ueberuns_43",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Kommt vorbei und macht euch selbst ein Bild – wir zeigen euc…"
+  },
+  {
+    "schluessel": "ueberuns_44",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Button/Link: Termin vereinbaren"
+  },
+  {
+    "schluessel": "konzept_01",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Überschrift: Unser pädagogisches Konzept 📚"
+  },
+  {
+    "schluessel": "konzept_02",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: So begleiten wir eure Kinder liebevoll durch ihre ersten, wi…"
+  },
+  {
+    "schluessel": "konzept_03",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Überschrift: Spielend die Welt entdecken"
+  },
+  {
+    "schluessel": "konzept_04",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Kinder lernen im Spiel – deshalb steht das freie Spiel bei u…"
+  },
+  {
+    "schluessel": "konzept_05",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Ergänzt wird das freie Spiel durch gezielte Angebote: Wir si…"
+  },
+  {
+    "schluessel": "konzept_06",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Unsere Schwerpunkte"
+  },
+  {
+    "schluessel": "konzept_07",
+    "seite": "Konzept",
+    "art": "html",
+    "label": "Überschrift: Das fördern wir jeden Tag"
+  },
+  {
+    "schluessel": "konzept_08",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Sprache"
+  },
+  {
+    "schluessel": "konzept_09",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Vorlesen, Singen, Reime und viele Gespräche im Alltag – so w…"
+  },
+  {
+    "schluessel": "konzept_10",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Bewegung"
+  },
+  {
+    "schluessel": "konzept_11",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Krabbeln, Klettern, Tanzen: Bewegung stärkt Körpergefühl und…"
+  },
+  {
+    "schluessel": "konzept_12",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Sinne & Kreativität"
+  },
+  {
+    "schluessel": "konzept_13",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Matschen, Kneten, Malen und Fühlen – mit allen Sinnen die We…"
+  },
+  {
+    "schluessel": "konzept_14",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Soziales Lernen"
+  },
+  {
+    "schluessel": "konzept_15",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Teilen, Warten, Trösten: In der Gruppe üben die Zwerge das M…"
+  },
+  {
+    "schluessel": "konzept_16",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Natur erleben"
+  },
+  {
+    "schluessel": "konzept_17",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Blätter sammeln, Pfützen springen, Vögel beobachten – Natur …"
+  },
+  {
+    "schluessel": "konzept_18",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Zwischentitel: Selbstständigkeit"
+  },
+  {
+    "schluessel": "konzept_19",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Selbst essen, Schuhe anziehen, Hände waschen – wir trauen de…"
+  },
+  {
+    "schluessel": "konzept_20",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Sanfter Start"
+  },
+  {
+    "schluessel": "konzept_21",
+    "seite": "Konzept",
+    "art": "html",
+    "label": "Überschrift: Die Eingewöhnung Schritt für Schritt"
+  },
+  {
+    "schluessel": "konzept_22",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Wir gewöhnen jedes Kind behutsam und in seinem eigenen Tempo…"
+  },
+  {
+    "schluessel": "konzept_23",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: 1️⃣ Kennenlernphase (Tag 1–3)"
+  },
+  {
+    "schluessel": "konzept_24",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "konzept_25",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Mama oder Papa bleiben mit dabei. Euer Kind erkundet in Ruhe…"
+  },
+  {
+    "schluessel": "konzept_26",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: 2️⃣ Erste Trennungsversuche (ab Tag 4)"
+  },
+  {
+    "schluessel": "konzept_27",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "konzept_28",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Die ersten kurzen Trennungen von wenigen Minuten – ihr bleib…"
+  },
+  {
+    "schluessel": "konzept_29",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: 3️⃣ Stabilisierungsphase"
+  },
+  {
+    "schluessel": "konzept_30",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "konzept_31",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Die Trennungszeiten werden länger, euer Kind isst und schläf…"
+  },
+  {
+    "schluessel": "konzept_32",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: 4️⃣ Geschafft! 🎉"
+  },
+  {
+    "schluessel": "konzept_33",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "konzept_34",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Euer Kind fühlt sich sicher, lässt sich von uns trösten und …"
+  },
+  {
+    "schluessel": "konzept_35",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Überschrift: Essen wie bei Oma 🍲"
+  },
+  {
+    "schluessel": "konzept_36",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Gesunde Ernährung von Anfang an: Bei uns gibt es täglich ein…"
+  },
+  {
+    "schluessel": "konzept_37",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Das gemeinsame Essen am Tisch ist bei uns ein festes Ritual …"
+  },
+  {
+    "schluessel": "konzept_38",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Überschrift: Fragen zum Konzept?"
+  },
+  {
+    "schluessel": "konzept_39",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Text: Wir erklären euch gerne persönlich, wie ein Tag bei uns auss…"
+  },
+  {
+    "schluessel": "konzept_40",
+    "seite": "Konzept",
+    "art": "text",
+    "label": "Button/Link: Fragt uns einfach"
+  },
+  {
+    "schluessel": "tag_01",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Überschrift: Ein Tag bei den Krabbelzwergen ⏰"
+  },
+  {
+    "schluessel": "tag_02",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Feste Rituale und wiederkehrende Abläufe geben den Kleinsten…"
+  },
+  {
+    "schluessel": "tag_03",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 7:30 – 9:00 Uhr"
+  },
+  {
+    "schluessel": "tag_04",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🌅 Ankommen & Freispiel"
+  },
+  {
+    "schluessel": "tag_05",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Die Zwerge trudeln ein, werden herzlich begrüßt und starten …"
+  },
+  {
+    "schluessel": "tag_06",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 9:00 Uhr"
+  },
+  {
+    "schluessel": "tag_07",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🥣 Gemeinsames Frühstück"
+  },
+  {
+    "schluessel": "tag_08",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Mit Tischspruch und guter Laune stärken wir uns für den Vorm…"
+  },
+  {
+    "schluessel": "tag_09",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 9:30 Uhr"
+  },
+  {
+    "schluessel": "tag_10",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🎶 Morgenkreis"
+  },
+  {
+    "schluessel": "tag_11",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Singen, Fingerspiele und Begrüßungslieder – jedes Kind wird …"
+  },
+  {
+    "schluessel": "tag_12",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 10:00 Uhr"
+  },
+  {
+    "schluessel": "tag_13",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🌳 Raus an die frische Luft"
+  },
+  {
+    "schluessel": "tag_14",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Garten, Spielplatz oder ein kleiner Ausflug – bei fast jedem…"
+  },
+  {
+    "schluessel": "tag_15",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 11:30 Uhr"
+  },
+  {
+    "schluessel": "tag_16",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🍲 Mittagessen"
+  },
+  {
+    "schluessel": "tag_17",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Frisch gekocht und gemeinsam am Tisch – danach Hände waschen…"
+  },
+  {
+    "schluessel": "tag_18",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 12:15 – 14:00 Uhr"
+  },
+  {
+    "schluessel": "tag_19",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 😴 Mittagsschlaf & Ruhezeit"
+  },
+  {
+    "schluessel": "tag_20",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Jeder Zwerg hat sein eigenes Bettchen. Wer nicht schläft, ru…"
+  },
+  {
+    "schluessel": "tag_21",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 14:00 Uhr"
+  },
+  {
+    "schluessel": "tag_22",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 🍎 Snackzeit"
+  },
+  {
+    "schluessel": "tag_23",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Obst, Gemüse und eine Kleinigkeit für neue Energie am Nachmi…"
+  },
+  {
+    "schluessel": "tag_24",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: 14:30 – 15:30 Uhr"
+  },
+  {
+    "schluessel": "tag_25",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Zwischentitel: 👋 Freispiel & Abholzeit"
+  },
+  {
+    "schluessel": "tag_26",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Ausklang mit Spielen und Kuscheln, bis Mama oder Papa kommen…"
+  },
+  {
+    "schluessel": "tag_27",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Gut zu wissen"
+  },
+  {
+    "schluessel": "tag_28",
+    "seite": "Tagesablauf",
+    "art": "html",
+    "label": "Überschrift: Häufige Fragen"
+  },
+  {
+    "schluessel": "tag_29",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Was muss mein Kind mitbringen?"
+  },
+  {
+    "schluessel": "tag_30",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "tag_31",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Wechselkleidung, Windeln und Pflegeprodukte, Hausschuhe, wet…"
+  },
+  {
+    "schluessel": "tag_32",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Was passiert, wenn mein Kind krank ist?"
+  },
+  {
+    "schluessel": "tag_33",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "tag_34",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Kranke Kinder gehören ins Bett und in Mamas oder Papas Arme.…"
+  },
+  {
+    "schluessel": "tag_35",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Gibt es Schließzeiten?"
+  },
+  {
+    "schluessel": "tag_36",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "tag_37",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Ja, wir haben feste Schließzeiten (z. B. drei Wochen in den …"
+  },
+  {
+    "schluessel": "tag_38",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Wie erfolgt die Anmeldung und was kostet ein Platz?"
+  },
+  {
+    "schluessel": "tag_39",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: ▾"
+  },
+  {
+    "schluessel": "tag_40",
+    "seite": "Tagesablauf",
+    "art": "html",
+    "label": "Text: Die Betreuung wird über das Jugendamt der Stadt Essen geförd…"
+  },
+  {
+    "schluessel": "tag_41",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Überschrift: Klingt gut? 🎈"
+  },
+  {
+    "schluessel": "tag_42",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Text: Sichert euch jetzt einen der begehrten Plätze für euren klei…"
+  },
+  {
+    "schluessel": "tag_43",
+    "seite": "Tagesablauf",
+    "art": "text",
+    "label": "Button/Link: Platz anfragen"
+  },
+  {
+    "schluessel": "galerie_01",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Überschrift: Unsere bunte Welt 📸"
+  },
+  {
+    "schluessel": "galerie_02",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Ein kleiner Einblick in unsere Räume und unseren Alltag – ec…"
+  },
+  {
+    "schluessel": "galerie_03",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Unser Spielzimmer"
+  },
+  {
+    "schluessel": "galerie_04",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Spiel- & Schlafraum"
+  },
+  {
+    "schluessel": "galerie_05",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Unser Außengelände (300 m²)"
+  },
+  {
+    "schluessel": "galerie_06",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Essraum – auch zum Basteln & Malen"
+  },
+  {
+    "schluessel": "galerie_07",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Kinderbad mit Wickeltisch"
+  },
+  {
+    "schluessel": "galerie_08",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Bauecke & Kuschelhöhle"
+  },
+  {
+    "schluessel": "galerie_09",
+    "seite": "Galerie",
+    "art": "html",
+    "label": "Text: Hinweis: Zum Schutz der Privatsphäre unserer Krabbelzwerge v…"
+  },
+  {
+    "schluessel": "galerie_10",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Überschrift: Lieber live erleben?"
+  },
+  {
+    "schluessel": "galerie_11",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Text: Kommt vorbei und schaut euch alles persönlich an – Termin ei…"
+  },
+  {
+    "schluessel": "galerie_12",
+    "seite": "Galerie",
+    "art": "text",
+    "label": "Button/Link: Besichtigung anfragen"
+  },
+  {
+    "schluessel": "kontakt_01",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Überschrift: Wir freuen uns auf euch! 💌"
+  },
+  {
+    "schluessel": "kontakt_02",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Text: Ob Platzanfrage, Besichtigung oder einfach eine Frage – schr…"
+  },
+  {
+    "schluessel": "kontakt_03",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: Adresse"
+  },
+  {
+    "schluessel": "kontakt_04",
+    "seite": "Kontakt",
+    "art": "html",
+    "label": "Text: Melli's KrabbelzwergeIm Looscheid 8245141 Essen (Stoppenberg…"
+  },
+  {
+    "schluessel": "kontakt_05",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: Telefon"
+  },
+  {
+    "schluessel": "kontakt_06",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: E-Mail"
+  },
+  {
+    "schluessel": "kontakt_07",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: Betreuungszeiten"
+  },
+  {
+    "schluessel": "kontakt_08",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: Anfahrt"
+  },
+  {
+    "schluessel": "kontakt_09",
+    "seite": "Kontakt",
+    "art": "html",
+    "label": "Text: Mit öffentlichen Verkehrsmitteln sind wir bequem zu erreiche…"
+  },
+  {
+    "schluessel": "kontakt_10",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Text: So findet ihr uns"
+  },
+  {
+    "schluessel": "kontakt_11",
+    "seite": "Kontakt",
+    "art": "html",
+    "label": "Überschrift: Im Looscheid 82, Essen-Stoppenberg"
+  },
+  {
+    "schluessel": "kontakt_12",
+    "seite": "Kontakt",
+    "art": "html",
+    "label": "Text: Größere Karte auf OpenStreetMap öffnen"
+  },
+  {
+    "schluessel": "impressum_01",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Impressum"
+  },
+  {
+    "schluessel": "impressum_02",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Angaben gemäß § 5 DDG"
+  },
+  {
+    "schluessel": "impressum_03",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Melli's Krabbelzwerge – Großtagespflege Im Looscheid 82 4514…"
+  },
+  {
+    "schluessel": "impressum_04",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Vertreten durch"
+  },
+  {
+    "schluessel": "impressum_05",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Melanie Graw und Ivonne Braß (Kindertagespflegepersonen)"
+  },
+  {
+    "schluessel": "impressum_06",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Kontakt"
+  },
+  {
+    "schluessel": "impressum_07",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Telefon: 0201 / 00 00 00 00 E-Mail: info@mellis-krabbelzwerg…"
+  },
+  {
+    "schluessel": "impressum_08",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Aufsichtsbehörde"
+  },
+  {
+    "schluessel": "impressum_09",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Die Kindertagespflege erfolgt mit Pflegeerlaubnis nach § 43 …"
+  },
+  {
+    "schluessel": "impressum_10",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV"
+  },
+  {
+    "schluessel": "impressum_11",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Melanie Graw und Ivonne Braß Im Looscheid 82 45141 Essen (St…"
+  },
+  {
+    "schluessel": "impressum_12",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Haftung für Inhalte"
+  },
+  {
+    "schluessel": "impressum_13",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Die Inhalte unserer Seiten wurden mit größter Sorgfalt erste…"
+  },
+  {
+    "schluessel": "impressum_14",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Haftung für Links"
+  },
+  {
+    "schluessel": "impressum_15",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Unser Angebot enthält Links zu externen Websites Dritter, au…"
+  },
+  {
+    "schluessel": "impressum_16",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Urheberrecht"
+  },
+  {
+    "schluessel": "impressum_17",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Die durch die Seitenbetreiber erstellten Inhalte und Werke a…"
+  },
+  {
+    "schluessel": "impressum_18",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: ⚠️ Wichtiger Hinweis: Telefonnummer und E-Mail-Adresse sind …"
+  },
+  {
+    "schluessel": "datenschutz_01",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: Datenschutzerklärung"
+  },
+  {
+    "schluessel": "datenschutz_02",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 1. Datenschutz auf einen Blick"
+  },
+  {
+    "schluessel": "datenschutz_03",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wir nehmen den Schutz eurer persönlichen Daten sehr ernst. W…"
+  },
+  {
+    "schluessel": "datenschutz_04",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 2. Verantwortliche Stelle"
+  },
+  {
+    "schluessel": "datenschutz_05",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Melli's Krabbelzwerge – Großtagespflege Melanie Graw und Ivo…"
+  },
+  {
+    "schluessel": "datenschutz_06",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 3. Datenerfassung auf dieser Website"
+  },
+  {
+    "schluessel": "datenschutz_07",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Server-Log-Dateien"
+  },
+  {
+    "schluessel": "datenschutz_08",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Beim Besuch dieser Website erhebt der Hosting-Anbieter autom…"
+  },
+  {
+    "schluessel": "datenschutz_09",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Kontaktformular"
+  },
+  {
+    "schluessel": "datenschutz_10",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wenn ihr uns über das Kontaktformular eine Anfrage sendet, w…"
+  },
+  {
+    "schluessel": "datenschutz_11",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Externe Schriftarten (Google Fonts)"
+  },
+  {
+    "schluessel": "datenschutz_12",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Diese Website nutzt zur einheitlichen Darstellung Schriftart…"
+  },
+  {
+    "schluessel": "datenschutz_13",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Eingebundene Karte (OpenStreetMap)"
+  },
+  {
+    "schluessel": "datenschutz_14",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Auf der Kontaktseite binden wir eine Karte von OpenStreetMap…"
+  },
+  {
+    "schluessel": "datenschutz_15",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 4. Cookies"
+  },
+  {
+    "schluessel": "datenschutz_16",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Diese Website verwendet keine Tracking- oder Werbe-Cookies."
+  },
+  {
+    "schluessel": "datenschutz_17",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 5. Eure Rechte"
+  },
+  {
+    "schluessel": "datenschutz_18",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Ihr habt jederzeit das Recht auf unentgeltliche Auskunft übe…"
+  },
+  {
+    "schluessel": "datenschutz_19",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Hierzu sowie zu weiteren Fragen zum Thema Datenschutz könnt …"
+  },
+  {
+    "schluessel": "datenschutz_20",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: ⚠️ Wichtiger Hinweis: Dieser Text ist ein Muster und muss vo…"
+  },
+  {
+    "schluessel": "footer_tagline",
+    "seite": "Fußzeile (alle Seiten)",
+    "art": "text",
+    "label": "Text: Motto in der Fußzeile"
+  },
+  {
+    "schluessel": "footer_adresse",
+    "seite": "Fußzeile (alle Seiten)",
+    "art": "html",
+    "label": "Text: Adresse in der Fußzeile"
+  }
+]

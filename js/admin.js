@@ -16,22 +16,25 @@
   const MAX_VERSUCHE = 5;
 
   const FELDER = ["slogan", "zeit_mo_do", "zeit_fr", "zeit_sa_so", "telefon", "email"];
-  const BILDER = ["bild_team", "bild_spielzimmer", "bild_raum", "bild_garten"];
+  const BILDER = ["bild_logo", "bild_team", "bild_spielzimmer", "bild_raum", "bild_garten"];
 
   let zugang = null;          // Inhalt von daten/zugang.json
   let veroeffentlicht = {};   // Inhalt von daten/inhalte.json
+  let schema = [];            // Feldliste aus daten/portal-schema.json
   let entwurf = {};           // aktueller Bearbeitungsstand
 
   document.addEventListener("DOMContentLoaded", start);
 
   async function start() {
     try {
-      const [z, i] = await Promise.all([
+      const [z, i, s] = await Promise.all([
         fetch("daten/zugang.json", { cache: "no-store" }).then((r) => r.json()),
         fetch("daten/inhalte.json", { cache: "no-store" }).then((r) => r.json()),
+        fetch("daten/portal-schema.json", { cache: "no-store" }).then((r) => r.json()),
       ]);
       zugang = z;
       veroeffentlicht = i;
+      schema = s;
     } catch {
       meldung("anmelde-meldung",
         "Konfiguration konnte nicht geladen werden. Das Portal funktioniert nur über einen Webserver (https bzw. localhost), nicht direkt aus dem Dateisystem.");
@@ -187,13 +190,71 @@
       const vorschau = document.getElementById("vorschau-" + schluessel);
       if (vorschau && entwurf[schluessel]) vorschau.src = entwurf[schluessel];
     });
+    dynamischeBereicheAufbauen();
     statusAktualisieren();
+  }
+
+  /* Baut für jede Seite einen aufklappbaren Bereich mit allen Textfeldern */
+  function dynamischeBereicheAufbauen() {
+    const halter = document.getElementById("dynamische-bereiche");
+    halter.innerHTML = "";
+
+    const gruppen = new Map();
+    schema.forEach((eintrag) => {
+      if (!gruppen.has(eintrag.seite)) gruppen.set(eintrag.seite, []);
+      gruppen.get(eintrag.seite).push(eintrag);
+    });
+
+    gruppen.forEach((eintraege, seite) => {
+      const details = document.createElement("details");
+      details.className = "portal-karte portal-details";
+
+      const summary = document.createElement("summary");
+      summary.textContent = `📄 ${seite} (${eintraege.length} Felder)`;
+      details.appendChild(summary);
+
+      eintraege.forEach((eintrag) => {
+        const feld = document.createElement("div");
+        feld.className = "feld";
+
+        const label = document.createElement("label");
+        label.setAttribute("for", "dyn-" + eintrag.schluessel);
+        label.textContent = eintrag.label;
+        feld.appendChild(label);
+
+        const wert = entwurf[eintrag.schluessel] || "";
+        const lang = eintrag.art === "html" || wert.length > 70 || wert.includes("\n");
+        const eingabe = document.createElement(lang ? "textarea" : "input");
+        eingabe.id = "dyn-" + eintrag.schluessel;
+        eingabe.dataset.schluessel = eintrag.schluessel;
+        eingabe.value = wert;
+        if (lang) eingabe.rows = Math.min(6, Math.max(2, Math.ceil(wert.length / 80)));
+
+        if (eintrag.art === "html") {
+          eingabe.classList.add("html-feld");
+          const hinweis = document.createElement("small");
+          hinweis.className = "html-hinweis";
+          hinweis.textContent =
+            "Enthält Formatierung: Teile in spitzen Klammern (z. B. <strong>) bitte stehen lassen.";
+          feld.appendChild(eingabe);
+          feld.appendChild(hinweis);
+        } else {
+          feld.appendChild(eingabe);
+        }
+        details.appendChild(feld);
+      });
+
+      halter.appendChild(details);
+    });
   }
 
   function formularAuslesen() {
     FELDER.forEach((schluessel) => {
       const feld = document.getElementById("feld-" + schluessel);
       if (feld) entwurf[schluessel] = feld.value.trim();
+    });
+    document.querySelectorAll("[data-schluessel]").forEach((feld) => {
+      entwurf[feld.dataset.schluessel] = feld.value.trim();
     });
   }
 
@@ -266,7 +327,10 @@
         leinwand.width = Math.round(bild.width * faktor);
         leinwand.height = Math.round(bild.height * faktor);
         leinwand.getContext("2d").drawImage(bild, 0, 0, leinwand.width, leinwand.height);
-        const datenUri = leinwand.toDataURL("image/jpeg", 0.85);
+        // PNG behält Transparenz (wichtig fürs Logo), sonst platzsparendes JPEG
+        const datenUri = datei.type === "image/png"
+          ? leinwand.toDataURL("image/png")
+          : leinwand.toDataURL("image/jpeg", 0.85);
 
         entwurf[schluessel] = datenUri;
         document.getElementById("vorschau-" + schluessel).src = datenUri;

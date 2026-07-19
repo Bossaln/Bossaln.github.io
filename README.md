@@ -32,9 +32,14 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 
 ## Verwaltungs-Portal (`admin.html`)
 
-Unter `/admin.html` (Footer-Link „Portal") können Betreuungszeiten,
-Kontaktdaten, der Slogan und die Fotos ohne Programmierkenntnisse
-geändert werden.
+Unter `/admin.html` (Footer-Link „Portal") lässt sich praktisch die ganze
+Website ohne Programmierkenntnisse bearbeiten: Betreuungszeiten,
+Kontaktdaten, alle Fotos inkl. Logo sowie sämtliche Texte aller Seiten
+(über 220 Felder, nach Seiten gruppiert). Die editierbaren Stellen sind im
+HTML mit `data-cms`-Attributen markiert; `daten/portal-schema.json`
+beschreibt die Felder für das Portal. Neue editierbare Stellen können durch
+Markieren eines Elements (`data-cms="schluessel"`) plus Eintrag in
+`inhalte.json`/`portal-schema.json` ergänzt werden.
 
 **Ablauf:** Änderungen im Portal → „Vorschau speichern" (sofort im eigenen
 Browser sichtbar) → „Veröffentlichen" lädt eine `inhalte.json` herunter →
