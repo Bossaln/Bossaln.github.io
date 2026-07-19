@@ -73,7 +73,7 @@
           </p>
         </div>
         <div class="bild-rahmen einblenden">
-          <img src="assets/img/raum.jpg" alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte">
+          <img src="assets/img/raum.jpg" data-cms-bild="bild_raum" alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte">
         </div>
       </div>
     </section>
@@ -86,7 +86,7 @@
         </div>
         <div class="zweispaltig" style="margin-bottom: 2.5rem;">
           <div class="bild-rahmen einblenden">
-            <img src="assets/img/team.jpg" alt="Melanie Graw und Ivonne Braß – die beiden Schwestern hinter Melli's Krabbelzwergen">
+            <img src="assets/img/team.jpg" data-cms-bild="bild_team" alt="Melanie Graw und Ivonne Braß – die beiden Schwestern hinter Melli's Krabbelzwergen">
           </div>
           <div class="einblenden">
             <h3 style="font-size: 1.5rem; margin-bottom: 0.8rem;">Zwei Schwestern, ein Herzensprojekt</h3>
@@ -160,12 +160,12 @@
             </p>
           </div>
           <div class="bild-rahmen einblenden">
-            <img src="assets/img/garten.jpg" alt="Unser großes Außengelände mit Rasen, Rutsche und Spielhäuschen" style="width: 100%; object-fit: cover; max-height: 420px;">
+            <img src="assets/img/garten.jpg" data-cms-bild="bild_garten" alt="Unser großes Außengelände mit Rasen, Rutsche und Spielhäuschen" style="width: 100%; object-fit: cover; max-height: 420px;">
           </div>
         </div>
         <div class="zweispaltig">
           <div class="bild-rahmen einblenden">
-            <img src="assets/img/spielzimmer.jpg" alt="Blick in unser buntes Spielzimmer mit Spielteppich und Regalen" style="width: 100%; object-fit: cover; max-height: 420px;">
+            <img src="assets/img/spielzimmer.jpg" data-cms-bild="bild_spielzimmer" alt="Blick in unser buntes Spielzimmer mit Spielteppich und Regalen" style="width: 100%; object-fit: cover; max-height: 420px;">
           </div>
           <div class="einblenden">
             <h3 style="font-size: 1.4rem; margin-bottom: 0.8rem;">Mitten im schönen Stoppenberg</h3>
@@ -251,16 +251,16 @@
           <h3>Kontakt</h3>
           <ul>
             <li>📍 Im Looscheid 82<br>45141 Essen-Stoppenberg</li>
-            <li>📞 <a href="tel:+4920100000000">0201 / 00 00 00 00</a></li>
-            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></li>
+            <li>📞 <a href="tel:+4920100000000" data-cms-tel="telefon">0201 / 00 00 00 00</a></li>
+            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de" data-cms-mail="email">info@mellis-krabbelzwerge.de</a></li>
           </ul>
         </div>
         <div>
           <h3>Betreuungszeiten</h3>
           <ul>
-            <li>Mo – Do: 7:30 – 15:30 Uhr</li>
-            <li>Fr: 7:30 – 14:30 Uhr</li>
-            <li>Sa &amp; So: geschlossen</li>
+            <li>Mo – Do: <span data-cms="zeit_mo_do">7:30 – 15:30 Uhr</span></li>
+            <li>Fr: <span data-cms="zeit_fr">7:30 – 14:30 Uhr</span></li>
+            <li>Sa &amp; So: <span data-cms="zeit_sa_so">geschlossen</span></li>
           </ul>
         </div>
       </div>
@@ -268,6 +268,7 @@
         <span>© 2026 Melli's Krabbelzwerge – Alle Rechte vorbehalten</span>
         <span>
           <a href="impressum.html">Impressum</a> ·
+          <a href="admin.html" rel="nofollow">Portal</a> ·
           <a href="datenschutz.html">Datenschutz</a>
         </span>
       </div>
@@ -276,6 +277,7 @@
 
   <button class="nach-oben" aria-label="Nach oben scrollen">↑</button>
 
+  <script src="js/cms.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -68,7 +68,7 @@
             <span class="karte-icon">📞</span>
             <div>
               <h3>Telefon</h3>
-              <p><a href="tel:+4920100000000">0201 / 00 00 00 00</a><br>
+              <p><a href="tel:+4920100000000" data-cms-tel="telefon">0201 / 00 00 00 00</a><br>
               <small>Am besten erreichbar: 12:30 – 14:00 Uhr</small></p>
             </div>
           </div>
@@ -76,14 +76,14 @@
             <span class="karte-icon">✉️</span>
             <div>
               <h3>E-Mail</h3>
-              <p><a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></p>
+              <p><a href="mailto:info@mellis-krabbelzwerge.de" data-cms-mail="email">info@mellis-krabbelzwerge.de</a></p>
             </div>
           </div>
           <div class="info-karte einblenden">
             <span class="karte-icon">🕐</span>
             <div>
               <h3>Betreuungszeiten</h3>
-              <p>Mo – Do: 7:30 – 15:30 Uhr<br>Fr: 7:30 – 14:30 Uhr</p>
+              <p>Mo – Do: <span data-cms="zeit_mo_do">7:30 – 15:30 Uhr</span><br>Fr: <span data-cms="zeit_fr">7:30 – 14:30 Uhr</span></p>
             </div>
           </div>
           <div class="info-karte einblenden">
@@ -215,16 +215,16 @@
           <h3>Kontakt</h3>
           <ul>
             <li>📍 Im Looscheid 82<br>45141 Essen-Stoppenberg</li>
-            <li>📞 <a href="tel:+4920100000000">0201 / 00 00 00 00</a></li>
-            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></li>
+            <li>📞 <a href="tel:+4920100000000" data-cms-tel="telefon">0201 / 00 00 00 00</a></li>
+            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de" data-cms-mail="email">info@mellis-krabbelzwerge.de</a></li>
           </ul>
         </div>
         <div>
           <h3>Betreuungszeiten</h3>
           <ul>
-            <li>Mo – Do: 7:30 – 15:30 Uhr</li>
-            <li>Fr: 7:30 – 14:30 Uhr</li>
-            <li>Sa &amp; So: geschlossen</li>
+            <li>Mo – Do: <span data-cms="zeit_mo_do">7:30 – 15:30 Uhr</span></li>
+            <li>Fr: <span data-cms="zeit_fr">7:30 – 14:30 Uhr</span></li>
+            <li>Sa &amp; So: <span data-cms="zeit_sa_so">geschlossen</span></li>
           </ul>
         </div>
       </div>
@@ -232,6 +232,7 @@
         <span>© 2026 Melli's Krabbelzwerge – Alle Rechte vorbehalten</span>
         <span>
           <a href="impressum.html">Impressum</a> ·
+          <a href="admin.html" rel="nofollow">Portal</a> ·
           <a href="datenschutz.html">Datenschutz</a>
         </span>
       </div>
@@ -240,6 +241,7 @@
 
   <button class="nach-oben" aria-label="Nach oben scrollen">↑</button>
 
+  <script src="js/cms.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

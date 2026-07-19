@@ -30,6 +30,38 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
   da die Seite statisch ist. Für echten Versand einen Formulardienst
   (z. B. Formspree) oder ein eigenes Backend in `js/main.js` einbinden.
 
+## Verwaltungs-Portal (`admin.html`)
+
+Unter `/admin.html` (Footer-Link „Portal") können Betreuungszeiten,
+Kontaktdaten, der Slogan und die Fotos ohne Programmierkenntnisse
+geändert werden.
+
+**Ablauf:** Änderungen im Portal → „Vorschau speichern" (sofort im eigenen
+Browser sichtbar) → „Veröffentlichen" lädt eine `inhalte.json` herunter →
+diese Datei in den Ordner `daten/` der Website hochladen (ersetzen). Erst
+dann sehen alle Besucher die Änderungen.
+
+**Sicherheit:**
+
+- Das Passwort wird niemals gespeichert – in `daten/zugang.json` liegt nur
+  ein PBKDF2-SHA256-Hash (310.000 Iterationen, zufälliges Salt).
+- Nach 5 Fehlversuchen wird die Anmeldung exponentiell lange gesperrt;
+  die Sitzung läuft nach 30 Minuten Inaktivität ab.
+- Die Portal-Seite hat eine strikte Content-Security-Policy und ist für
+  Suchmaschinen gesperrt (`noindex`).
+- Wichtig zu wissen: Da die Website statisch gehostet wird, schützt das
+  Passwort den Bearbeitungszugang. Die öffentliche Website kann ohne
+  Zugriff auf den Webspace/das Repository grundsätzlich nicht verändert
+  werden – auch nicht über das Portal.
+
+**Passwort ändern:** im Portal unter „Passwort ändern" eine neue
+`zugang.json` erzeugen und in `daten/` hochladen. Passwort vergessen?
+Neue Datei per Kommandozeile erzeugen:
+
+```bash
+node -e "const c=require('crypto');const pw=process.argv[1];const salz=c.randomBytes(16).toString('hex');const it=310000;const hash=c.pbkdf2Sync(pw,Buffer.from(salz,'hex'),it,32,'sha256').toString('hex');console.log(JSON.stringify({algorithmus:'PBKDF2-SHA256',iterationen:it,salz,hash},null,2))" 'NEUES-PASSWORT'
+```
+
 ## Lokal ansehen
 
 Einfach `index.html` im Browser öffnen – oder einen kleinen Server starten:

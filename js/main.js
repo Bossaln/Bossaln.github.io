@@ -279,8 +279,11 @@ function initKontaktformular() {
       `Nachricht:\n${daten.get("nachricht")}`
     );
 
+    const empfaenger =
+      document.querySelector('[data-cms-mail="email"]')?.textContent.trim() ||
+      "info@mellis-krabbelzwerge.de";
     window.location.href =
-      `mailto:info@mellis-krabbelzwerge.de?subject=${mailBetreff}&body=${mailText}`;
+      `mailto:${empfaenger}?subject=${mailBetreff}&body=${mailText}`;
 
     // Erfolgsmeldung anzeigen
     formular.style.display = "none";

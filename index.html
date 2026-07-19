@@ -52,7 +52,7 @@
         <div>
           <span class="hero-badge">☀️ Großtagespflege in Essen-Stoppenberg</span>
           <h1>Willkommen bei <span class="regenbogen-text">Melli's Krabbelzwergen</span></h1>
-          <p class="hero-slogan" data-tippen>„Alles was ein Kind braucht, um glücklich zu sein."</p>
+          <p class="hero-slogan" data-tippen data-cms="slogan">„Alles was ein Kind braucht, um glücklich zu sein."</p>
           <p style="margin-bottom: 1.8rem; color: var(--tinte-hell); max-width: 34rem;">
             In unserer liebevollen Großtagespflege im Looscheid 82 betreuen wir die Kleinsten
             mit Herz, Geduld und ganz viel Spaß – in familiärer Atmosphäre und kleinen Gruppen.
@@ -129,7 +129,7 @@
     <section class="abschnitt abschnitt-hell">
       <div class="container zweispaltig">
         <div class="bild-rahmen einblenden">
-          <img src="assets/img/team.jpg" alt="Melanie Graw und Ivonne Braß von Melli's Krabbelzwergen">
+          <img src="assets/img/team.jpg" data-cms-bild="bild_team" alt="Melanie Graw und Ivonne Braß von Melli's Krabbelzwergen">
         </div>
         <div class="einblenden">
           <span class="ueberschrift-klein" style="color: var(--orange); font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.9rem;">Über uns</span>
@@ -164,9 +164,9 @@
               <tr><th>Tag</th><th>Uhrzeit</th></tr>
             </thead>
             <tbody>
-              <tr><td>Montag – Donnerstag</td><td>7:30 – 15:30 Uhr</td></tr>
-              <tr><td>Freitag</td><td>7:30 – 14:30 Uhr</td></tr>
-              <tr><td>Samstag &amp; Sonntag</td><td>geschlossen</td></tr>
+              <tr><td>Montag – Donnerstag</td><td data-cms="zeit_mo_do">7:30 – 15:30 Uhr</td></tr>
+              <tr><td>Freitag</td><td data-cms="zeit_fr">7:30 – 14:30 Uhr</td></tr>
+              <tr><td>Samstag &amp; Sonntag</td><td data-cms="zeit_sa_so">geschlossen</td></tr>
             </tbody>
           </table>
           <p style="text-align: center; margin-top: 1rem; color: var(--tinte-hell); font-size: 0.95rem;">
@@ -213,16 +213,16 @@
           <h3>Kontakt</h3>
           <ul>
             <li>📍 Im Looscheid 82<br>45141 Essen-Stoppenberg</li>
-            <li>📞 <a href="tel:+4920100000000">0201 / 00 00 00 00</a></li>
-            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></li>
+            <li>📞 <a href="tel:+4920100000000" data-cms-tel="telefon">0201 / 00 00 00 00</a></li>
+            <li>✉️ <a href="mailto:info@mellis-krabbelzwerge.de" data-cms-mail="email">info@mellis-krabbelzwerge.de</a></li>
           </ul>
         </div>
         <div>
           <h3>Betreuungszeiten</h3>
           <ul>
-            <li>Mo – Do: 7:30 – 15:30 Uhr</li>
-            <li>Fr: 7:30 – 14:30 Uhr</li>
-            <li>Sa &amp; So: geschlossen</li>
+            <li>Mo – Do: <span data-cms="zeit_mo_do">7:30 – 15:30 Uhr</span></li>
+            <li>Fr: <span data-cms="zeit_fr">7:30 – 14:30 Uhr</span></li>
+            <li>Sa &amp; So: <span data-cms="zeit_sa_so">geschlossen</span></li>
           </ul>
         </div>
       </div>
@@ -230,6 +230,7 @@
         <span>© 2026 Melli's Krabbelzwerge – Alle Rechte vorbehalten</span>
         <span>
           <a href="impressum.html">Impressum</a> ·
+          <a href="admin.html" rel="nofollow">Portal</a> ·
           <a href="datenschutz.html">Datenschutz</a>
         </span>
       </div>
@@ -238,6 +239,7 @@
 
   <button class="nach-oben" aria-label="Nach oben scrollen">↑</button>
 
+  <script src="js/cms.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

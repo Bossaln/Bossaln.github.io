@@ -1,0 +1,7 @@
+{
+  "hinweis": "Enthaelt nur den PBKDF2-Hash des Portal-Passworts, niemals das Passwort selbst.",
+  "algorithmus": "PBKDF2-SHA256",
+  "iterationen": 310000,
+  "salz": "f77d6e8dde063e33802ccb2ceba085be",
+  "hash": "36e1539708abde3b73d4f6da05a1359e09e0e936d13adb409f35e2ba8c1796e9"
+}
