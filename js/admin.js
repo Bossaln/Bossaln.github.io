@@ -26,6 +26,8 @@
   document.addEventListener("DOMContentLoaded", start);
 
   async function start() {
+    initPasswortAuge();
+
     try {
       const [z, i, s] = await Promise.all([
         fetch("daten/zugang.json", { cache: "no-store" }).then((r) => r.json()),
@@ -67,6 +69,41 @@
     }, 10000);
 
     if (sitzungAktiv()) portalZeigen();
+  }
+
+  /* Auge im Passwortfeld: zeigt das Passwort kurzzeitig an
+     (verbirgt sich nach 5 Sekunden automatisch wieder) */
+  function initPasswortAuge() {
+    const auge = document.getElementById("passwort-auge");
+    const feld = document.getElementById("passwort");
+    if (!auge || !feld) return;
+
+    let timer = null;
+
+    function verbergen() {
+      clearTimeout(timer);
+      feld.type = "password";
+      auge.textContent = "👁️";
+      auge.setAttribute("aria-pressed", "false");
+      auge.title = "Passwort anzeigen";
+    }
+
+    auge.addEventListener("click", () => {
+      if (feld.type === "password") {
+        feld.type = "text";
+        auge.textContent = "🙈";
+        auge.setAttribute("aria-pressed", "true");
+        auge.title = "Passwort verbergen";
+        clearTimeout(timer);
+        timer = setTimeout(verbergen, 5000);
+      } else {
+        verbergen();
+      }
+      feld.focus();
+    });
+
+    // beim Absenden sicherheitshalber wieder verbergen
+    document.getElementById("anmelde-formular").addEventListener("submit", verbergen);
   }
 
   /* ------------------------- Anmeldung / Sitzung ------------------------- */
@@ -111,7 +148,7 @@
       return;
     }
 
-    const knopf = document.querySelector("#anmelde-formular button");
+    const knopf = document.querySelector('#anmelde-formular button[type="submit"]');
     knopf.disabled = true;
     knopf.textContent = "Prüfe …";
 
