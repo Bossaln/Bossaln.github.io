@@ -19,9 +19,9 @@
   --weiss: #ffffff;
   --wolke: #fdf3e3;
 
-  --regenbogen: linear-gradient(90deg,
-      var(--rot), var(--orange), var(--gelb),
-      var(--gruen), var(--blau), var(--lila));
+  /* Ruhiger, warmer Akzent-Verlauf statt Regenbogen
+     (Variablenname bleibt, damit alle Verwendungen erhalten bleiben) */
+  --regenbogen: linear-gradient(90deg, var(--orange), var(--gelb));
 
   --schrift-titel: "Baloo 2", "Comic Sans MS", "Segoe UI", "Trebuchet MS", sans-serif;
   --schrift-text: "Nunito", "Segoe UI", sans-serif;
@@ -187,9 +187,9 @@ a { color: var(--blau); }
   position: relative;
   padding: 4.5rem 0 5.5rem;
   background:
-    radial-gradient(circle at 12% 20%, rgba(247, 201, 72, 0.25), transparent 40%),
-    radial-gradient(circle at 88% 15%, rgba(61, 155, 233, 0.18), transparent 40%),
-    radial-gradient(circle at 80% 85%, rgba(242, 138, 178, 0.20), transparent 45%),
+    radial-gradient(circle at 12% 20%, rgba(247, 201, 72, 0.22), transparent 40%),
+    radial-gradient(circle at 88% 15%, rgba(244, 144, 12, 0.10), transparent 40%),
+    radial-gradient(circle at 80% 85%, rgba(247, 201, 72, 0.16), transparent 45%),
     var(--creme);
   overflow: hidden;
 }
@@ -365,10 +365,8 @@ a { color: var(--blau); }
 
 .karte:hover { transform: translateY(-8px); box-shadow: var(--schatten-hover); }
 
-.karte:nth-child(4n + 1) { border-top-color: var(--rot); }
-.karte:nth-child(4n + 2) { border-top-color: var(--gelb); }
-.karte:nth-child(4n + 3) { border-top-color: var(--gruen); }
-.karte:nth-child(4n + 4) { border-top-color: var(--blau); }
+.karte:nth-child(2n + 1) { border-top-color: var(--orange); }
+.karte:nth-child(2n + 2) { border-top-color: var(--gelb); }
 
 .karte-icon {
   display: inline-grid;
@@ -486,8 +484,7 @@ a { color: var(--blau); }
   border: 4px solid var(--orange);
 }
 
-.zeit-punkt:nth-child(2n)::before { border-color: var(--gruen); }
-.zeit-punkt:nth-child(3n)::before { border-color: var(--blau); }
+.zeit-punkt:nth-child(2n)::before { border-color: var(--gelb); }
 
 .zeit-punkt .uhrzeit {
   font-family: var(--schrift-titel);
@@ -591,12 +588,12 @@ a { color: var(--blau); }
   text-align: center;
 }
 
-.gk-1 { background: linear-gradient(135deg, #ffe3e3, #ffd0a3); }
-.gk-2 { background: linear-gradient(135deg, #fff3c4, #d8f3b6); }
-.gk-3 { background: linear-gradient(135deg, #d0f0fd, #d5ccff); }
-.gk-4 { background: linear-gradient(135deg, #ffe0ef, #ffe9c9); }
-.gk-5 { background: linear-gradient(135deg, #d6f7f2, #fef2c0); }
-.gk-6 { background: linear-gradient(135deg, #e6dcff, #ffdcdc); }
+.gk-1 { background: linear-gradient(135deg, #ffeed9, #ffd9a8); }
+.gk-2 { background: linear-gradient(135deg, #fff3c4, #ffe4b8); }
+.gk-3 { background: linear-gradient(135deg, #fdf0dd, #f9ddba); }
+.gk-4 { background: linear-gradient(135deg, #fff0e4, #ffe2c2); }
+.gk-5 { background: linear-gradient(135deg, #fdf6e0, #fbe6c0); }
+.gk-6 { background: linear-gradient(135deg, #fff2d8, #ffdfb3); }
 
 /* --------------------------------------------------------------------------
    Kontakt
@@ -760,7 +757,7 @@ a { color: var(--blau); }
 }
 
 .zeiten-tabelle thead {
-  background: var(--regenbogen);
+  background: linear-gradient(90deg, #e8830a, var(--orange));
   color: var(--weiss);
   font-family: var(--schrift-titel);
 }
@@ -773,7 +770,7 @@ a { color: var(--blau); }
    CTA-Banner
    -------------------------------------------------------------------------- */
 .cta-banner {
-  background: var(--regenbogen);
+  background: linear-gradient(120deg, #e8830a, var(--orange) 55%, var(--gelb) 130%);
   border-radius: var(--radius);
   padding: 3rem 2rem;
   text-align: center;
@@ -796,8 +793,8 @@ a { color: var(--blau); }
   padding: 3.5rem 0;
   text-align: center;
   background:
-    radial-gradient(circle at 15% 30%, rgba(247, 201, 72, 0.25), transparent 45%),
-    radial-gradient(circle at 85% 60%, rgba(46, 196, 182, 0.18), transparent 45%),
+    radial-gradient(circle at 15% 30%, rgba(247, 201, 72, 0.22), transparent 45%),
+    radial-gradient(circle at 85% 60%, rgba(244, 144, 12, 0.10), transparent 45%),
     var(--wolke);
 }
 
