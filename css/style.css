@@ -95,11 +95,15 @@ a { color: var(--blau); }
 }
 
 .nav-logo img {
-  width: 58px;
-  height: 58px;
+  width: 78px;
+  height: 54px;
   object-fit: contain;
   border-radius: 50%;
-  background: var(--weiss);
+  padding: 3px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--weiss), var(--weiss)) padding-box,
+    var(--regenbogen) border-box;
   box-shadow: 0 2px 8px rgba(61, 53, 70, 0.12);
 }
 
@@ -241,11 +245,14 @@ a { color: var(--blau); }
 .hero-bild { position: relative; text-align: center; }
 
 .hero-bild img {
-  width: min(400px, 100%);
+  width: min(440px, 100%);
   margin-inline: auto;
   border-radius: 50%;
-  background: var(--weiss);
-  padding: 1.2rem;
+  padding: 1.1rem;
+  border: 5px solid transparent;
+  background:
+    linear-gradient(var(--weiss), var(--weiss)) padding-box,
+    var(--regenbogen) border-box;
   box-shadow: var(--schatten);
   animation: schweben 5s ease-in-out infinite;
 }
@@ -902,10 +909,14 @@ a { color: var(--blau); }
 }
 
 .footer-logo img {
-  width: 52px;
-  height: 52px;
+  width: 70px;
+  height: 48px;
   border-radius: 50%;
-  background: var(--weiss);
+  padding: 3px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--weiss), var(--weiss)) padding-box,
+    var(--regenbogen) border-box;
   object-fit: contain;
 }
 
