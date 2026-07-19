@@ -102,12 +102,6 @@
     "label": "Tabellenfeld: Samstag & Sonntag"
   },
   {
-    "schluessel": "start_29",
-    "seite": "Startseite",
-    "art": "text",
-    "label": "Text: Individuelle Bring- und Abholzeiten sprechen wir gerne persö…"
-  },
-  {
     "schluessel": "start_30",
     "seite": "Startseite",
     "art": "text",
@@ -634,12 +628,6 @@
     "seite": "Galerie",
     "art": "text",
     "label": "Text: Bauecke & Kuschelhöhle"
-  },
-  {
-    "schluessel": "galerie_09",
-    "seite": "Galerie",
-    "art": "html",
-    "label": "Text: Hinweis: Zum Schutz der Privatsphäre unserer Krabbelzwerge v…"
   },
   {
     "schluessel": "galerie_10",
