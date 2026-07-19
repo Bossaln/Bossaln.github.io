@@ -13,7 +13,6 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 |---|---|
 | `index.html` | Startseite mit Hero, Vorteilen, Zahlen, Betreuungszeiten |
 | `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
-| `konzept.html` | Pädagogisches Konzept, Schwerpunkte, Eingewöhnung, Ernährung |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
 | `galerie.html` | Galerie (Platzhalter-Kacheln, bis echte Fotos vorliegen) |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
