@@ -122,7 +122,7 @@
         <button id="abmelden" class="btn btn-sekundaer">Abmelden</button>
       </div>
 
-      <div class="info-kasten">
+      <div class="info-kasten" id="info-kasten">
         <strong>So funktioniert es:</strong> Änderungen mit „Vorschau speichern" testen –
         sie sind dann sofort in diesem Browser auf der Website sichtbar. Damit
         <em>alle Besucher</em> sie sehen: „Veröffentlichen" klicken und die
@@ -235,6 +235,10 @@
       <div class="portal-karte">
         <h2>🔑 Passwort ändern</h2>
         <form id="passwort-formular">
+          <div class="feld" id="passwort-alt-zeile" style="display: none;">
+            <label for="passwort-alt">Bisheriges Passwort</label>
+            <input type="password" id="passwort-alt" autocomplete="current-password">
+          </div>
           <div class="formular-reihe">
             <div class="feld">
               <label for="passwort-neu">Neues Passwort (mind. 12 Zeichen)</label>
@@ -248,7 +252,7 @@
           <button type="submit" class="btn btn-sekundaer">Neue Zugangsdatei erstellen</button>
         </form>
         <div id="passwort-meldung" class="portal-hinweis"></div>
-        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
+        <p id="passwort-hinweis" style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
           Die heruntergeladene Datei <code>zugang.json</code> in den Ordner
           <code>daten/</code> hochladen – erst dann gilt das neue Passwort.
           Es wird nur ein sicherer Prüfwert (Hash) gespeichert, nie das Passwort selbst.

@@ -1,9 +1,18 @@
 /* ==========================================================================
    Melli's Krabbelzwerge – Verwaltungs-Portal
-   Anmeldung: PBKDF2-SHA256-Hash-Vergleich (WebCrypto), Sperre nach
-   Fehlversuchen, Sitzungs-Timeout. Bearbeitung: Inhalte werden lokal
-   gespeichert (Sofort-Vorschau) und zum Veröffentlichen als Datei
-   exportiert.
+
+   Das Portal arbeitet in zwei Betriebsarten:
+
+   1. Server-Betrieb (eigener Server, z. B. Raspberry Pi)
+      Erkannt an der Schnittstelle „api/status“. Anmeldung und Speichern
+      laufen über den Server: „Veröffentlichen“ schreibt die Inhalte direkt
+      auf die Website – alle Besucher sehen die Änderung sofort.
+
+   2. Datei-Betrieb (statisches Hosting wie GitHub Pages)
+      Anmeldung im Browser per PBKDF2-Hash-Vergleich, „Veröffentlichen“ lädt
+      eine inhalte.json herunter, die von Hand hochgeladen wird.
+
+   In beiden Fällen: Sperre nach Fehlversuchen und Sitzungs-Timeout.
    ========================================================================== */
 
 (function () {
@@ -18,7 +27,8 @@
   const FELDER = ["slogan", "zeit_mo_do", "zeit_fr", "zeit_sa_so", "telefon", "email"];
   const BILDER = ["bild_logo", "bild_team", "bild_spielzimmer", "bild_raum", "bild_garten"];
 
-  let zugang = null;          // Inhalt von daten/zugang.json
+  let servermodus = false;    // läuft die Website auf einem eigenen Server?
+  let zugang = null;          // Inhalt von daten/zugang.json (nur Datei-Betrieb)
   let veroeffentlicht = {};   // Inhalt von daten/inhalte.json
   let schema = [];            // Feldliste aus daten/portal-schema.json
   let entwurf = {};           // aktueller Bearbeitungsstand
@@ -28,31 +38,48 @@
   async function start() {
     initPasswortAuge();
 
+    let sitzungLaeuft = false;
     try {
-      const [z, i, s] = await Promise.all([
-        fetch("daten/zugang.json", { cache: "no-store" }).then((r) => r.json()),
+      const antwort = await fetch("api/status", { cache: "no-store" });
+      if (antwort.ok) {
+        const status = await antwort.json();
+        servermodus = status.server === true;
+        sitzungLaeuft = status.angemeldet === true;
+      }
+    } catch {
+      /* keine Schnittstelle vorhanden → Datei-Betrieb */
+    }
+
+    try {
+      const aufgaben = [
         fetch("daten/inhalte.json", { cache: "no-store" }).then((r) => r.json()),
         fetch("daten/portal-schema.json", { cache: "no-store" }).then((r) => r.json()),
-      ]);
-      zugang = z;
+      ];
+      if (!servermodus) {
+        aufgaben.push(fetch("daten/zugang.json", { cache: "no-store" }).then((r) => r.json()));
+      }
+      const [i, s, z] = await Promise.all(aufgaben);
       veroeffentlicht = i;
       schema = s;
+      zugang = z || null;
     } catch {
       meldung("anmelde-meldung",
         "Konfiguration konnte nicht geladen werden. Das Portal funktioniert nur über einen Webserver (https bzw. localhost), nicht direkt aus dem Dateisystem.");
       return;
     }
 
-    if (!window.crypto || !crypto.subtle) {
+    if (!servermodus && (!window.crypto || !crypto.subtle)) {
       meldung("anmelde-meldung",
         "Dieser Browser unterstützt die nötige Verschlüsselung nicht (unsicherer Kontext?). Bitte die Seite über HTTPS aufrufen.");
       return;
     }
 
+    oberflaecheAnpassen();
+
     document.getElementById("anmelde-formular").addEventListener("submit", anmelden);
     document.getElementById("abmelden").addEventListener("click", abmelden);
     document.getElementById("speichern").addEventListener("click", vorschauSpeichern);
-    document.getElementById("exportieren").addEventListener("click", exportieren);
+    document.getElementById("exportieren").addEventListener("click", veroeffentlichen);
     document.getElementById("zuruecksetzen").addEventListener("click", zuruecksetzen);
     document.getElementById("passwort-formular").addEventListener("submit", passwortAendern);
 
@@ -68,7 +95,52 @@
       if (istAngemeldet() && !sitzungAktiv()) abmelden();
     }, 10000);
 
-    if (sitzungAktiv()) portalZeigen();
+    if (servermodus ? sitzungLaeuft : sitzungAktiv()) {
+      sitzungStarten();
+      portalZeigen();
+    }
+  }
+
+  /* Passt Texte und Schaltflächen an die Betriebsart an. */
+  function oberflaecheAnpassen() {
+    const infoKasten = document.getElementById("info-kasten");
+    const knopf = document.getElementById("exportieren");
+    const altZeile = document.getElementById("passwort-alt-zeile");
+    const passwortHinweis = document.getElementById("passwort-hinweis");
+
+    if (!servermodus) return;
+
+    if (infoKasten) {
+      infoKasten.innerHTML =
+        "<strong>So funktioniert es:</strong> Änderungen mit „Vorschau speichern“ testen – " +
+        "sie sind dann nur in diesem Browser sichtbar. Mit „Jetzt veröffentlichen“ " +
+        "werden sie direkt auf der Website gespeichert und sind sofort für " +
+        "<em>alle Besucher</em> sichtbar.";
+    }
+    if (knopf) knopf.textContent = "Jetzt veröffentlichen";
+    if (altZeile) altZeile.style.display = "";
+    if (passwortHinweis) {
+      passwortHinweis.textContent =
+        "Das neue Passwort gilt sofort. Gespeichert wird nur ein sicherer Prüfwert " +
+        "(Hash), nie das Passwort selbst. Andere angemeldete Geräte werden abgemeldet.";
+    }
+    const knopfPasswort = document.querySelector('#passwort-formular button[type="submit"]');
+    if (knopfPasswort) knopfPasswort.textContent = "Passwort ändern";
+  }
+
+  /* Kleine Hilfe für alle Aufrufe der Server-Schnittstelle. */
+  async function serverAufruf(pfad, daten) {
+    const antwort = await fetch(pfad, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(daten || {}),
+      cache: "no-store",
+    });
+    let ergebnis = {};
+    try {
+      ergebnis = await antwort.json();
+    } catch { /* leere Antwort */ }
+    return { ok: antwort.ok, status: antwort.status, daten: ergebnis };
   }
 
   /* Auge im Passwortfeld: zeigt das Passwort kurzzeitig an
@@ -139,6 +211,46 @@
 
   async function anmelden(e) {
     e.preventDefault();
+
+    const knopf = document.querySelector('#anmelde-formular button[type="submit"]');
+    const eingabe = document.getElementById("passwort").value;
+
+    if (servermodus) {
+      knopf.disabled = true;
+      knopf.textContent = "Prüfe …";
+      let antwort;
+      try {
+        antwort = await serverAufruf("api/anmelden", { passwort: eingabe });
+      } catch {
+        knopf.disabled = false;
+        knopf.textContent = "Anmelden";
+        meldung("anmelde-meldung", "Der Server ist nicht erreichbar. Läuft die Website noch?");
+        return;
+      }
+      knopf.disabled = false;
+      knopf.textContent = "Anmelden";
+
+      if (antwort.ok) {
+        document.getElementById("passwort").value = "";
+        sitzungStarten();
+        portalZeigen();
+        return;
+      }
+
+      const d = antwort.daten || {};
+      if (d.wartenSekunden) {
+        meldung("anmelde-meldung",
+          `Zu viele Fehlversuche – bitte ${d.wartenSekunden} Sekunden warten.`);
+      } else if (antwort.status === 401) {
+        meldung("anmelde-meldung",
+          `Falsches Passwort (${d.versuche || 1}/${d.maxVersuche || MAX_VERSUCHE} Versuche).`);
+      } else {
+        meldung("anmelde-meldung", d.fehler || "Anmeldung fehlgeschlagen.");
+      }
+      return;
+    }
+
+    /* Datei-Betrieb: Prüfung im Browser */
     const jetzt = Date.now();
     const v = versuche();
 
@@ -148,11 +260,9 @@
       return;
     }
 
-    const knopf = document.querySelector('#anmelde-formular button[type="submit"]');
     knopf.disabled = true;
     knopf.textContent = "Prüfe …";
 
-    const eingabe = document.getElementById("passwort").value;
     const hash = await pbkdf2(eingabe, zugang.salz, zugang.iterationen);
 
     knopf.disabled = false;
@@ -199,8 +309,20 @@
 
   function abmelden() {
     sessionStorage.removeItem(SITZUNG_SCHLUESSEL);
+    if (servermodus) {
+      serverAufruf("api/abmelden").catch(() => {});
+    }
     document.getElementById("portal").style.display = "none";
     document.getElementById("anmeldung").style.display = "block";
+  }
+
+  /* Sitzung am Server abgelaufen: zurück zur Anmeldung */
+  function sitzungAbgelaufen() {
+    sessionStorage.removeItem(SITZUNG_SCHLUESSEL);
+    document.getElementById("portal").style.display = "none";
+    document.getElementById("anmeldung").style.display = "block";
+    meldung("anmelde-meldung",
+      "Die Sitzung ist abgelaufen. Bitte erneut anmelden – die Änderungen bleiben gespeichert.");
   }
 
   /* ----------------------------- Portal-Ansicht ----------------------------- */
@@ -300,8 +422,11 @@
     const abweichungen = Object.keys(lokal).filter((k) => lokal[k] !== veroeffentlicht[k]);
     const status = document.getElementById("status");
     if (abweichungen.length) {
-      status.textContent = `⚠️ ${abweichungen.length} Änderung(en) nur lokal gespeichert – ` +
-        "zum Veröffentlichen die Datei exportieren und hochladen.";
+      status.textContent = servermodus
+        ? `⚠️ ${abweichungen.length} Änderung(en) noch nicht veröffentlicht – ` +
+          "auf „Jetzt veröffentlichen“ klicken, damit alle Besucher sie sehen."
+        : `⚠️ ${abweichungen.length} Änderung(en) nur lokal gespeichert – ` +
+          "zum Veröffentlichen die Datei exportieren und hochladen.";
       status.className = "portal-status offen";
     } else {
       status.textContent = "✅ Alles veröffentlicht – keine offenen Änderungen.";
@@ -324,16 +449,55 @@
     }
   }
 
-  function exportieren() {
+  async function veroeffentlichen() {
     formularAuslesen();
-    const blob = new Blob([JSON.stringify(entwurf, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "inhalte.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
+
+    if (!servermodus) {
+      const blob = new Blob([JSON.stringify(entwurf, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "inhalte.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      meldung("portal-meldung",
+        "Datei „inhalte.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website hochladen (ersetzen) – dann sehen alle Besucher die Änderungen.", true);
+      return;
+    }
+
+    const knopf = document.getElementById("exportieren");
+    knopf.disabled = true;
+    knopf.textContent = "Veröffentliche …";
+
+    let antwort;
+    try {
+      antwort = await serverAufruf("api/veroeffentlichen", { inhalte: entwurf });
+    } catch {
+      knopf.disabled = false;
+      knopf.textContent = "Jetzt veröffentlichen";
+      meldung("portal-meldung",
+        "Der Server ist nicht erreichbar – nichts wurde verändert. Die Eingaben mit „Vorschau speichern“ sichern und es später erneut versuchen.");
+      return;
+    }
+
+    knopf.disabled = false;
+    knopf.textContent = "Jetzt veröffentlichen";
+
+    if (antwort.status === 401) {
+      sitzungAbgelaufen();
+      return;
+    }
+    if (!antwort.ok) {
+      meldung("portal-meldung",
+        "Veröffentlichen fehlgeschlagen: " + (antwort.daten.fehler || "unbekannter Fehler"));
+      return;
+    }
+
+    // Der Server liefert den gespeicherten Stand zurück (Bilder als Dateipfade)
+    veroeffentlicht = antwort.daten.inhalte || entwurf;
+    localStorage.removeItem(LOKAL_SCHLUESSEL);
+    portalZeigen();
     meldung("portal-meldung",
-      "Datei „inhalte.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website hochladen (ersetzen) – dann sehen alle Besucher die Änderungen.", true);
+      "Veröffentlicht! Die Änderungen sind ab sofort auf der Website für alle Besucher sichtbar.", true);
   }
 
   function zuruecksetzen() {
@@ -369,14 +533,45 @@
           ? leinwand.toDataURL("image/png")
           : leinwand.toDataURL("image/jpeg", 0.85);
 
-        entwurf[schluessel] = datenUri;
-        document.getElementById("vorschau-" + schluessel).src = datenUri;
-        meldung("portal-meldung",
-          "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
+        if (servermodus) {
+          bildHochladen(schluessel, datenUri);
+        } else {
+          entwurf[schluessel] = datenUri;
+          document.getElementById("vorschau-" + schluessel).src = datenUri;
+          meldung("portal-meldung",
+            "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
+        }
       };
       bild.src = leser.result;
     };
     leser.readAsDataURL(datei);
+  }
+
+  /* Server-Betrieb: Bild sofort auf den Server legen und nur den Pfad merken.
+     Das hält den Browser-Speicher klein und die Website schnell. */
+  async function bildHochladen(schluessel, datenUri) {
+    meldung("portal-meldung", "Bild wird hochgeladen …", true);
+    let antwort;
+    try {
+      antwort = await serverAufruf("api/bild", { schluessel, daten: datenUri });
+    } catch {
+      meldung("portal-meldung", "Der Server ist nicht erreichbar – das Bild wurde nicht gespeichert.");
+      return;
+    }
+    if (antwort.status === 401) {
+      sitzungAbgelaufen();
+      return;
+    }
+    if (!antwort.ok) {
+      meldung("portal-meldung",
+        "Bild konnte nicht gespeichert werden: " + (antwort.daten.fehler || "unbekannter Fehler"));
+      return;
+    }
+
+    entwurf[schluessel] = antwort.daten.pfad;
+    document.getElementById("vorschau-" + schluessel).src = antwort.daten.pfad;
+    meldung("portal-meldung",
+      "Bild übernommen. Mit „Jetzt veröffentlichen“ erscheint es auf der Website.", true);
   }
 
   /* ----------------------------- Passwort ändern ----------------------------- */
@@ -392,6 +587,38 @@
     }
     if (neu !== wiederholung) {
       meldung("passwort-meldung", "Die beiden Eingaben stimmen nicht überein.");
+      return;
+    }
+
+    if (servermodus) {
+      const alt = document.getElementById("passwort-alt").value;
+      if (!alt) {
+        meldung("passwort-meldung", "Bitte zuerst das bisherige Passwort eingeben.");
+        return;
+      }
+
+      let antwort;
+      try {
+        antwort = await serverAufruf("api/passwort", { alt, neu });
+      } catch {
+        meldung("passwort-meldung", "Der Server ist nicht erreichbar – das Passwort wurde nicht geändert.");
+        return;
+      }
+      if (antwort.status === 401 && antwort.daten.fehler) {
+        meldung("passwort-meldung", antwort.daten.fehler);
+        return;
+      }
+      if (!antwort.ok) {
+        meldung("passwort-meldung",
+          "Passwort konnte nicht geändert werden: " + (antwort.daten.fehler || "unbekannter Fehler"));
+        return;
+      }
+
+      ["passwort-alt", "passwort-neu", "passwort-wdh"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      meldung("passwort-meldung",
+        "Passwort geändert. Ab sofort gilt das neue Passwort – bitte gut merken!", true);
       return;
     }
 
