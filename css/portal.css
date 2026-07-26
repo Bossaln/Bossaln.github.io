@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Melli's Krabbelzwerge – Portal-Stylesheet
+   Bewusst als eigene Datei: Das Portal verzichtet vollständig auf
+   Inline-Styles, damit die Content-Security-Policy ohne 'unsafe-inline'
+   auskommt.
+   ========================================================================== */
+
+.portal-rahmen { max-width: 860px; margin: 3rem auto; width: 92%; }
+
+.portal-karte {
+  background: var(--weiss);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-karte h2 { margin-bottom: 1rem; font-size: 1.4rem; }
+
+.anmelde-karte { max-width: 460px; margin-inline: auto; }
+
+.anmelde-karte .hinweis-text { color: var(--tinte-hell); margin-bottom: 1.2rem; }
+
+.portal-kopfzeile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-kopfzeile h1 { font-size: 1.8rem; }
+
+.portal-hinweis {
+  display: none;
+  margin-top: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.portal-hinweis.gut { background: #e2f7e4; color: #256b2c; }
+.portal-hinweis.schlecht { background: #fde3e3; color: #a12525; }
+
+.portal-status {
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.portal-status.offen { background: #fff3d6; color: #8a5b00; }
+.portal-status.fertig { background: #e2f7e4; color: #256b2c; }
+
+.scan-info {
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  background: #e7f1fd;
+  color: #1d5e9e;
+}
+
+.bild-zeile {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--wolke);
+}
+
+.bild-zeile:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.bild-zeile img {
+  width: 110px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--wolke);
+}
+
+.bild-zeile img.bild-logo-vorschau { object-fit: contain; background: var(--weiss); }
+
+.bild-zeile .feld { margin: 0; }
+
+.bild-seiten { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
+
+.portal-aktionen { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+.info-kasten {
+  background: var(--wolke);
+  border-left: 6px solid var(--gelb);
+  border-radius: 12px;
+  padding: 1rem 1.3rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+  margin-bottom: 1.5rem;
+}
+
+.portal-details summary {
+  cursor: pointer;
+  font-family: var(--schrift-titel);
+  font-size: 1.2rem;
+  font-weight: 700;
+  list-style-position: outside;
+}
+
+.portal-details[open] summary { margin-bottom: 1.2rem; }
+
+.portal-details .feld label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--tinte-hell);
+}
+
+.html-feld { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+
+.html-hinweis { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
+
+.passwort-wrapper { position: relative; }
+
+.passwort-wrapper input { padding-right: 3.2rem; }
+
+.passwort-wrapper button {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.passwort-wrapper button:hover { background: var(--wolke); }
+
+.volle-breite { width: 100%; }
+
+.zwischen-titel { font-size: 1.4rem; margin: 2rem 0 1rem; }
+
+.gedaempft { color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem; }
+
+.klein-gedaempft { margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell); }
+
+/* Live-Vorschau */
+.vorschau-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.vorschau-leiste label { font-weight: 700; font-size: 0.95rem; }
+
+.vorschau-leiste select {
+  flex: 1;
+  min-width: 160px;
+  max-width: 260px;
+  padding: 0.55rem 0.9rem;
+  font-family: var(--schrift-text);
+  font-size: 0.95rem;
+  color: var(--tinte);
+  background: var(--creme);
+  border: 2px solid #ece2d4;
+  border-radius: 12px;
+}
+
+.vorschau-rahmen {
+  width: 100%;
+  height: 480px;
+  border: 2px solid var(--wolke);
+  border-radius: 14px;
+  background: var(--weiss);
+  display: block;
+}
+
+/* Sicherheits-Übersicht */
+.sicherheits-liste {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.sicherheits-liste li { padding-left: 1.6rem; position: relative; }
+
+.sicherheits-liste li::before { content: "🛡️"; position: absolute; left: 0; }
+
+#portal { display: none; }
