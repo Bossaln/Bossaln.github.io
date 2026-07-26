@@ -46,15 +46,9 @@
       border-radius: 12px; padding: 1rem 1.3rem;
       font-size: 0.95rem; color: var(--tinte-hell); margin-bottom: 1.5rem;
     }
-    .portal-details summary {
-      cursor: pointer; font-family: var(--schrift-titel);
-      font-size: 1.2rem; font-weight: 700; list-style-position: outside;
-    }
-    .portal-details[open] summary { margin-bottom: 1.2rem; }
-    .portal-details .feld label {
+    .ordner-block .feld label {
       font-weight: 700; font-size: 0.85rem; color: var(--tinte-hell);
     }
-    .html-feld { font-family: ui-monospace, monospace; font-size: 0.9rem; }
     .beitrag-eintrag {
       display: grid; grid-template-columns: 84px 1fr auto;
       gap: 1rem; align-items: center;
@@ -127,7 +121,6 @@
       transition: background 0.2s;
     }
     .passwort-wrapper button:hover { background: var(--wolke); }
-    .html-hinweis { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
     #portal { display: none; }
   </style>
 </head>
@@ -233,49 +226,6 @@
       </div>
 
       <div class="portal-karte">
-        <h2>🖼️ Bilder</h2>
-        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-          Neue Bilder werden automatisch verkleinert. Sie erscheinen auf allen Seiten,
-          auf denen das jeweilige Bild verwendet wird.
-        </p>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_logo" src="assets/img/logo.png" alt="Logo" style="object-fit: contain; background: var(--weiss);">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_logo">Logo (Kopfzeile, Startseite, Fußzeile)</label>
-            <input type="file" id="upload-bild_logo" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_team" src="assets/img/team.jpg" alt="Teamfoto">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_team">Teamfoto (Über uns, Startseite)</label>
-            <input type="file" id="upload-bild_team" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_spielzimmer" src="assets/img/spielzimmer.jpg" alt="Spielzimmer">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_spielzimmer">Spielzimmer (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_spielzimmer" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_raum" src="assets/img/raum.jpg" alt="Spiel- und Schlafraum">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_raum">Spiel- &amp; Schlafraum (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_raum" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_garten" src="assets/img/garten.jpg" alt="Außengelände">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_garten">Außengelände (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_garten" accept="image/*">
-          </div>
-        </div>
-      </div>
-
-      <div class="portal-karte">
         <h2>📣 Neuigkeiten posten</h2>
         <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
           Wie ein Beitrag bei Instagram: Titel, Nachricht und wenn du magst ein
@@ -341,13 +291,6 @@
         <h3 style="font-size: 1.1rem; margin: 1.8rem 0 0.6rem;">Ordnerstruktur</h3>
         <div id="galerie-struktur"></div>
       </div>
-
-      <h2 style="font-size: 1.4rem; margin: 2rem 0 1rem;">📝 Alle Texte der Website</h2>
-      <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-        Hier lässt sich jeder Text der Website bearbeiten – nach Seiten sortiert.
-        Einfach eine Seite aufklappen.
-      </p>
-      <div id="dynamische-bereiche"></div>
 
       <div class="portal-karte">
         <h2>💾 Speichern &amp; Veröffentlichen</h2>

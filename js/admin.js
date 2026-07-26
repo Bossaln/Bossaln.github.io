@@ -27,12 +27,10 @@
   const MAX_VERSUCHE = 5;
 
   const FELDER = ["slogan", "zeit_mo_do", "zeit_fr", "zeit_sa_so", "telefon", "email"];
-  const BILDER = ["bild_logo", "bild_team", "bild_spielzimmer", "bild_raum", "bild_garten"];
 
   let servermodus = false;    // läuft die Website auf einem eigenen Server?
   let zugang = null;          // Inhalt von daten/zugang.json (nur Datei-Betrieb)
   let veroeffentlicht = {};   // Inhalt von daten/inhalte.json
-  let schema = [];            // Feldliste aus daten/portal-schema.json
   let entwurf = {};           // aktueller Bearbeitungsstand
   let beitraege = [];         // Neuigkeiten aus daten/beitraege.json
   let beitragBild = "";       // Bild des Beitrags, der gerade geschrieben wird
@@ -60,14 +58,12 @@
     try {
       const aufgaben = [
         fetch("daten/inhalte.json", { cache: "no-store" }).then((r) => r.json()),
-        fetch("daten/portal-schema.json", { cache: "no-store" }).then((r) => r.json()),
       ];
       if (!servermodus) {
         aufgaben.push(fetch("daten/zugang.json", { cache: "no-store" }).then((r) => r.json()));
       }
-      const [i, s, z] = await Promise.all(aufgaben);
+      const [i, z] = await Promise.all(aufgaben);
       veroeffentlicht = i;
-      schema = s;
       zugang = z || null;
     } catch {
       meldung("anmelde-meldung",
@@ -126,11 +122,6 @@
     document.getElementById("galerie-exportieren").addEventListener("click", galerieExportieren);
 
     dateiwahlenVerschoenern();
-
-    BILDER.forEach((schluessel) => {
-      const eingabe = document.getElementById("upload-" + schluessel);
-      if (eingabe) eingabe.addEventListener("change", (e) => bildLaden(e, schluessel));
-    });
 
     // Aktivität verlängert die Sitzung
     ["click", "keydown"].forEach((ev) =>
@@ -395,11 +386,6 @@
       const feld = document.getElementById("feld-" + schluessel);
       if (feld) feld.value = entwurf[schluessel] || "";
     });
-    BILDER.forEach((schluessel) => {
-      const vorschau = document.getElementById("vorschau-" + schluessel);
-      if (vorschau && entwurf[schluessel]) vorschau.src = entwurf[schluessel];
-    });
-    dynamischeBereicheAufbauen();
     beitragslisteAufbauen();
     galerieStrukturAufbauen();
     statusAktualisieren();
@@ -722,67 +708,10 @@
       "Datei „beitraege.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website hochladen (ersetzen).", true);
   }
 
-  /* Baut für jede Seite einen aufklappbaren Bereich mit allen Textfeldern */
-  function dynamischeBereicheAufbauen() {
-    const halter = document.getElementById("dynamische-bereiche");
-    halter.innerHTML = "";
-
-    const gruppen = new Map();
-    schema.forEach((eintrag) => {
-      if (!gruppen.has(eintrag.seite)) gruppen.set(eintrag.seite, []);
-      gruppen.get(eintrag.seite).push(eintrag);
-    });
-
-    gruppen.forEach((eintraege, seite) => {
-      const details = document.createElement("details");
-      details.className = "portal-karte portal-details";
-
-      const summary = document.createElement("summary");
-      summary.textContent = `📄 ${seite} (${eintraege.length} Felder)`;
-      details.appendChild(summary);
-
-      eintraege.forEach((eintrag) => {
-        const feld = document.createElement("div");
-        feld.className = "feld";
-
-        const label = document.createElement("label");
-        label.setAttribute("for", "dyn-" + eintrag.schluessel);
-        label.textContent = eintrag.label;
-        feld.appendChild(label);
-
-        const wert = entwurf[eintrag.schluessel] || "";
-        const lang = eintrag.art === "html" || wert.length > 70 || wert.includes("\n");
-        const eingabe = document.createElement(lang ? "textarea" : "input");
-        eingabe.id = "dyn-" + eintrag.schluessel;
-        eingabe.dataset.schluessel = eintrag.schluessel;
-        eingabe.value = wert;
-        if (lang) eingabe.rows = Math.min(6, Math.max(2, Math.ceil(wert.length / 80)));
-
-        if (eintrag.art === "html") {
-          eingabe.classList.add("html-feld");
-          const hinweis = document.createElement("small");
-          hinweis.className = "html-hinweis";
-          hinweis.textContent =
-            "Enthält Formatierung: Teile in spitzen Klammern (z. B. <strong>) bitte stehen lassen.";
-          feld.appendChild(eingabe);
-          feld.appendChild(hinweis);
-        } else {
-          feld.appendChild(eingabe);
-        }
-        details.appendChild(feld);
-      });
-
-      halter.appendChild(details);
-    });
-  }
-
   function formularAuslesen() {
     FELDER.forEach((schluessel) => {
       const feld = document.getElementById("feld-" + schluessel);
       if (feld) entwurf[schluessel] = feld.value.trim();
-    });
-    document.querySelectorAll("[data-schluessel]").forEach((feld) => {
-      entwurf[feld.dataset.schluessel] = feld.value.trim();
     });
   }
 
@@ -1296,53 +1225,6 @@
       bild.src = leser.result;
     };
     leser.readAsDataURL(datei);
-  }
-
-  function bildLaden(e, schluessel) {
-    const datei = e.target.files && e.target.files[0];
-    if (!datei) return;
-    if (!/^image\//.test(datei.type)) {
-      meldung("portal-meldung", "Bitte eine Bilddatei auswählen (JPG oder PNG).");
-      return;
-    }
-
-    bildVerkleinern(datei, 1200, (ergebnis) => {
-      if (servermodus) {
-        bildHochladen(schluessel, ergebnis.datenUri);
-      } else {
-        entwurf[schluessel] = ergebnis.datenUri;
-        document.getElementById("vorschau-" + schluessel).src = ergebnis.datenUri;
-        meldung("portal-meldung",
-          "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
-      }
-    });
-  }
-
-  /* Server-Betrieb: Bild sofort auf den Server legen und nur den Pfad merken.
-     Das hält den Browser-Speicher klein und die Website schnell. */
-  async function bildHochladen(schluessel, datenUri) {
-    meldung("portal-meldung", "Bild wird hochgeladen …", true);
-    let antwort;
-    try {
-      antwort = await serverAufruf("api/bild", { schluessel, daten: datenUri });
-    } catch {
-      meldung("portal-meldung", "Der Server ist nicht erreichbar – das Bild wurde nicht gespeichert.");
-      return;
-    }
-    if (antwort.status === 401) {
-      sitzungAbgelaufen();
-      return;
-    }
-    if (!antwort.ok) {
-      meldung("portal-meldung",
-        "Bild konnte nicht gespeichert werden: " + (antwort.daten.fehler || "unbekannter Fehler"));
-      return;
-    }
-
-    entwurf[schluessel] = antwort.daten.pfad;
-    document.getElementById("vorschau-" + schluessel).src = antwort.daten.pfad;
-    meldung("portal-meldung",
-      "Bild übernommen. Mit „Jetzt veröffentlichen“ erscheint es auf der Website.", true);
   }
 
   /* ----------------------------- Passwort ändern ----------------------------- */

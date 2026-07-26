@@ -106,15 +106,17 @@ Diese Adresse im Browser öffnen – die Website ist live. 🎉
 
 1. `http://raspberrypi.local/admin.html` öffnen
 2. Mit dem gewohnten Passwort anmelden
-3. Irgendetwas ändern → **„Jetzt veröffentlichen“**
+3. Z. B. die Telefonnummer ändern → **„Jetzt veröffentlichen“**
 4. Website in einem anderen Browser (oder am Handy) öffnen – die Änderung
    ist sofort da, auf allen Geräten.
 
 Im Portal steht jetzt „Jetzt veröffentlichen“ statt „Datei exportieren“.
 Das ist das Zeichen dafür, dass es den Pi-Server erkannt hat.
 
-Auch **Bilder** landen jetzt direkt auf dem Pi und werden nicht mehr in die
-Inhaltsdatei gepackt – die Website bleibt dadurch schnell.
+Im Portal gibt es diese Bereiche: Betreuungszeiten, Kontaktdaten, Slogan,
+Neuigkeiten, Galerie, Veröffentlichen und Passwort ändern. **Bilder** landen
+dabei direkt auf dem Pi und werden nicht in die Inhaltsdatei gepackt – die
+Website bleibt dadurch schnell.
 
 ### Neuigkeiten posten
 

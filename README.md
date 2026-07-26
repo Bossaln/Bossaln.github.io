@@ -114,15 +114,29 @@ Server nach einer Stunde selbst auf.
 
 ## Verwaltungs-Portal (`admin.html`)
 
-Unter `/admin.html` (Footer-Link „Portal") lässt sich praktisch die ganze
-Website ohne Programmierkenntnisse bearbeiten: Betreuungszeiten,
-Kontaktdaten, alle Fotos inkl. Logo, Neuigkeiten-Beiträge, die Galerie-
-Ordner sowie sämtliche Texte aller Seiten (über 150 Felder, nach Seiten
-gruppiert). Die editierbaren Stellen sind im
-HTML mit `data-cms`-Attributen markiert; `daten/portal-schema.json`
-beschreibt die Felder für das Portal. Neue editierbare Stellen können durch
-Markieren eines Elements (`data-cms="schluessel"`) plus Eintrag in
-`inhalte.json`/`portal-schema.json` ergänzt werden.
+Unter `/admin.html` (Footer-Link „Portal") lässt sich ohne
+Programmierkenntnisse pflegen, was sich im Alltag ändert:
+
+| Abschnitt | Inhalt |
+|---|---|
+| 🕐 Betreuungszeiten | Mo – Do, Fr, Sa & So |
+| 📞 Kontaktdaten | Telefonnummer, E-Mail-Adresse |
+| 💬 Slogan | Slogan auf der Startseite |
+| 📣 Neuigkeiten posten | Beiträge mit Titel, Text, Bild |
+| 🖼️ Galerie | Ordner anlegen, Bilder hochladen, Bildtexte |
+| 💾 Speichern & Veröffentlichen | Zeiten, Kontakt und Slogan live stellen |
+| 🔑 Passwort ändern | Portal-Passwort |
+
+Alle übrigen Seitentexte und die festen Fotos (Logo, Teamfoto, Raumfotos)
+werden direkt in den HTML-Dateien bzw. in `daten/inhalte.json` gepflegt –
+sie stehen bewusst nicht im Portal, damit es übersichtlich bleibt. Beim
+Veröffentlichen bleiben diese Felder unverändert erhalten.
+
+Technisch sind die austauschbaren Stellen im HTML mit `data-cms`-Attributen
+markiert und werden von `js/cms.js` aus `daten/inhalte.json` gefüllt. Die
+Datei `daten/portal-schema.json` beschreibt diese Felder weiterhin (nützlich
+als Übersicht und falls der Texteditor je zurückkehren soll), wird vom
+Portal aber nicht mehr gelesen.
 
 **Ablauf auf dem eigenen Server (Raspberry Pi):** Änderungen im Portal →
 „Vorschau speichern" (nur im eigenen Browser sichtbar) → „Jetzt
