@@ -169,5 +169,17 @@
   "datenschutz_20": "<strong>⚠️ Wichtiger Hinweis:</strong> Dieser Text ist ein Muster und muss vor\nVeröffentlichung an die tatsächlichen Gegebenheiten (Hosting-Anbieter,\nverantwortliche Person, eingesetzte Dienste) angepasst werden. Er ersetzt\nkeine Rechtsberatung.",
   "footer_tagline": "„Alles was ein Kind braucht, um glücklich zu sein.\" – Großtagespflege in Essen-Stoppenberg.",
   "footer_adresse": "📍 Im Looscheid 82<br/>45141 Essen-Stoppenberg",
-  "bild_logo": "assets/img/logo.png"
+  "bild_logo": "assets/img/logo.png",
+  "neuigkeiten_01": "Neues von uns 📣",
+  "neuigkeiten_02": "Kleine Einblicke, Termine und Erlebnisse aus unserem Alltag.",
+  "neuigkeiten_name": "mellis_krabbelzwerge",
+  "neuigkeiten_knopf_1": "Nachricht schreiben",
+  "neuigkeiten_knopf_2": "Galerie ansehen",
+  "neuigkeiten_zahl_1": "Beiträge",
+  "neuigkeiten_zahl_2_wert": "2",
+  "neuigkeiten_zahl_2": "Schwestern mit Herz",
+  "neuigkeiten_zahl_3_wert": "300",
+  "neuigkeiten_zahl_3": "m² Außengelände",
+  "neuigkeiten_bio_titel": "Melli's Krabbelzwerge · Großtagespflege",
+  "neuigkeiten_bio": "📍 Im Looscheid 82 · 45141 Essen-Stoppenberg<br/>🌈 Betreuung mit Herz für Kinder von 0 bis 3 Jahren"
 }

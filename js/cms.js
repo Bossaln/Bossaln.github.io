@@ -58,6 +58,12 @@
     });
   }
 
+  function fertigMelden() {
+    // Andere Skripte (z. B. die Neuigkeiten) können darauf reagieren,
+    // sobald alle Texte gesetzt sind.
+    document.dispatchEvent(new CustomEvent("cms-fertig"));
+  }
+
   function alles() {
     // veröffentlichte Inhalte laden, lokale Änderungen haben Vorrang
     fetch("daten/inhalte.json", { cache: "no-store" })
@@ -65,8 +71,12 @@
       .then((veroeffentlicht) => {
         anwenden(veroeffentlicht);
         anwenden(lokaleDaten());
+        fertigMelden();
       })
-      .catch(() => anwenden(lokaleDaten()));
+      .catch(() => {
+        anwenden(lokaleDaten());
+        fertigMelden();
+      });
   }
 
   if (document.readyState === "loading") {

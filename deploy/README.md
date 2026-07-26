@@ -116,6 +116,18 @@ Das ist das Zeichen dafür, dass es den Pi-Server erkannt hat.
 Auch **Bilder** landen jetzt direkt auf dem Pi und werden nicht mehr in die
 Inhaltsdatei gepackt – die Website bleibt dadurch schnell.
 
+### Neuigkeiten posten
+
+Im Portal gibt es den Bereich **„📣 Neuigkeiten posten"**: Titel,
+Nachricht und wenn du magst ein Bild – auf „Beitrag veröffentlichen"
+klicken, und der Beitrag steht mit Datum und Uhrzeit ganz oben auf der
+Seite `/neuigkeiten.html`. Eine Leerzeile im Text beginnt einen neuen
+Absatz. Vorhandene Beiträge lassen sich darunter jederzeit bearbeiten oder
+löschen.
+
+Diese Beiträge brauchen kein „Jetzt veröffentlichen" – sie sind mit dem
+Klick sofort live.
+
 Das **Passwort** lässt sich im Portal unter „Passwort ändern“ wechseln; es
 gilt sofort. Vergessen? Dann auf dem Pi:
 
@@ -160,9 +172,10 @@ Website-Ordners und übersteht daher jedes Update:
 ```
 /var/lib/mellis-website/
 ├── inhalte.json          ← alle Texte, Zeiten, Kontaktdaten
+├── beitraege.json        ← die Neuigkeiten-Beiträge
 ├── zugang.json           ← Prüfwert des Portal-Passworts (kein Klartext)
 ├── bilder/               ← über das Portal hochgeladene Bilder
-└── sicherungen/          ← die letzten 30 Stände von inhalte.json
+└── sicherungen/          ← die letzten 30 Stände beider JSON-Dateien
 ```
 
 Vor jedem Veröffentlichen legt der Server automatisch eine Sicherung an.

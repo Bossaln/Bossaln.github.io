@@ -38,6 +38,7 @@ const TLS_KEY = process.env.MELLIS_TLS_KEY || "";
 const BILDER_ORDNER = path.join(DATEN, "bilder");
 const SICHERUNGEN_ORDNER = path.join(DATEN, "sicherungen");
 const INHALTE_DATEI = path.join(DATEN, "inhalte.json");
+const BEITRAEGE_DATEI = path.join(DATEN, "beitraege.json");
 const ZUGANG_DATEI = path.join(DATEN, "zugang.json");
 const SCHEMA_DATEI = path.join(WURZEL, "daten", "portal-schema.json");
 
@@ -48,6 +49,10 @@ const MAX_BILD = 8 * 1024 * 1024;     // größtes erlaubtes Bild (8 MB)
 const MAX_TEXT = 20000;               // größter erlaubter Textwert
 const SICHERUNGEN_BEHALTEN = 30;
 const BILDER_JE_SCHLUESSEL_BEHALTEN = 5;
+const MAX_BEITRAEGE = 200;            // größte Zahl an Neuigkeiten
+const MAX_BEITRAG_TITEL = 120;
+const MAX_BEITRAG_TEXT = 3000;
+const BILD_SCHONFRIST = 60 * 60 * 1000; // frisch hochgeladene Bilder nie löschen
 
 /* ------------------------------- Hilfsmittel ------------------------------ */
 
@@ -123,6 +128,7 @@ async function datenordnerVorbereiten() {
   // Beim ersten Start die Dateien aus dem Repository übernehmen
   const vorlagen = [
     [path.join(WURZEL, "daten", "inhalte.json"), INHALTE_DATEI],
+    [path.join(WURZEL, "daten", "beitraege.json"), BEITRAEGE_DATEI],
     [path.join(WURZEL, "daten", "zugang.json"), ZUGANG_DATEI],
   ];
   for (const [quelle, ziel] of vorlagen) {
@@ -131,6 +137,33 @@ async function datenordnerVorbereiten() {
     await fsp.copyFile(quelle, ziel);
     protokoll("Datei angelegt:", ziel);
   }
+
+  await neueTextfelderUebernehmen();
+}
+
+/* Bringt ein Update neue Texte mit (z. B. eine neue Seite), fehlen sie in der
+   gepflegten inhalte.json. Sie werden ergänzt – vorhandene Texte bleiben
+   unangetastet, damit im Portal gepflegte Inhalte niemals überschrieben
+   werden. */
+async function neueTextfelderUebernehmen() {
+  const vorlage = path.join(WURZEL, "daten", "inhalte.json");
+  if (path.resolve(vorlage) === path.resolve(INHALTE_DATEI)) return;
+
+  let standard, gepflegt;
+  try {
+    standard = JSON.parse(await fsp.readFile(vorlage, "utf8"));
+    gepflegt = JSON.parse(await fsp.readFile(INHALTE_DATEI, "utf8"));
+  } catch {
+    return;
+  }
+  if (!standard || typeof standard !== "object" || !gepflegt || typeof gepflegt !== "object") return;
+
+  const ergaenzt = Object.keys(standard).filter((schluessel) => !(schluessel in gepflegt));
+  if (!ergaenzt.length) return;
+
+  ergaenzt.forEach((schluessel) => { gepflegt[schluessel] = standard[schluessel]; });
+  await sicherSchreiben(INHALTE_DATEI, JSON.stringify(gepflegt, null, 2) + "\n");
+  protokoll("Neue Textfelder übernommen:", ergaenzt.join(", "));
 }
 
 async function inhalteLesen() {
@@ -138,6 +171,15 @@ async function inhalteLesen() {
     return JSON.parse(await fsp.readFile(INHALTE_DATEI, "utf8"));
   } catch {
     return {};
+  }
+}
+
+async function beitraegeLesen() {
+  try {
+    const daten = JSON.parse(await fsp.readFile(BEITRAEGE_DATEI, "utf8"));
+    return Array.isArray(daten) ? daten : [];
+  } catch {
+    return [];
   }
 }
 
@@ -282,7 +324,7 @@ function herkunftInOrdnung(req) {
 
 const BILD_MUSTER = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=\s]+)$/;
 
-async function bildAblegen(schluessel, datenUri) {
+async function bildAblegen(schluessel, datenUri, altAufraeumen = true) {
   const treffer = BILD_MUSTER.exec(datenUri);
   if (!treffer) throw new Error("Bildformat wird nicht unterstützt (PNG, JPG oder WebP).");
 
@@ -295,12 +337,94 @@ async function bildAblegen(schluessel, datenUri) {
   const name = `${sauber}-${zeitstempel()}-${crypto.randomBytes(2).toString("hex")}.${endung}`;
   await fsp.mkdir(BILDER_ORDNER, { recursive: true });
   await sicherSchreiben(path.join(BILDER_ORDNER, name), rohdaten);
-  await aufraeumen(
-    BILDER_ORDNER,
-    new RegExp("^" + sauber + "-"),
-    BILDER_JE_SCHLUESSEL_BEHALTEN
-  );
+  if (altAufraeumen) {
+    // Bilder fester Plätze (Logo, Team …): nur die letzten Stände behalten.
+    // Beitragsbilder bleiben, solange ein Beitrag sie verwendet.
+    await aufraeumen(
+      BILDER_ORDNER,
+      new RegExp("^" + sauber + "-"),
+      BILDER_JE_SCHLUESSEL_BEHALTEN
+    );
+  }
   return "bilder/" + name;
+}
+
+/* --------------------------- Neuigkeiten (Beiträge) ----------------------- */
+
+function beitragPruefen(eingang) {
+  if (!eingang || typeof eingang !== "object" || Array.isArray(eingang)) {
+    throw new Error("Ungültiger Beitrag.");
+  }
+
+  const titel = typeof eingang.titel === "string" ? eingang.titel.trim() : "";
+  const text = typeof eingang.text === "string" ? eingang.text.trim() : "";
+  if (!titel && !text) throw new Error("Ein Beitrag braucht mindestens einen Titel oder einen Text.");
+  if (titel.length > MAX_BEITRAG_TITEL) throw new Error("Der Titel ist zu lang (max. 120 Zeichen).");
+  if (text.length > MAX_BEITRAG_TEXT) throw new Error("Der Text ist zu lang (max. 3000 Zeichen).");
+
+  const bild = typeof eingang.bild === "string" ? eingang.bild.trim() : "";
+  if (bild && !/^bilder\/[A-Za-z0-9._-]{1,120}$/.test(bild)) {
+    throw new Error("Das Bild des Beitrags ist ungültig.");
+  }
+
+  const id = typeof eingang.id === "string" && /^[a-z0-9-]{1,40}$/i.test(eingang.id)
+    ? eingang.id
+    : "b-" + Date.now().toString(36) + "-" + crypto.randomBytes(3).toString("hex");
+
+  const zeitWert = Date.parse(eingang.zeit);
+  const zeit = Number.isFinite(zeitWert) ? new Date(zeitWert).toISOString() : new Date().toISOString();
+
+  return { id, titel, text, bild, zeit };
+}
+
+/* Bilder löschen, die zu keinem Beitrag mehr gehören. Frisch hochgeladene
+   Bilder bleiben verschont – sie gehören oft zu einem Beitrag, der gerade
+   erst geschrieben wird. */
+async function beitragsbilderAufraeumen(beitraege) {
+  const gebraucht = new Set(beitraege.map((b) => b.bild).filter(Boolean));
+  const grenze = Date.now() - BILD_SCHONFRIST;
+  let dateien = [];
+  try {
+    dateien = await fsp.readdir(BILDER_ORDNER);
+  } catch {
+    return;
+  }
+
+  for (const name of dateien) {
+    if (!/^beitrag-/.test(name)) continue;
+    if (gebraucht.has("bilder/" + name)) continue;
+    const voll = path.join(BILDER_ORDNER, name);
+    try {
+      const angaben = await fsp.stat(voll);
+      if (angaben.mtimeMs > grenze) continue;
+      await fsp.unlink(voll);
+      protokoll("Nicht mehr benötigtes Beitragsbild gelöscht:", name);
+    } catch { /* schon weg */ }
+  }
+}
+
+async function beitraegeSpeichern(eingang) {
+  if (!Array.isArray(eingang)) throw new Error("Ungültige Daten.");
+  if (eingang.length > MAX_BEITRAEGE) {
+    throw new Error(`Es sind höchstens ${MAX_BEITRAEGE} Beiträge möglich.`);
+  }
+
+  const geprueft = eingang.map(beitragPruefen);
+  // neueste zuerst
+  geprueft.sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit));
+
+  if (fs.existsSync(BEITRAEGE_DATEI)) {
+    await fsp.mkdir(SICHERUNGEN_ORDNER, { recursive: true });
+    await fsp.copyFile(
+      BEITRAEGE_DATEI,
+      path.join(SICHERUNGEN_ORDNER, `beitraege-${zeitstempel()}.json`)
+    ).catch(() => {});
+    await aufraeumen(SICHERUNGEN_ORDNER, /^beitraege-.*\.json$/, SICHERUNGEN_BEHALTEN);
+  }
+
+  await sicherSchreiben(BEITRAEGE_DATEI, JSON.stringify(geprueft, null, 2) + "\n");
+  await beitragsbilderAufraeumen(geprueft);
+  return geprueft;
 }
 
 /* ---------------------------- Inhalte prüfen ------------------------------ */
@@ -442,9 +566,25 @@ async function api(req, res, pfad, sicher) {
     }
   }
 
+  if (pfad === "/api/beitraege") {
+    try {
+      const beitraege = await beitraegeSpeichern(koerper.beitraege);
+      protokoll("Neuigkeiten gespeichert (" + beitraege.length + " Beiträge)");
+      return antwortJson(res, 200, { ok: true, beitraege });
+    } catch (fehler) {
+      protokoll("Neuigkeiten speichern fehlgeschlagen:", fehler.message);
+      return antwortJson(res, 400, { fehler: fehler.message });
+    }
+  }
+
   if (pfad === "/api/bild") {
     try {
-      const pfadImNetz = await bildAblegen(koerper.schluessel, String(koerper.daten || ""));
+      const schluessel = String(koerper.schluessel || "");
+      const pfadImNetz = await bildAblegen(
+        schluessel,
+        String(koerper.daten || ""),
+        !/^beitrag/.test(schluessel)
+      );
       protokoll("Bild gespeichert:", pfadImNetz);
       return antwortJson(res, 200, { ok: true, pfad: pfadImNetz });
     } catch (fehler) {
@@ -537,6 +677,9 @@ async function statisch(req, res, pfad) {
   }
   if (pfad === "/daten/inhalte.json") {
     return dateiSenden(req, res, INHALTE_DATEI, "no-store");
+  }
+  if (pfad === "/daten/beitraege.json") {
+    return dateiSenden(req, res, BEITRAEGE_DATEI, "no-store");
   }
   if (pfad === "/daten/portal-schema.json") {
     return dateiSenden(req, res, SCHEMA_DATEI, "no-store");

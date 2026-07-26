@@ -19,6 +19,7 @@
   "use strict";
 
   const LOKAL_SCHLUESSEL = "mellis_cms_inhalte";
+  const BEITRAEGE_SCHLUESSEL = "mellis_cms_beitraege";
   const SITZUNG_SCHLUESSEL = "mellis_admin_sitzung";
   const VERSUCHE_SCHLUESSEL = "mellis_admin_versuche";
   const SITZUNG_MINUTEN = 30;
@@ -32,6 +33,9 @@
   let veroeffentlicht = {};   // Inhalt von daten/inhalte.json
   let schema = [];            // Feldliste aus daten/portal-schema.json
   let entwurf = {};           // aktueller Bearbeitungsstand
+  let beitraege = [];         // Neuigkeiten aus daten/beitraege.json
+  let beitragBild = "";       // Bild des Beitrags, der gerade geschrieben wird
+  let bearbeiteId = null;     // wird ein vorhandener Beitrag bearbeitet?
 
   document.addEventListener("DOMContentLoaded", start);
 
@@ -68,6 +72,20 @@
       return;
     }
 
+    // Neuigkeiten sind für die Anmeldung nicht nötig – Fehler dürfen das
+    // Portal deshalb nicht blockieren.
+    try {
+      const antwort = await fetch("daten/beitraege.json", { cache: "no-store" });
+      const geladen = antwort.ok ? await antwort.json() : [];
+      beitraege = Array.isArray(geladen) ? geladen : [];
+    } catch {
+      beitraege = [];
+    }
+    if (!servermodus) {
+      const vorschau = lokaleBeitraege();
+      if (vorschau) beitraege = vorschau;
+    }
+
     if (!servermodus && (!window.crypto || !crypto.subtle)) {
       meldung("anmelde-meldung",
         "Dieser Browser unterstützt die nötige Verschlüsselung nicht (unsicherer Kontext?). Bitte die Seite über HTTPS aufrufen.");
@@ -82,6 +100,12 @@
     document.getElementById("exportieren").addEventListener("click", veroeffentlichen);
     document.getElementById("zuruecksetzen").addEventListener("click", zuruecksetzen);
     document.getElementById("passwort-formular").addEventListener("submit", passwortAendern);
+
+    document.getElementById("beitrag-posten").addEventListener("click", beitragPosten);
+    document.getElementById("beitrag-abbrechen").addEventListener("click", beitragAbbrechen);
+    document.getElementById("beitrag-exportieren").addEventListener("click", beitraegeExportieren);
+    document.getElementById("beitrag-bild-weg").addEventListener("click", beitragBildEntfernen);
+    document.getElementById("beitrag-bild").addEventListener("change", beitragBildLaden);
 
     BILDER.forEach((schluessel) => {
       const eingabe = document.getElementById("upload-" + schluessel);
@@ -107,6 +131,10 @@
     const knopf = document.getElementById("exportieren");
     const altZeile = document.getElementById("passwort-alt-zeile");
     const passwortHinweis = document.getElementById("passwort-hinweis");
+
+    // Ohne Server müssen die Neuigkeiten als Datei exportiert werden
+    const beitragExport = document.getElementById("beitrag-exportieren");
+    if (beitragExport) beitragExport.style.display = servermodus ? "none" : "";
 
     if (!servermodus) return;
 
@@ -350,7 +378,289 @@
       if (vorschau && entwurf[schluessel]) vorschau.src = entwurf[schluessel];
     });
     dynamischeBereicheAufbauen();
+    beitragslisteAufbauen();
     statusAktualisieren();
+  }
+
+  /* ------------------------- Neuigkeiten (Beiträge) ------------------------ */
+
+  function lokaleBeitraege() {
+    try {
+      const daten = JSON.parse(localStorage.getItem(BEITRAEGE_SCHLUESSEL));
+      return Array.isArray(daten) ? daten : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function beitragDatum(beitrag) {
+    const zeitpunkt = new Date(beitrag.zeit);
+    if (isNaN(zeitpunkt.getTime())) return "";
+    return zeitpunkt.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) +
+      ", " + zeitpunkt.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr";
+  }
+
+  function beitragslisteAufbauen() {
+    const halter = document.getElementById("beitrag-liste");
+    if (!halter) return;
+    halter.innerHTML = "";
+
+    if (!beitraege.length) {
+      const leer = document.createElement("p");
+      leer.style.color = "var(--tinte-hell)";
+      leer.textContent = "Noch keine Beiträge – der erste wartet auf dich. 🌱";
+      halter.appendChild(leer);
+      return;
+    }
+
+    beitraege.forEach((beitrag) => {
+      const zeile = document.createElement("div");
+      zeile.className = "beitrag-eintrag";
+
+      if (beitrag.bild) {
+        const bild = document.createElement("img");
+        bild.src = beitrag.bild;
+        bild.alt = "";
+        zeile.appendChild(bild);
+      } else {
+        const platzhalter = document.createElement("div");
+        platzhalter.className = "ohne-bild";
+        platzhalter.textContent = "📝";
+        zeile.appendChild(platzhalter);
+      }
+
+      const text = document.createElement("div");
+      const titel = document.createElement("h4");
+      titel.textContent = beitrag.titel || "(ohne Titel)";
+      text.appendChild(titel);
+
+      const datum = document.createElement("small");
+      datum.textContent = beitragDatum(beitrag);
+      text.appendChild(datum);
+
+      if (beitrag.text) {
+        const auszug = document.createElement("p");
+        auszug.textContent = beitrag.text.length > 90
+          ? beitrag.text.slice(0, 90).replace(/\s+\S*$/, "") + " …"
+          : beitrag.text;
+        text.appendChild(auszug);
+      }
+      zeile.appendChild(text);
+
+      const knoepfe = document.createElement("div");
+      knoepfe.className = "knoepfe";
+
+      const bearbeiten = document.createElement("button");
+      bearbeiten.type = "button";
+      bearbeiten.className = "btn btn-sekundaer btn-klein";
+      bearbeiten.textContent = "Bearbeiten";
+      bearbeiten.addEventListener("click", () => beitragBearbeiten(beitrag.id));
+      knoepfe.appendChild(bearbeiten);
+
+      const loeschen = document.createElement("button");
+      loeschen.type = "button";
+      loeschen.className = "btn btn-sekundaer btn-klein";
+      loeschen.textContent = "Löschen";
+      loeschen.addEventListener("click", () => beitragLoeschen(beitrag.id));
+      knoepfe.appendChild(loeschen);
+
+      zeile.appendChild(knoepfe);
+      halter.appendChild(zeile);
+    });
+  }
+
+  function beitragFormularLeeren() {
+    document.getElementById("beitrag-titel").value = "";
+    document.getElementById("beitrag-text").value = "";
+    document.getElementById("beitrag-bild").value = "";
+    beitragBild = "";
+    bearbeiteId = null;
+    beitragVorschauZeigen("");
+    document.getElementById("beitrag-posten").textContent = "Beitrag veröffentlichen";
+    document.getElementById("beitrag-abbrechen").style.display = "none";
+  }
+
+  function beitragVorschauZeigen(quelle) {
+    const vorschau = document.getElementById("beitrag-vorschau");
+    const wegKnopf = document.getElementById("beitrag-bild-weg");
+    if (quelle) {
+      vorschau.src = quelle;
+      vorschau.style.display = "";
+      wegKnopf.style.display = "";
+    } else {
+      vorschau.removeAttribute("src");
+      vorschau.style.display = "none";
+      wegKnopf.style.display = "none";
+    }
+  }
+
+  function beitragBildEntfernen() {
+    beitragBild = "";
+    document.getElementById("beitrag-bild").value = "";
+    beitragVorschauZeigen("");
+    meldung("beitrag-meldung", "Bild entfernt. Der Beitrag erscheint dann ohne Bild.", true);
+  }
+
+  function beitragBildLaden(e) {
+    const datei = e.target.files && e.target.files[0];
+    if (!datei) return;
+    if (!/^image\//.test(datei.type)) {
+      meldung("beitrag-meldung", "Bitte eine Bilddatei auswählen (JPG oder PNG).");
+      return;
+    }
+
+    bildVerkleinern(datei, async (datenUri) => {
+      if (!servermodus) {
+        beitragBild = datenUri;
+        beitragVorschauZeigen(datenUri);
+        meldung("beitrag-meldung", "Bild übernommen.", true);
+        return;
+      }
+
+      meldung("beitrag-meldung", "Bild wird hochgeladen …", true);
+      let antwort;
+      try {
+        antwort = await serverAufruf("api/bild", { schluessel: "beitrag", daten: datenUri });
+      } catch {
+        meldung("beitrag-meldung", "Der Server ist nicht erreichbar – das Bild wurde nicht gespeichert.");
+        return;
+      }
+      if (antwort.status === 401) return sitzungAbgelaufen();
+      if (!antwort.ok) {
+        meldung("beitrag-meldung",
+          "Bild konnte nicht gespeichert werden: " + (antwort.daten.fehler || "unbekannter Fehler"));
+        return;
+      }
+      beitragBild = antwort.daten.pfad;
+      beitragVorschauZeigen(antwort.daten.pfad);
+      meldung("beitrag-meldung", "Bild übernommen.", true);
+    });
+  }
+
+  function beitragBearbeiten(id) {
+    const beitrag = beitraege.find((b) => b.id === id);
+    if (!beitrag) return;
+
+    bearbeiteId = id;
+    beitragBild = beitrag.bild || "";
+    document.getElementById("beitrag-titel").value = beitrag.titel || "";
+    document.getElementById("beitrag-text").value = beitrag.text || "";
+    document.getElementById("beitrag-bild").value = "";
+    beitragVorschauZeigen(beitragBild);
+    document.getElementById("beitrag-posten").textContent = "Änderungen speichern";
+    document.getElementById("beitrag-abbrechen").style.display = "";
+    document.getElementById("beitrag-titel").scrollIntoView({ behavior: "smooth", block: "center" });
+    meldung("beitrag-meldung", "Beitrag geladen – jetzt bearbeiten und speichern.", true);
+  }
+
+  function beitragAbbrechen() {
+    beitragFormularLeeren();
+    meldung("beitrag-meldung", "Bearbeiten abgebrochen.", true);
+  }
+
+  async function beitragLoeschen(id) {
+    const beitrag = beitraege.find((b) => b.id === id);
+    if (!beitrag) return;
+    if (!confirm(`Beitrag „${beitrag.titel || "ohne Titel"}“ wirklich löschen?`)) return;
+
+    const vorher = beitraege;
+    beitraege = beitraege.filter((b) => b.id !== id);
+    if (bearbeiteId === id) beitragFormularLeeren();
+
+    if (await beitraegeSpeichern("Beitrag gelöscht.")) return;
+    beitraege = vorher;               // Speichern misslungen – Stand zurück
+    beitragslisteAufbauen();
+  }
+
+  async function beitragPosten() {
+    const titel = document.getElementById("beitrag-titel").value.trim();
+    const text = document.getElementById("beitrag-text").value.trim();
+
+    if (!titel && !text) {
+      meldung("beitrag-meldung", "Bitte einen Titel oder eine Nachricht eingeben.");
+      return;
+    }
+
+    const vorher = beitraege;
+    if (bearbeiteId) {
+      beitraege = beitraege.map((b) =>
+        b.id === bearbeiteId ? Object.assign({}, b, { titel, text, bild: beitragBild }) : b);
+    } else {
+      beitraege = [{
+        id: "b-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8),
+        titel, text, bild: beitragBild, zeit: new Date().toISOString(),
+      }].concat(beitraege);
+    }
+
+    const meldungstext = bearbeiteId
+      ? "Änderungen gespeichert – der Beitrag ist aktualisiert."
+      : "Beitrag veröffentlicht! Er steht jetzt auf der Seite „Neuigkeiten“ ganz oben.";
+
+    if (await beitraegeSpeichern(meldungstext)) {
+      beitragFormularLeeren();
+      return;
+    }
+    beitraege = vorher;
+    beitragslisteAufbauen();
+  }
+
+  /* Speichert die Beiträge – auf dem Server oder (ohne Server) im Browser.
+     Gibt true zurück, wenn es geklappt hat. */
+  async function beitraegeSpeichern(erfolgstext) {
+    const knopf = document.getElementById("beitrag-posten");
+
+    if (!servermodus) {
+      try {
+        localStorage.setItem(BEITRAEGE_SCHLUESSEL, JSON.stringify(beitraege));
+      } catch {
+        meldung("beitrag-meldung",
+          "Speichern fehlgeschlagen – vermutlich sind die Bilder zu groß für den lokalen Speicher.");
+        return false;
+      }
+      beitragslisteAufbauen();
+      meldung("beitrag-meldung", erfolgstext +
+        " Zum Veröffentlichen für alle Besucher: „Beiträge als Datei speichern“ und die Datei " +
+        "beitraege.json in den Ordner daten/ hochladen.", true);
+      return true;
+    }
+
+    knopf.disabled = true;
+    let antwort;
+    try {
+      antwort = await serverAufruf("api/beitraege", { beitraege });
+    } catch {
+      knopf.disabled = false;
+      meldung("beitrag-meldung", "Der Server ist nicht erreichbar – nichts wurde verändert.");
+      return false;
+    }
+    knopf.disabled = false;
+
+    if (antwort.status === 401) {
+      sitzungAbgelaufen();
+      return false;
+    }
+    if (!antwort.ok) {
+      meldung("beitrag-meldung",
+        "Speichern fehlgeschlagen: " + (antwort.daten.fehler || "unbekannter Fehler"));
+      return false;
+    }
+
+    beitraege = antwort.daten.beitraege || beitraege;
+    localStorage.removeItem(BEITRAEGE_SCHLUESSEL);
+    beitragslisteAufbauen();
+    meldung("beitrag-meldung", erfolgstext, true);
+    return true;
+  }
+
+  function beitraegeExportieren() {
+    const blob = new Blob([JSON.stringify(beitraege, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "beitraege.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    meldung("beitrag-meldung",
+      "Datei „beitraege.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website hochladen (ersetzen).", true);
   }
 
   /* Baut für jede Seite einen aufklappbaren Bereich mit allen Textfeldern */
@@ -509,6 +819,29 @@
 
   /* ----------------------------- Bilder ----------------------------- */
 
+  /* Verkleinert ein ausgewähltes Bild und gibt es als Daten-URI weiter,
+     damit weder der Browser-Speicher noch die Website unnötig wachsen. */
+  function bildVerkleinern(datei, fertig) {
+    const leser = new FileReader();
+    leser.onload = () => {
+      const bild = new Image();
+      bild.onload = () => {
+        const maxBreite = 1200;
+        const faktor = Math.min(1, maxBreite / bild.width);
+        const leinwand = document.createElement("canvas");
+        leinwand.width = Math.round(bild.width * faktor);
+        leinwand.height = Math.round(bild.height * faktor);
+        leinwand.getContext("2d").drawImage(bild, 0, 0, leinwand.width, leinwand.height);
+        // PNG behält Transparenz (wichtig fürs Logo), sonst platzsparendes JPEG
+        fertig(datei.type === "image/png"
+          ? leinwand.toDataURL("image/png")
+          : leinwand.toDataURL("image/jpeg", 0.85));
+      };
+      bild.src = leser.result;
+    };
+    leser.readAsDataURL(datei);
+  }
+
   function bildLaden(e, schluessel) {
     const datei = e.target.files && e.target.files[0];
     if (!datei) return;
@@ -517,34 +850,16 @@
       return;
     }
 
-    const leser = new FileReader();
-    leser.onload = () => {
-      const bild = new Image();
-      bild.onload = () => {
-        // verkleinern, damit der lokale Speicher und die Website schlank bleiben
-        const maxBreite = 1200;
-        const faktor = Math.min(1, maxBreite / bild.width);
-        const leinwand = document.createElement("canvas");
-        leinwand.width = Math.round(bild.width * faktor);
-        leinwand.height = Math.round(bild.height * faktor);
-        leinwand.getContext("2d").drawImage(bild, 0, 0, leinwand.width, leinwand.height);
-        // PNG behält Transparenz (wichtig fürs Logo), sonst platzsparendes JPEG
-        const datenUri = datei.type === "image/png"
-          ? leinwand.toDataURL("image/png")
-          : leinwand.toDataURL("image/jpeg", 0.85);
-
-        if (servermodus) {
-          bildHochladen(schluessel, datenUri);
-        } else {
-          entwurf[schluessel] = datenUri;
-          document.getElementById("vorschau-" + schluessel).src = datenUri;
-          meldung("portal-meldung",
-            "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
-        }
-      };
-      bild.src = leser.result;
-    };
-    leser.readAsDataURL(datei);
+    bildVerkleinern(datei, (datenUri) => {
+      if (servermodus) {
+        bildHochladen(schluessel, datenUri);
+      } else {
+        entwurf[schluessel] = datenUri;
+        document.getElementById("vorschau-" + schluessel).src = datenUri;
+        meldung("portal-meldung",
+          "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
+      }
+    });
   }
 
   /* Server-Betrieb: Bild sofort auf den Server legen und nur den Pfad merken.

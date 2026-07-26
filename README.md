@@ -15,6 +15,7 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 | `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
 | `galerie.html` | Galerie (Platzhalter-Kacheln, bis echte Fotos vorliegen) |
+| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom im Stil einer Profilseite |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
 | `impressum.html` | Impressum (Mustertext mit Platzhaltern) |
 | `datenschutz.html` | Datenschutzerklärung (Mustertext mit Platzhaltern) |
@@ -52,20 +53,42 @@ Portal eine kleine Schnittstelle bereit:
 | `POST /api/anmelden` | Passwortprüfung auf dem Server, setzt einen HttpOnly-Sitzungskeks |
 | `POST /api/abmelden` | Sitzung beenden |
 | `POST /api/veroeffentlichen` | Inhalte speichern (nach Anmeldung) |
+| `POST /api/beitraege` | Neuigkeiten speichern (nach Anmeldung) |
 | `POST /api/bild` | Bild als Datei ablegen (nach Anmeldung) |
 | `POST /api/passwort` | Portal-Passwort ändern (nach Anmeldung) |
 
 Alles, was das Portal pflegt, liegt in `/var/lib/mellis-website`
-(Inhalte, Bilder, Passwort-Prüfwert, die letzten 30 Sicherungen) und
-bleibt bei Updates unangetastet. Die Zugangsdatei wird im Server-Betrieb
-nicht mehr ausgeliefert.
+(Inhalte, Neuigkeiten, Bilder, Passwort-Prüfwert, die letzten 30
+Sicherungen) und bleibt bei Updates unangetastet. Bringt ein Update neue
+Textfelder mit (z. B. eine neue Seite), ergänzt der Server sie beim Start
+automatisch, ohne gepflegte Texte zu überschreiben. Die Zugangsdatei wird
+im Server-Betrieb nicht mehr ausgeliefert.
+
+## Neuigkeiten (`neuigkeiten.html`)
+
+Eine Seite im Stil einer Profilseite: Profilkopf mit Logo, Name und
+Steckbrief, darunter die Beiträge – der neueste oben, jeder mit Titel,
+Nachricht, optionalem Bild und Zeitstempel („vor 3 Tagen" plus genaues
+Datum). Geschrieben werden sie im Portal unter „📣 Neuigkeiten posten":
+Titel, Nachricht, wenn gewünscht ein Bild – veröffentlichen, fertig.
+Vorhandene Beiträge lassen sich dort bearbeiten und löschen.
+
+Gespeichert wird in `daten/beitraege.json`:
+
+```json
+[{ "id": "b-…", "titel": "…", "text": "…", "bild": "bilder/…jpg", "zeit": "2026-07-26T18:30:00.000Z" }]
+```
+
+Texte werden auf der Seite als reiner Text eingesetzt (kein `innerHTML`),
+Leerzeilen werden zu Absätzen. Bilder von gelöschten Beiträgen räumt der
+Server nach einer Stunde selbst auf.
 
 ## Verwaltungs-Portal (`admin.html`)
 
 Unter `/admin.html` (Footer-Link „Portal") lässt sich praktisch die ganze
 Website ohne Programmierkenntnisse bearbeiten: Betreuungszeiten,
-Kontaktdaten, alle Fotos inkl. Logo sowie sämtliche Texte aller Seiten
-(über 220 Felder, nach Seiten gruppiert). Die editierbaren Stellen sind im
+Kontaktdaten, alle Fotos inkl. Logo, Neuigkeiten-Beiträge sowie sämtliche
+Texte aller Seiten (über 170 Felder, nach Seiten gruppiert). Die editierbaren Stellen sind im
 HTML mit `data-cms`-Attributen markiert; `daten/portal-schema.json`
 beschreibt die Felder für das Portal. Neue editierbare Stellen können durch
 Markieren eines Elements (`data-cms="schluessel"`) plus Eintrag in

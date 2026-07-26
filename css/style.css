@@ -880,6 +880,165 @@ a { color: var(--blau); }
 .brotkruemel a { color: var(--orange); text-decoration: none; }
 
 /* --------------------------------------------------------------------------
+   Neuigkeiten – Profilkopf und Beitragsstrom
+   -------------------------------------------------------------------------- */
+.profil-kopf {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  max-width: 42rem;
+  margin: 0 auto 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 2px solid var(--wolke);
+}
+
+.profil-bild img {
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+  border-radius: 50%;
+  padding: 8px;
+  border: 4px solid transparent;
+  background:
+    linear-gradient(var(--weiss), var(--weiss)) padding-box,
+    var(--regenbogen) border-box;
+  box-shadow: var(--schatten);
+}
+
+.profil-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.profil-name {
+  font-size: 1.6rem;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.profil-knoepfe { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+.btn-klein {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  background: var(--wolke);
+  color: var(--tinte);
+}
+
+.btn-klein:hover { background: var(--gelb); }
+
+.btn-sekundaer.btn-klein { background: var(--weiss); border-width: 2px; }
+
+.profil-zahlen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 2rem;
+  list-style: none;
+  margin-bottom: 1.2rem;
+  color: var(--tinte-hell);
+  font-size: 0.98rem;
+}
+
+.profil-zahlen strong { color: var(--tinte); font-size: 1.1rem; }
+
+.profil-bio { font-size: 0.98rem; color: var(--tinte-hell); line-height: 1.7; }
+
+.profil-bio strong { color: var(--tinte); font-family: var(--schrift-titel); font-size: 1.05rem; }
+
+.profil-bio p { margin-top: 0.2rem; }
+
+.beitrag-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.beitrag {
+  background: var(--weiss);
+  border: 2px solid var(--wolke);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--schatten);
+  transition: transform var(--uebergang), box-shadow var(--uebergang);
+}
+
+.beitrag:hover { transform: translateY(-4px); box-shadow: var(--schatten-hover); }
+
+.beitrag-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--wolke);
+}
+
+.beitrag-avatar {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  border-radius: 50%;
+  padding: 2px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--weiss), var(--weiss)) padding-box,
+    var(--regenbogen) border-box;
+  flex-shrink: 0;
+}
+
+.beitrag-kopf strong { display: block; font-size: 0.98rem; }
+
+.beitrag-kopf time { font-size: 0.85rem; color: var(--tinte-hell); }
+
+.beitrag-bild { background: var(--wolke); }
+
+.beitrag-bild img {
+  display: block;
+  width: 100%;
+  max-height: 34rem;
+  object-fit: cover;
+}
+
+.beitrag-text { padding: 1.4rem 1.4rem 0.4rem; }
+
+.beitrag-text h3 { font-size: 1.3rem; margin-bottom: 0.6rem; }
+
+.beitrag-text p { color: var(--tinte-hell); margin-bottom: 0.8rem; }
+
+.beitrag-fuss {
+  padding: 0.6rem 1.4rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--tinte-hell);
+}
+
+.beitrag-hinweis {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--tinte-hell);
+  font-weight: 600;
+  background: var(--wolke);
+  border-radius: var(--radius);
+}
+
+@media (max-width: 760px) {
+  .profil-kopf {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: center;
+    justify-items: center;
+  }
+  .profil-bild img { width: 130px; height: 130px; }
+  .profil-zeile, .profil-zahlen, .profil-knoepfe { justify-content: center; }
+  .profil-zahlen { gap: 0.4rem 1.4rem; }
+}
+
+/* --------------------------------------------------------------------------
    Footer
    -------------------------------------------------------------------------- */
 .footer {

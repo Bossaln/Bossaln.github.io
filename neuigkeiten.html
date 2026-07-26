@@ -4,8 +4,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Galerie – Melli's Krabbelzwerge</title>
-<meta content="Einblicke in die Räume und den Alltag von Melli's Krabbelzwergen – Großtagespflege in Essen-Stoppenberg." name="description"/>
+<title>Neuigkeiten – Melli's Krabbelzwerge</title>
+<meta content="Aktuelles aus dem Alltag von Melli's Krabbelzwergen – Großtagespflege in Essen-Stoppenberg." name="description"/>
 <link href="assets/img/logo.png" rel="icon" type="image/png"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -31,8 +31,8 @@
 <li><a href="index.html">Start</a></li>
 <li><a href="ueber-uns.html">Über uns</a></li>
 <li><a href="tagesablauf.html">Tagesablauf</a></li>
-<li><a class="aktiv" href="galerie.html">Galerie</a></li>
-<li><a href="neuigkeiten.html">Neuigkeiten</a></li>
+<li><a href="galerie.html">Galerie</a></li>
+<li><a class="aktiv" href="neuigkeiten.html">Neuigkeiten</a></li>
 <li><a class="nav-cta" href="kontakt.html">Kontakt</a></li>
 </ul>
 </nav>
@@ -42,50 +42,44 @@
 <section class="seiten-kopf">
 <div class="container">
 <nav aria-label="Brotkrümelnavigation" class="brotkruemel">
-<a href="index.html">Start</a> <span>›</span> <span>Galerie</span>
+<a href="index.html">Start</a> <span>›</span> <span>Neuigkeiten</span>
 </nav>
-<h1 data-cms="galerie_01">Unsere bunte Welt 📸</h1>
-<p data-cms="galerie_02" data-tippen="">Ein kleiner Einblick in unsere Räume und unseren Alltag – echte Fotos folgen bald!</p>
+<h1 data-cms="neuigkeiten_01">Neues von uns 📣</h1>
+<p data-cms="neuigkeiten_02" data-tippen="">Kleine Einblicke, Termine und Erlebnisse aus unserem Alltag.</p>
 </div>
 </section>
 <section class="abschnitt abschnitt-hell">
 <div class="container">
-<div class="galerie-raster">
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser buntes Spielzimmer mit Spielteppich, Regalen und Blick in den Flur" data-cms-bild="bild_spielzimmer" src="assets/img/spielzimmer.jpg"/>
-<span class="titel" data-cms="galerie_03">Unser Spielzimmer</span>
+
+<div class="profil-kopf einblenden">
+<div class="profil-bild">
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte" data-cms-bild="bild_raum" src="assets/img/raum.jpg"/>
-<span class="titel" data-cms="galerie_04">Spiel- &amp; Schlafraum</span>
+<div class="profil-daten">
+<div class="profil-zeile">
+<h2 class="profil-name" data-cms="neuigkeiten_name">mellis_krabbelzwerge</h2>
+<div class="profil-knoepfe">
+<a class="btn btn-klein" href="kontakt.html" data-cms="neuigkeiten_knopf_1">Nachricht schreiben</a>
+<a class="btn btn-sekundaer btn-klein" href="galerie.html" data-cms="neuigkeiten_knopf_2">Galerie ansehen</a>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser rund 300 m² großes Außengelände mit Rutsche und Spielhäuschen" data-cms-bild="bild_garten" src="assets/img/garten.jpg"/>
-<span class="titel" data-cms="galerie_05">Unser Außengelände (300 m²)</span>
 </div>
-<div class="galerie-kachel gk-2 einblenden">
-<span>🎨</span>
-<span class="titel" data-cms="galerie_06">Essraum – auch zum Basteln &amp; Malen</span>
+<ul class="profil-zahlen">
+<li><strong id="beitrag-zahl">0</strong> <span data-cms="neuigkeiten_zahl_1">Beiträge</span></li>
+<li><strong data-cms="neuigkeiten_zahl_2_wert">2</strong> <span data-cms="neuigkeiten_zahl_2">Schwestern mit Herz</span></li>
+<li><strong data-cms="neuigkeiten_zahl_3_wert">300</strong> <span data-cms="neuigkeiten_zahl_3">m² Außengelände</span></li>
+</ul>
+<div class="profil-bio">
+<strong data-cms="neuigkeiten_bio_titel">Melli's Krabbelzwerge · Großtagespflege</strong>
+<p data-cms="slogan">„Alles was ein Kind braucht, um glücklich zu sein."</p>
+<p data-cms-html="neuigkeiten_bio">📍 Im Looscheid 82 · 45141 Essen-Stoppenberg<br/>🌈 Betreuung mit Herz für Kinder von 0 bis 3 Jahren</p>
 </div>
-<div class="galerie-kachel gk-5 einblenden">
-<span>🛁</span>
-<span class="titel" data-cms="galerie_07">Kinderbad mit Wickeltisch</span>
-</div>
-<div class="galerie-kachel gk-1 einblenden">
-<span>🧱</span>
-<span class="titel" data-cms="galerie_08">Bauecke &amp; Kuschelhöhle</span>
 </div>
 </div>
 
+<div class="beitrag-liste" id="beitraege">
+<p class="beitrag-hinweis">Beiträge werden geladen …</p>
 </div>
-</section>
-<section class="abschnitt">
-<div class="container">
-<div class="cta-banner einblenden">
-<h2 data-cms="galerie_10">Lieber live erleben?</h2>
-<p data-cms="galerie_11">Kommt vorbei und schaut euch alles persönlich an – Termin einfach über das Kontaktformular vereinbaren.</p>
-<a class="btn" data-cms="galerie_12" href="kontakt.html">Besichtigung anfragen</a>
-</div>
+
 </div>
 </section>
 </main>
@@ -138,6 +132,7 @@
 </footer>
 <button aria-label="Nach oben scrollen" class="nach-oben">↑</button>
 <script src="js/cms.js"></script>
+<script src="js/neuigkeiten.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
