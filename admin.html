@@ -76,6 +76,45 @@
       .beitrag-eintrag img, .beitrag-eintrag .ohne-bild { width: 62px; height: 48px; }
       .beitrag-eintrag .knoepfe { grid-column: 1 / -1; }
     }
+    .ordner-block {
+      border: 2px solid var(--wolke); border-radius: 14px;
+      padding: 1.1rem 1.2rem; margin-bottom: 1.2rem;
+    }
+    .ordner-block > summary {
+      cursor: pointer; font-family: var(--schrift-titel);
+      font-size: 1.1rem; font-weight: 700;
+    }
+    .ordner-block[open] > summary { margin-bottom: 1rem; }
+    .ordner-zeile {
+      display: flex; flex-wrap: wrap; gap: 0.6rem;
+      align-items: center; margin-bottom: 1rem;
+    }
+    .galerie-bilder {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1rem;
+    }
+    .galerie-bild {
+      border: 1px solid var(--wolke); border-radius: 12px;
+      padding: 0.6rem; background: var(--creme);
+    }
+    .galerie-bild img {
+      width: 100%; height: 130px; object-fit: cover;
+      border-radius: 8px; background: var(--wolke); display: block;
+    }
+    .galerie-bild textarea {
+      width: 100%; margin: 0.6rem 0 0.5rem;
+      padding: 0.5rem 0.7rem; resize: vertical;
+      font-family: var(--schrift-text); font-size: 0.9rem;
+      color: var(--tinte); background: var(--weiss);
+      border: 2px solid #ece2d4; border-radius: 10px;
+      transition: border-color var(--uebergang), box-shadow var(--uebergang);
+    }
+    .galerie-bild textarea:focus {
+      outline: none; border-color: var(--blau);
+      box-shadow: 0 0 0 3px rgba(61, 155, 233, 0.15);
+    }
+    .galerie-bild .werkzeuge { display: flex; justify-content: space-between; gap: 0.5rem; }
+    .fortschritt { font-weight: 700; color: var(--tinte-hell); font-size: 0.9rem; }
     .passwort-wrapper { position: relative; }
     .passwort-wrapper input { padding-right: 3.2rem; }
     .passwort-wrapper button {
@@ -274,6 +313,33 @@
 
         <h3 style="font-size: 1.1rem; margin: 1.8rem 0 0.6rem;">Bisherige Beiträge</h3>
         <div id="beitrag-liste"></div>
+      </div>
+
+      <div class="portal-karte">
+        <h2>🖼️ Galerie – Ordner &amp; Bilder</h2>
+        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+          Die <a href="galerie.html" target="_blank" rel="noopener">Galerie</a> ist in
+          Ordner unterteilt. Hier siehst du die ganze Struktur, kannst Ordner
+          anlegen, mehrere Bilder gleichzeitig hochladen und zu jedem Bild einen
+          Text schreiben – der erscheint unter dem Bild.
+        </p>
+
+        <div class="feld">
+          <label for="ordner-neu-name">Neuen Ordner anlegen</label>
+          <input type="text" id="ordner-neu-name" maxlength="80" placeholder="z. B. Sommerfest 2026">
+        </div>
+        <div class="feld">
+          <label for="ordner-neu-text">Beschreibung des Ordners (optional)</label>
+          <input type="text" id="ordner-neu-text" maxlength="500" placeholder="Kurz, was in diesem Ordner zu sehen ist">
+        </div>
+        <div class="portal-aktionen" style="margin-bottom: 1.5rem;">
+          <button id="ordner-anlegen" class="btn btn-primaer">Ordner anlegen</button>
+          <button id="galerie-exportieren" class="btn btn-sekundaer" style="display: none;">Galerie als Datei speichern</button>
+        </div>
+        <div id="galerie-meldung" class="portal-hinweis"></div>
+
+        <h3 style="font-size: 1.1rem; margin: 1.8rem 0 0.6rem;">Ordnerstruktur</h3>
+        <div id="galerie-struktur"></div>
       </div>
 
       <h2 style="font-size: 1.4rem; margin: 2rem 0 1rem;">📝 Alle Texte der Website</h2>

@@ -128,6 +128,19 @@ löschen.
 Diese Beiträge brauchen kein „Jetzt veröffentlichen" – sie sind mit dem
 Klick sofort live.
 
+### Galerie pflegen
+
+Unter **„🖼️ Galerie – Ordner & Bilder"** steht die ganze Ordnerstruktur.
+Dort lässt sich ein Ordner anlegen, umbenennen oder löschen und – wichtig –
+es können **mehrere Bilder gleichzeitig** hochgeladen werden: auf „📷 Bilder
+auswählen" klicken, im Dateifenster mit `Strg` (Mac: `Cmd`) oder
+`Umschalt` mehrere Fotos markieren, öffnen. Der Fortschritt wird angezeigt.
+
+Unter jedem Bild gibt es ein Textfeld; dieser Text erscheint auf der
+Website unter dem Bild. Nach dem Tippen einmal „Ordner speichern" klicken –
+Name, Beschreibung und alle Texte des Ordners werden zusammen übernommen.
+Hochgeladene und gelöschte Bilder werden sofort gespeichert.
+
 Das **Passwort** lässt sich im Portal unter „Passwort ändern“ wechseln; es
 gilt sofort. Vergessen? Dann auf dem Pi:
 
@@ -173,6 +186,7 @@ Website-Ordners und übersteht daher jedes Update:
 /var/lib/mellis-website/
 ├── inhalte.json          ← alle Texte, Zeiten, Kontaktdaten
 ├── beitraege.json        ← die Neuigkeiten-Beiträge
+├── galerie.json          ← die Galerie-Ordner mit ihren Bildern
 ├── zugang.json           ← Prüfwert des Portal-Passworts (kein Klartext)
 ├── bilder/               ← über das Portal hochgeladene Bilder
 └── sicherungen/          ← die letzten 30 Stände beider JSON-Dateien

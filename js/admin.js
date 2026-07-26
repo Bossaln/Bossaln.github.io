@@ -20,6 +20,7 @@
 
   const LOKAL_SCHLUESSEL = "mellis_cms_inhalte";
   const BEITRAEGE_SCHLUESSEL = "mellis_cms_beitraege";
+  const GALERIE_SCHLUESSEL = "mellis_cms_galerie";
   const SITZUNG_SCHLUESSEL = "mellis_admin_sitzung";
   const VERSUCHE_SCHLUESSEL = "mellis_admin_versuche";
   const SITZUNG_MINUTEN = 30;
@@ -36,6 +37,8 @@
   let beitraege = [];         // Neuigkeiten aus daten/beitraege.json
   let beitragBild = "";       // Bild des Beitrags, der gerade geschrieben wird
   let bearbeiteId = null;     // wird ein vorhandener Beitrag bearbeitet?
+  let galerie = [];           // Ordner aus daten/galerie.json
+  const offeneOrdner = new Set();  // welche Ordner im Portal aufgeklappt sind
 
   document.addEventListener("DOMContentLoaded", start);
 
@@ -86,6 +89,18 @@
       if (vorschau) beitraege = vorschau;
     }
 
+    try {
+      const antwort = await fetch("daten/galerie.json", { cache: "no-store" });
+      const geladen = antwort.ok ? await antwort.json() : [];
+      galerie = Array.isArray(geladen) ? geladen : [];
+    } catch {
+      galerie = [];
+    }
+    if (!servermodus) {
+      const vorschau = lokaleGalerie();
+      if (vorschau) galerie = vorschau;
+    }
+
     if (!servermodus && (!window.crypto || !crypto.subtle)) {
       meldung("anmelde-meldung",
         "Dieser Browser unterstützt die nötige Verschlüsselung nicht (unsicherer Kontext?). Bitte die Seite über HTTPS aufrufen.");
@@ -106,6 +121,11 @@
     document.getElementById("beitrag-exportieren").addEventListener("click", beitraegeExportieren);
     document.getElementById("beitrag-bild-weg").addEventListener("click", beitragBildEntfernen);
     document.getElementById("beitrag-bild").addEventListener("change", beitragBildLaden);
+
+    document.getElementById("ordner-anlegen").addEventListener("click", ordnerAnlegen);
+    document.getElementById("galerie-exportieren").addEventListener("click", galerieExportieren);
+
+    dateiwahlenVerschoenern();
 
     BILDER.forEach((schluessel) => {
       const eingabe = document.getElementById("upload-" + schluessel);
@@ -132,9 +152,11 @@
     const altZeile = document.getElementById("passwort-alt-zeile");
     const passwortHinweis = document.getElementById("passwort-hinweis");
 
-    // Ohne Server müssen die Neuigkeiten als Datei exportiert werden
+    // Ohne Server müssen Neuigkeiten und Galerie als Datei exportiert werden
     const beitragExport = document.getElementById("beitrag-exportieren");
     if (beitragExport) beitragExport.style.display = servermodus ? "none" : "";
+    const galerieExport = document.getElementById("galerie-exportieren");
+    if (galerieExport) galerieExport.style.display = servermodus ? "none" : "";
 
     if (!servermodus) return;
 
@@ -379,7 +401,44 @@
     });
     dynamischeBereicheAufbauen();
     beitragslisteAufbauen();
+    galerieStrukturAufbauen();
     statusAktualisieren();
+  }
+
+  /* Ersetzt die grauen Standard-Dateifelder durch eigene Knöpfe. */
+  function dateiwahlenVerschoenern(bereich) {
+    (bereich || document)
+      .querySelectorAll('input[type="file"]:not(.datei-versteckt)')
+      .forEach((eingabe) => {
+        eingabe.classList.add("datei-versteckt");
+
+        const huelle = document.createElement("div");
+        huelle.className = "datei-wahl";
+        eingabe.parentNode.insertBefore(huelle, eingabe);
+        huelle.appendChild(eingabe);
+
+        const knopf = document.createElement("label");
+        knopf.className = "datei-knopf";
+        knopf.setAttribute("for", eingabe.id);
+        knopf.textContent = eingabe.multiple ? "📷 Bilder auswählen" : "📷 Bild auswählen";
+        huelle.appendChild(knopf);
+
+        const name = document.createElement("span");
+        name.className = "datei-name";
+        name.textContent = "keine Datei gewählt";
+        huelle.appendChild(name);
+
+        eingabe.addEventListener("change", () => {
+          const dateien = eingabe.files;
+          if (!dateien || !dateien.length) {
+            name.textContent = "keine Datei gewählt";
+          } else if (dateien.length === 1) {
+            name.textContent = dateien[0].name;
+          } else {
+            name.textContent = dateien.length + " Bilder gewählt";
+          }
+        });
+      });
   }
 
   /* ------------------------- Neuigkeiten (Beiträge) ------------------------ */
@@ -509,7 +568,7 @@
       return;
     }
 
-    bildVerkleinern(datei, async (datenUri) => {
+    bildVerkleinern(datei, 1200, async ({ datenUri }) => {
       if (!servermodus) {
         beitragBild = datenUri;
         beitragVorschauZeigen(datenUri);
@@ -817,25 +876,422 @@
     meldung("portal-meldung", "Lokale Änderungen verworfen – es gilt wieder der veröffentlichte Stand.", true);
   }
 
+  /* --------------------------- Galerie-Ordner --------------------------- */
+
+  function lokaleGalerie() {
+    try {
+      const daten = JSON.parse(localStorage.getItem(GALERIE_SCHLUESSEL));
+      return Array.isArray(daten) ? daten : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function neueKennung(vorsilbe) {
+    return vorsilbe + "-" + Date.now().toString(36) + "-" +
+      Math.random().toString(36).slice(2, 8);
+  }
+
+  function galerieStrukturAufbauen() {
+    const halter = document.getElementById("galerie-struktur");
+    if (!halter) return;
+    halter.innerHTML = "";
+
+    if (!galerie.length) {
+      const leer = document.createElement("p");
+      leer.style.color = "var(--tinte-hell)";
+      leer.textContent = "Noch keine Ordner – lege oben den ersten an. 📁";
+      halter.appendChild(leer);
+      return;
+    }
+
+    galerie.forEach((ordner) => halter.appendChild(ordnerBlockBauen(ordner)));
+    dateiwahlenVerschoenern(halter);
+  }
+
+  function ordnerBlockBauen(ordner) {
+    const bilder = Array.isArray(ordner.bilder) ? ordner.bilder : [];
+
+    const block = document.createElement("details");
+    block.className = "ordner-block";
+    // Aufgeklappte Ordner bleiben nach dem Speichern offen
+    block.open = offeneOrdner.has(ordner.id);
+    block.addEventListener("toggle", () => {
+      if (block.open) offeneOrdner.add(ordner.id);
+      else offeneOrdner.delete(ordner.id);
+    });
+
+    const summary = document.createElement("summary");
+    summary.textContent = `📁 ${ordner.name} (${bilder.length} Bild${bilder.length === 1 ? "" : "er"})`;
+    block.appendChild(summary);
+
+    /* Name und Beschreibung */
+    const nameFeld = document.createElement("div");
+    nameFeld.className = "feld";
+    const nameLabel = document.createElement("label");
+    nameLabel.setAttribute("for", "ordner-name-" + ordner.id);
+    nameLabel.textContent = "Name des Ordners";
+    const nameEingabe = document.createElement("input");
+    nameEingabe.type = "text";
+    nameEingabe.id = "ordner-name-" + ordner.id;
+    nameEingabe.maxLength = 80;
+    nameEingabe.value = ordner.name || "";
+    nameFeld.appendChild(nameLabel);
+    nameFeld.appendChild(nameEingabe);
+    block.appendChild(nameFeld);
+
+    const textFeld = document.createElement("div");
+    textFeld.className = "feld";
+    const textLabel = document.createElement("label");
+    textLabel.setAttribute("for", "ordner-text-" + ordner.id);
+    textLabel.textContent = "Beschreibung (optional)";
+    const textEingabe = document.createElement("input");
+    textEingabe.type = "text";
+    textEingabe.id = "ordner-text-" + ordner.id;
+    textEingabe.maxLength = 500;
+    textEingabe.value = ordner.beschreibung || "";
+    textFeld.appendChild(textLabel);
+    textFeld.appendChild(textEingabe);
+    block.appendChild(textFeld);
+
+    /* Bilder hochladen (mehrere gleichzeitig) */
+    const hochladenFeld = document.createElement("div");
+    hochladenFeld.className = "feld";
+    const hochladenLabel = document.createElement("label");
+    hochladenLabel.setAttribute("for", "galerie-upload-" + ordner.id);
+    hochladenLabel.textContent = "Bilder in diesen Ordner hochladen";
+    const hochladen = document.createElement("input");
+    hochladen.type = "file";
+    hochladen.id = "galerie-upload-" + ordner.id;
+    hochladen.accept = "image/*";
+    hochladen.multiple = true;
+    hochladen.addEventListener("change", (e) => galerieBilderHochladen(ordner.id, e));
+    hochladenFeld.appendChild(hochladenLabel);
+    hochladenFeld.appendChild(hochladen);
+    const fortschritt = document.createElement("span");
+    fortschritt.className = "fortschritt";
+    fortschritt.id = "galerie-fortschritt-" + ordner.id;
+    hochladenFeld.appendChild(fortschritt);
+    block.appendChild(hochladenFeld);
+
+    /* Knöpfe */
+    const zeile = document.createElement("div");
+    zeile.className = "ordner-zeile";
+
+    const speichern = document.createElement("button");
+    speichern.type = "button";
+    speichern.className = "btn btn-primaer btn-klein";
+    speichern.textContent = "Ordner speichern";
+    speichern.addEventListener("click", () => ordnerSpeichern(ordner.id));
+    zeile.appendChild(speichern);
+
+    const loeschen = document.createElement("button");
+    loeschen.type = "button";
+    loeschen.className = "btn btn-sekundaer btn-klein";
+    loeschen.textContent = "Ordner löschen";
+    loeschen.addEventListener("click", () => ordnerLoeschen(ordner.id));
+    zeile.appendChild(loeschen);
+
+    block.appendChild(zeile);
+
+    /* Bilder mit Texten */
+    if (bilder.length) {
+      const raster = document.createElement("div");
+      raster.className = "galerie-bilder";
+
+      bilder.forEach((bild) => {
+        const kachel = document.createElement("div");
+        kachel.className = "galerie-bild";
+
+        const vorschau = document.createElement("img");
+        vorschau.src = bild.pfad;
+        vorschau.alt = "";
+        kachel.appendChild(vorschau);
+
+        const beschriftung = document.createElement("textarea");
+        beschriftung.rows = 2;
+        beschriftung.maxLength = 500;
+        beschriftung.placeholder = "Text unter dem Bild (optional)";
+        beschriftung.dataset.bildId = bild.id;
+        beschriftung.dataset.ordnerId = ordner.id;
+        beschriftung.value = bild.text || "";
+        kachel.appendChild(beschriftung);
+
+        const werkzeuge = document.createElement("div");
+        werkzeuge.className = "werkzeuge";
+        const bildWeg = document.createElement("button");
+        bildWeg.type = "button";
+        bildWeg.className = "btn btn-sekundaer btn-klein";
+        bildWeg.textContent = "Bild löschen";
+        bildWeg.addEventListener("click", () => galerieBildLoeschen(ordner.id, bild.id));
+        werkzeuge.appendChild(bildWeg);
+        kachel.appendChild(werkzeuge);
+
+        raster.appendChild(kachel);
+      });
+      block.appendChild(raster);
+    } else {
+      const leer = document.createElement("p");
+      leer.style.color = "var(--tinte-hell)";
+      leer.style.fontSize = "0.92rem";
+      leer.textContent = "Noch keine Bilder in diesem Ordner.";
+      block.appendChild(leer);
+    }
+
+    return block;
+  }
+
+  async function ordnerAnlegen() {
+    const nameFeld = document.getElementById("ordner-neu-name");
+    const textFeld = document.getElementById("ordner-neu-text");
+    const name = nameFeld.value.trim();
+
+    if (!name) {
+      meldung("galerie-meldung", "Bitte einen Namen für den Ordner eingeben.");
+      return;
+    }
+
+    const vorher = galerie;
+    galerie = galerie.concat([{
+      id: neueKennung("o"),
+      name,
+      beschreibung: textFeld.value.trim(),
+      zeit: new Date().toISOString(),
+      bilder: [],
+    }]);
+
+    if (await galerieSpeichern(`Ordner „${name}“ angelegt.`)) {
+      nameFeld.value = "";
+      textFeld.value = "";
+      return;
+    }
+    galerie = vorher;
+    galerieStrukturAufbauen();
+  }
+
+  /* Liest Name, Beschreibung und alle Bildtexte eines Ordners aus der Maske */
+  async function ordnerSpeichern(id) {
+    const nameEingabe = document.getElementById("ordner-name-" + id);
+    const textEingabe = document.getElementById("ordner-text-" + id);
+    if (!nameEingabe) return;
+
+    const name = nameEingabe.value.trim();
+    if (!name) {
+      meldung("galerie-meldung", "Der Ordner braucht einen Namen.");
+      return;
+    }
+
+    const texte = new Map();
+    document.querySelectorAll(`[data-ordner-id="${id}"]`).forEach((feld) => {
+      texte.set(feld.dataset.bildId, feld.value.trim());
+    });
+
+    const vorher = galerie;
+    galerie = galerie.map((ordner) => {
+      if (ordner.id !== id) return ordner;
+      return Object.assign({}, ordner, {
+        name,
+        beschreibung: textEingabe ? textEingabe.value.trim() : ordner.beschreibung,
+        bilder: (ordner.bilder || []).map((bild) =>
+          texte.has(bild.id) ? Object.assign({}, bild, { text: texte.get(bild.id) }) : bild),
+      });
+    });
+
+    if (await galerieSpeichern(`Ordner „${name}“ gespeichert.`)) return;
+    galerie = vorher;
+    galerieStrukturAufbauen();
+  }
+
+  async function ordnerLoeschen(id) {
+    const ordner = galerie.find((o) => o.id === id);
+    if (!ordner) return;
+    const anzahl = (ordner.bilder || []).length;
+    if (!confirm(
+      `Ordner „${ordner.name}“ mit ${anzahl} Bild(ern) wirklich löschen? ` +
+      "Die Bilder werden dabei von der Website entfernt.")) return;
+
+    const vorher = galerie;
+    galerie = galerie.filter((o) => o.id !== id);
+    if (await galerieSpeichern(`Ordner „${ordner.name}“ gelöscht.`)) return;
+    galerie = vorher;
+    galerieStrukturAufbauen();
+  }
+
+  async function galerieBildLoeschen(ordnerId, bildId) {
+    if (!confirm("Dieses Bild wirklich aus dem Ordner entfernen?")) return;
+
+    const vorher = galerie;
+    galerie = galerie.map((ordner) => ordner.id !== ordnerId ? ordner
+      : Object.assign({}, ordner, {
+        bilder: (ordner.bilder || []).filter((bild) => bild.id !== bildId),
+      }));
+
+    if (await galerieSpeichern("Bild entfernt.")) return;
+    galerie = vorher;
+    galerieStrukturAufbauen();
+  }
+
+  /* Mehrere Bilder nacheinander verkleinern, hochladen und anhängen */
+  async function galerieBilderHochladen(ordnerId, ereignis) {
+    const dateien = Array.from(ereignis.target.files || []);
+    ereignis.target.value = "";
+    if (!dateien.length) return;
+
+    const anzeige = document.getElementById("galerie-fortschritt-" + ordnerId);
+    const neueBilder = [];
+    let uebersprungen = 0;
+
+    for (let i = 0; i < dateien.length; i++) {
+      const datei = dateien[i];
+      if (!/^image\//.test(datei.type)) {
+        uebersprungen += 1;
+        continue;
+      }
+      if (anzeige) anzeige.textContent = `Bild ${i + 1} von ${dateien.length} …`;
+
+      let verkleinert;
+      try {
+        verkleinert = await new Promise((fertig, fehlgeschlagen) => {
+          bildVerkleinern(datei, 1600, fertig, fehlgeschlagen);
+        });
+      } catch {
+        uebersprungen += 1;
+        continue;
+      }
+
+      let pfad = verkleinert.datenUri;
+      if (servermodus) {
+        let antwort;
+        try {
+          antwort = await serverAufruf("api/bild",
+            { schluessel: "galerie", daten: verkleinert.datenUri });
+        } catch {
+          if (anzeige) anzeige.textContent = "";
+          meldung("galerie-meldung", "Der Server ist nicht erreichbar – Upload abgebrochen.");
+          return;
+        }
+        if (antwort.status === 401) {
+          if (anzeige) anzeige.textContent = "";
+          return sitzungAbgelaufen();
+        }
+        if (!antwort.ok) {
+          uebersprungen += 1;
+          continue;
+        }
+        pfad = antwort.daten.pfad;
+      }
+
+      neueBilder.push({
+        id: neueKennung("g"),
+        pfad,
+        text: "",
+        breite: verkleinert.breite,
+        hoehe: verkleinert.hoehe,
+        zeit: new Date().toISOString(),
+      });
+    }
+
+    if (anzeige) anzeige.textContent = "";
+
+    if (!neueBilder.length) {
+      meldung("galerie-meldung", "Kein Bild konnte übernommen werden. Bitte JPG- oder PNG-Dateien wählen.");
+      return;
+    }
+
+    const vorher = galerie;
+    galerie = galerie.map((ordner) => ordner.id !== ordnerId ? ordner
+      : Object.assign({}, ordner, { bilder: (ordner.bilder || []).concat(neueBilder) }));
+
+    const hinweis = uebersprungen
+      ? ` (${uebersprungen} Datei(en) übersprungen)`
+      : "";
+    offeneOrdner.add(ordnerId);   // Ordner offen halten, damit die neuen Bilder sichtbar sind
+    if (await galerieSpeichern(
+      `${neueBilder.length} Bild(er) hochgeladen${hinweis}. Jetzt können Texte darunter ergänzt werden.`)) {
+      return;
+    }
+    galerie = vorher;
+    galerieStrukturAufbauen();
+  }
+
+  /* Speichert die Galerie – auf dem Server oder (ohne Server) im Browser. */
+  async function galerieSpeichern(erfolgstext) {
+    if (!servermodus) {
+      try {
+        localStorage.setItem(GALERIE_SCHLUESSEL, JSON.stringify(galerie));
+      } catch {
+        meldung("galerie-meldung",
+          "Speichern fehlgeschlagen – vermutlich sind die Bilder zu groß für den lokalen Speicher.");
+        return false;
+      }
+      galerieStrukturAufbauen();
+      meldung("galerie-meldung", erfolgstext +
+        " Zum Veröffentlichen für alle Besucher: „Galerie als Datei speichern“ und die Datei " +
+        "galerie.json in den Ordner daten/ hochladen.", true);
+      return true;
+    }
+
+    let antwort;
+    try {
+      antwort = await serverAufruf("api/galerie", { ordner: galerie });
+    } catch {
+      meldung("galerie-meldung", "Der Server ist nicht erreichbar – nichts wurde verändert.");
+      return false;
+    }
+
+    if (antwort.status === 401) {
+      sitzungAbgelaufen();
+      return false;
+    }
+    if (!antwort.ok) {
+      meldung("galerie-meldung",
+        "Speichern fehlgeschlagen: " + (antwort.daten.fehler || "unbekannter Fehler"));
+      return false;
+    }
+
+    galerie = antwort.daten.ordner || galerie;
+    localStorage.removeItem(GALERIE_SCHLUESSEL);
+    galerieStrukturAufbauen();
+    meldung("galerie-meldung", erfolgstext, true);
+    return true;
+  }
+
+  function galerieExportieren() {
+    const blob = new Blob([JSON.stringify(galerie, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "galerie.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    meldung("galerie-meldung",
+      "Datei „galerie.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website hochladen (ersetzen).", true);
+  }
+
   /* ----------------------------- Bilder ----------------------------- */
 
   /* Verkleinert ein ausgewähltes Bild und gibt es als Daten-URI weiter,
-     damit weder der Browser-Speicher noch die Website unnötig wachsen. */
-  function bildVerkleinern(datei, fertig) {
+     damit weder der Browser-Speicher noch die Website unnötig wachsen.
+     Die Maße kommen mit, damit die Galerie die Bilder passend anordnen kann. */
+  function bildVerkleinern(datei, maxBreite, fertig, fehlgeschlagen) {
     const leser = new FileReader();
+    leser.onerror = () => { if (fehlgeschlagen) fehlgeschlagen(new Error("nicht lesbar")); };
     leser.onload = () => {
       const bild = new Image();
+      bild.onerror = () => { if (fehlgeschlagen) fehlgeschlagen(new Error("kein Bild")); };
       bild.onload = () => {
-        const maxBreite = 1200;
         const faktor = Math.min(1, maxBreite / bild.width);
         const leinwand = document.createElement("canvas");
         leinwand.width = Math.round(bild.width * faktor);
         leinwand.height = Math.round(bild.height * faktor);
         leinwand.getContext("2d").drawImage(bild, 0, 0, leinwand.width, leinwand.height);
         // PNG behält Transparenz (wichtig fürs Logo), sonst platzsparendes JPEG
-        fertig(datei.type === "image/png"
-          ? leinwand.toDataURL("image/png")
-          : leinwand.toDataURL("image/jpeg", 0.85));
+        fertig({
+          datenUri: datei.type === "image/png"
+            ? leinwand.toDataURL("image/png")
+            : leinwand.toDataURL("image/jpeg", 0.85),
+          breite: leinwand.width,
+          hoehe: leinwand.height,
+        });
       };
       bild.src = leser.result;
     };
@@ -850,12 +1306,12 @@
       return;
     }
 
-    bildVerkleinern(datei, (datenUri) => {
+    bildVerkleinern(datei, 1200, (ergebnis) => {
       if (servermodus) {
-        bildHochladen(schluessel, datenUri);
+        bildHochladen(schluessel, ergebnis.datenUri);
       } else {
-        entwurf[schluessel] = datenUri;
-        document.getElementById("vorschau-" + schluessel).src = datenUri;
+        entwurf[schluessel] = ergebnis.datenUri;
+        document.getElementById("vorschau-" + schluessel).src = ergebnis.datenUri;
         meldung("portal-meldung",
           "Bild übernommen – mit „Vorschau speichern“ testen und mit „Veröffentlichen“ exportieren.", true);
       }

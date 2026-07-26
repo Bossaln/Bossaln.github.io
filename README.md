@@ -14,7 +14,7 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 | `index.html` | Startseite mit Hero, Vorteilen, Zahlen, Betreuungszeiten |
 | `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
-| `galerie.html` | Galerie (Platzhalter-Kacheln, bis echte Fotos vorliegen) |
+| `galerie.html` | Galerie in Ordnern, mit Großansicht (aus dem Portal gepflegt) |
 | `neuigkeiten.html` | Neuigkeiten als Beitragsstrom (aus dem Portal gepflegt) |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
 | `impressum.html` | Impressum (Mustertext mit Platzhaltern) |
@@ -54,6 +54,7 @@ Portal eine kleine Schnittstelle bereit:
 | `POST /api/abmelden` | Sitzung beenden |
 | `POST /api/veroeffentlichen` | Inhalte speichern (nach Anmeldung) |
 | `POST /api/beitraege` | Neuigkeiten speichern (nach Anmeldung) |
+| `POST /api/galerie` | Galerie-Ordner speichern (nach Anmeldung) |
 | `POST /api/bild` | Bild als Datei ablegen (nach Anmeldung) |
 | `POST /api/passwort` | Portal-Passwort ändern (nach Anmeldung) |
 
@@ -82,12 +83,42 @@ Texte werden auf der Seite als reiner Text eingesetzt (kein `innerHTML`),
 Leerzeilen werden zu Absätzen. Bilder von gelöschten Beiträgen räumt der
 Server nach einer Stunde selbst auf.
 
+## Galerie (`galerie.html`)
+
+Die Galerie ist in **Ordner** unterteilt:
+
+* **Übersicht:** jeder Ordner als Karte mit einer Vorschau-Collage aus bis
+  zu vier Bildern, Name, Beschreibung und Bildzahl – ein Blick hinein,
+  bevor man ihn öffnet
+* **Öffnen:** kurze Aufklapp-Animation, dann eine Bildermauer, deren
+  Kachelhöhen dem Seitenverhältnis jedes Bildes folgen (breite Bilder
+  flach, hochkant hohe Bilder hoch). Der geöffnete Ordner steht in der
+  Adresse (`galerie.html#o-…`), der Zurück-Knopf des Browsers funktioniert.
+* **Klick auf ein Bild:** Großansicht mit Text, Pfeilen, Pfeiltasten und
+  `Esc`
+
+Gepflegt wird alles im Portal unter „🖼️ Galerie – Ordner & Bilder": Ordner
+anlegen, umbenennen, löschen, **mehrere Bilder gleichzeitig** hochladen und
+zu jedem Bild einen Text schreiben, der unter dem Bild erscheint.
+Gespeichert wird in `daten/galerie.json`:
+
+```json
+[{ "id": "o-…", "name": "Sommerfest 2026", "beschreibung": "…", "zeit": "…",
+   "bilder": [{ "id": "g-…", "pfad": "bilder/…jpg", "text": "…",
+                "breite": 1600, "hoehe": 1067, "zeit": "…" }] }]
+```
+
+Die Maße werden beim Hochladen mitgespeichert, damit die Mauer schon vor
+dem Laden der Bilder richtig steht. Bilder aus gelöschten Ordnern räumt der
+Server nach einer Stunde selbst auf.
+
 ## Verwaltungs-Portal (`admin.html`)
 
 Unter `/admin.html` (Footer-Link „Portal") lässt sich praktisch die ganze
 Website ohne Programmierkenntnisse bearbeiten: Betreuungszeiten,
-Kontaktdaten, alle Fotos inkl. Logo, Neuigkeiten-Beiträge sowie sämtliche
-Texte aller Seiten (über 170 Felder, nach Seiten gruppiert). Die editierbaren Stellen sind im
+Kontaktdaten, alle Fotos inkl. Logo, Neuigkeiten-Beiträge, die Galerie-
+Ordner sowie sämtliche Texte aller Seiten (über 150 Felder, nach Seiten
+gruppiert). Die editierbaren Stellen sind im
 HTML mit `data-cms`-Attributen markiert; `daten/portal-schema.json`
 beschreibt die Felder für das Portal. Neue editierbare Stellen können durch
 Markieren eines Elements (`data-cms="schluessel"`) plus Eintrag in

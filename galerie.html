@@ -50,31 +50,24 @@
 </section>
 <section class="abschnitt abschnitt-hell">
 <div class="container">
-<div class="galerie-raster">
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser buntes Spielzimmer mit Spielteppich, Regalen und Blick in den Flur" data-cms-bild="bild_spielzimmer" src="assets/img/spielzimmer.jpg"/>
-<span class="titel" data-cms="galerie_03">Unser Spielzimmer</span>
+
+<!-- Übersicht der Ordner -->
+<div id="ordner-uebersicht">
+<div class="ordner-raster" id="ordner-raster">
+<p class="galerie-hinweis">Ordner werden geladen …</p>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte" data-cms-bild="bild_raum" src="assets/img/raum.jpg"/>
-<span class="titel" data-cms="galerie_04">Spiel- &amp; Schlafraum</span>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser rund 300 m² großes Außengelände mit Rutsche und Spielhäuschen" data-cms-bild="bild_garten" src="assets/img/garten.jpg"/>
-<span class="titel" data-cms="galerie_05">Unser Außengelände (300 m²)</span>
+
+<!-- Ein geöffneter Ordner -->
+<div class="ordner-ansicht" id="ordner-ansicht" hidden>
+<div class="ordner-kopf">
+<button class="btn btn-sekundaer btn-klein" id="ordner-zurueck" type="button">← Alle Ordner</button>
+<div>
+<h2 id="ordner-titel"></h2>
+<p id="ordner-beschreibung"></p>
 </div>
-<div class="galerie-kachel gk-2 einblenden">
-<span>🎨</span>
-<span class="titel" data-cms="galerie_06">Essraum – auch zum Basteln &amp; Malen</span>
 </div>
-<div class="galerie-kachel gk-5 einblenden">
-<span>🛁</span>
-<span class="titel" data-cms="galerie_07">Kinderbad mit Wickeltisch</span>
-</div>
-<div class="galerie-kachel gk-1 einblenden">
-<span>🧱</span>
-<span class="titel" data-cms="galerie_08">Bauecke &amp; Kuschelhöhle</span>
-</div>
+<div class="bilder-mauer" id="bilder-mauer"></div>
 </div>
 
 </div>
@@ -137,7 +130,20 @@
 </div>
 </footer>
 <button aria-label="Nach oben scrollen" class="nach-oben">↑</button>
+
+<!-- Großansicht eines Bildes -->
+<div aria-hidden="true" aria-modal="true" class="lupe" id="lupe" role="dialog" hidden>
+<button aria-label="Großansicht schließen" class="lupe-schliessen" id="lupe-schliessen" type="button">✕</button>
+<button aria-label="Vorheriges Bild" class="lupe-pfeil lupe-zurueck" id="lupe-zurueck" type="button">‹</button>
+<figure class="lupe-inhalt">
+<img alt="" id="lupe-bild" src=""/>
+<figcaption id="lupe-text"></figcaption>
+</figure>
+<button aria-label="Nächstes Bild" class="lupe-pfeil lupe-vor" id="lupe-vor" type="button">›</button>
+</div>
+
 <script src="js/cms.js?v=2"></script>
+<script src="js/galerie.js?v=2"></script>
 <script src="js/main.js?v=2"></script>
 </body>
 </html>

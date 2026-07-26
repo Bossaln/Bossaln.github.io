@@ -39,6 +39,7 @@ const BILDER_ORDNER = path.join(DATEN, "bilder");
 const SICHERUNGEN_ORDNER = path.join(DATEN, "sicherungen");
 const INHALTE_DATEI = path.join(DATEN, "inhalte.json");
 const BEITRAEGE_DATEI = path.join(DATEN, "beitraege.json");
+const GALERIE_DATEI = path.join(DATEN, "galerie.json");
 const ZUGANG_DATEI = path.join(DATEN, "zugang.json");
 const SCHEMA_DATEI = path.join(WURZEL, "daten", "portal-schema.json");
 
@@ -52,6 +53,10 @@ const BILDER_JE_SCHLUESSEL_BEHALTEN = 5;
 const MAX_BEITRAEGE = 200;            // größte Zahl an Neuigkeiten
 const MAX_BEITRAG_TITEL = 120;
 const MAX_BEITRAG_TEXT = 3000;
+const MAX_ORDNER = 100;               // größte Zahl an Galerie-Ordnern
+const MAX_BILDER_JE_ORDNER = 300;
+const MAX_ORDNER_NAME = 80;
+const MAX_BILD_TEXT = 500;
 const BILD_SCHONFRIST = 60 * 60 * 1000; // frisch hochgeladene Bilder nie löschen
 
 /* ------------------------------- Hilfsmittel ------------------------------ */
@@ -129,6 +134,7 @@ async function datenordnerVorbereiten() {
   const vorlagen = [
     [path.join(WURZEL, "daten", "inhalte.json"), INHALTE_DATEI],
     [path.join(WURZEL, "daten", "beitraege.json"), BEITRAEGE_DATEI],
+    [path.join(WURZEL, "daten", "galerie.json"), GALERIE_DATEI],
     [path.join(WURZEL, "daten", "zugang.json"), ZUGANG_DATEI],
   ];
   for (const [quelle, ziel] of vorlagen) {
@@ -377,12 +383,12 @@ function beitragPruefen(eingang) {
   return { id, titel, text, bild, zeit };
 }
 
-/* Bilder löschen, die zu keinem Beitrag mehr gehören. Frisch hochgeladene
-   Bilder bleiben verschont – sie gehören oft zu einem Beitrag, der gerade
-   erst geschrieben wird. */
-async function beitragsbilderAufraeumen(beitraege) {
-  const gebraucht = new Set(beitraege.map((b) => b.bild).filter(Boolean));
+/* Bilder löschen, die nirgends mehr verwendet werden. Frisch hochgeladene
+   Bilder bleiben verschont – sie gehören oft zu einem Beitrag oder Ordner,
+   der gerade erst entsteht. */
+async function sammlungsbilderAufraeumen(vorsilbe, gebraucht) {
   const grenze = Date.now() - BILD_SCHONFRIST;
+  const muster = new RegExp("^" + vorsilbe + "-");
   let dateien = [];
   try {
     dateien = await fsp.readdir(BILDER_ORDNER);
@@ -391,14 +397,14 @@ async function beitragsbilderAufraeumen(beitraege) {
   }
 
   for (const name of dateien) {
-    if (!/^beitrag-/.test(name)) continue;
+    if (!muster.test(name)) continue;
     if (gebraucht.has("bilder/" + name)) continue;
     const voll = path.join(BILDER_ORDNER, name);
     try {
       const angaben = await fsp.stat(voll);
       if (angaben.mtimeMs > grenze) continue;
       await fsp.unlink(voll);
-      protokoll("Nicht mehr benötigtes Beitragsbild gelöscht:", name);
+      protokoll("Nicht mehr benötigtes Bild gelöscht:", name);
     } catch { /* schon weg */ }
   }
 }
@@ -423,7 +429,102 @@ async function beitraegeSpeichern(eingang) {
   }
 
   await sicherSchreiben(BEITRAEGE_DATEI, JSON.stringify(geprueft, null, 2) + "\n");
-  await beitragsbilderAufraeumen(geprueft);
+  await sammlungsbilderAufraeumen(
+    "beitrag", new Set(geprueft.map((b) => b.bild).filter(Boolean)));
+  return geprueft;
+}
+
+/* ----------------------------- Galerie-Ordner ----------------------------- */
+
+const GALERIE_BILD_MUSTER = /^(bilder|assets\/img)\/[A-Za-z0-9._-]{1,120}$/;
+
+function ganzzahl(wert, hoechstwert) {
+  const zahl = Number(wert);
+  if (!Number.isFinite(zahl) || zahl <= 0) return 0;
+  return Math.min(Math.round(zahl), hoechstwert);
+}
+
+function kennungOderNeu(wert, vorsilbe) {
+  return typeof wert === "string" && /^[a-z0-9-]{1,40}$/i.test(wert)
+    ? wert
+    : vorsilbe + "-" + Date.now().toString(36) + "-" + crypto.randomBytes(3).toString("hex");
+}
+
+function galeriebildPruefen(eingang) {
+  if (!eingang || typeof eingang !== "object" || Array.isArray(eingang)) {
+    throw new Error("Ungültiges Bild in der Galerie.");
+  }
+  const pfad = typeof eingang.pfad === "string" ? eingang.pfad.trim() : "";
+  if (!GALERIE_BILD_MUSTER.test(pfad)) {
+    throw new Error("Ein Bild der Galerie hat einen ungültigen Pfad.");
+  }
+  const text = typeof eingang.text === "string" ? eingang.text.trim() : "";
+  if (text.length > MAX_BILD_TEXT) {
+    throw new Error(`Ein Bildtext ist zu lang (max. ${MAX_BILD_TEXT} Zeichen).`);
+  }
+  const zeitWert = Date.parse(eingang.zeit);
+  return {
+    id: kennungOderNeu(eingang.id, "g"),
+    pfad,
+    text,
+    breite: ganzzahl(eingang.breite, 20000),
+    hoehe: ganzzahl(eingang.hoehe, 20000),
+    zeit: Number.isFinite(zeitWert) ? new Date(zeitWert).toISOString() : new Date().toISOString(),
+  };
+}
+
+function ordnerPruefen(eingang) {
+  if (!eingang || typeof eingang !== "object" || Array.isArray(eingang)) {
+    throw new Error("Ungültiger Ordner.");
+  }
+  const name = typeof eingang.name === "string" ? eingang.name.trim() : "";
+  if (!name) throw new Error("Jeder Ordner braucht einen Namen.");
+  if (name.length > MAX_ORDNER_NAME) {
+    throw new Error(`Der Ordnername ist zu lang (max. ${MAX_ORDNER_NAME} Zeichen).`);
+  }
+  const beschreibung = typeof eingang.beschreibung === "string" ? eingang.beschreibung.trim() : "";
+  if (beschreibung.length > MAX_BILD_TEXT) {
+    throw new Error(`Die Ordnerbeschreibung ist zu lang (max. ${MAX_BILD_TEXT} Zeichen).`);
+  }
+
+  const bilderEingang = Array.isArray(eingang.bilder) ? eingang.bilder : [];
+  if (bilderEingang.length > MAX_BILDER_JE_ORDNER) {
+    throw new Error(`Ein Ordner fasst höchstens ${MAX_BILDER_JE_ORDNER} Bilder.`);
+  }
+
+  const zeitWert = Date.parse(eingang.zeit);
+  return {
+    id: kennungOderNeu(eingang.id, "o"),
+    name,
+    beschreibung,
+    zeit: Number.isFinite(zeitWert) ? new Date(zeitWert).toISOString() : new Date().toISOString(),
+    bilder: bilderEingang.map(galeriebildPruefen),
+  };
+}
+
+async function galerieSpeichern(eingang) {
+  if (!Array.isArray(eingang)) throw new Error("Ungültige Daten.");
+  if (eingang.length > MAX_ORDNER) {
+    throw new Error(`Es sind höchstens ${MAX_ORDNER} Ordner möglich.`);
+  }
+
+  const geprueft = eingang.map(ordnerPruefen);
+
+  if (fs.existsSync(GALERIE_DATEI)) {
+    await fsp.mkdir(SICHERUNGEN_ORDNER, { recursive: true });
+    await fsp.copyFile(
+      GALERIE_DATEI,
+      path.join(SICHERUNGEN_ORDNER, `galerie-${zeitstempel()}.json`)
+    ).catch(() => {});
+    await aufraeumen(SICHERUNGEN_ORDNER, /^galerie-.*\.json$/, SICHERUNGEN_BEHALTEN);
+  }
+
+  await sicherSchreiben(GALERIE_DATEI, JSON.stringify(geprueft, null, 2) + "\n");
+
+  const gebraucht = new Set();
+  geprueft.forEach((ordner) => ordner.bilder.forEach((bild) => gebraucht.add(bild.pfad)));
+  await sammlungsbilderAufraeumen("galerie", gebraucht);
+
   return geprueft;
 }
 
@@ -577,13 +678,25 @@ async function api(req, res, pfad, sicher) {
     }
   }
 
+  if (pfad === "/api/galerie") {
+    try {
+      const ordner = await galerieSpeichern(koerper.ordner);
+      const bilderZahl = ordner.reduce((summe, o) => summe + o.bilder.length, 0);
+      protokoll(`Galerie gespeichert (${ordner.length} Ordner, ${bilderZahl} Bilder)`);
+      return antwortJson(res, 200, { ok: true, ordner });
+    } catch (fehler) {
+      protokoll("Galerie speichern fehlgeschlagen:", fehler.message);
+      return antwortJson(res, 400, { fehler: fehler.message });
+    }
+  }
+
   if (pfad === "/api/bild") {
     try {
       const schluessel = String(koerper.schluessel || "");
       const pfadImNetz = await bildAblegen(
         schluessel,
         String(koerper.daten || ""),
-        !/^beitrag/.test(schluessel)
+        !/^(beitrag|galerie)/.test(schluessel)
       );
       protokoll("Bild gespeichert:", pfadImNetz);
       return antwortJson(res, 200, { ok: true, pfad: pfadImNetz });
@@ -680,6 +793,9 @@ async function statisch(req, res, pfad) {
   }
   if (pfad === "/daten/beitraege.json") {
     return dateiSenden(req, res, BEITRAEGE_DATEI, "no-store");
+  }
+  if (pfad === "/daten/galerie.json") {
+    return dateiSenden(req, res, GALERIE_DATEI, "no-store");
   }
   if (pfad === "/daten/portal-schema.json") {
     return dateiSenden(req, res, SCHEMA_DATEI, "no-store");

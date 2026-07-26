@@ -37,6 +37,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Verstecktes bleibt versteckt – auch wenn eine Regel display setzt.
+   Sonst liegt z. B. eine unsichtbare Overlay-Fläche über der Seite. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -608,56 +612,318 @@ a { color: var(--blau); }
 }
 
 /* --------------------------------------------------------------------------
-   Galerie
+   Galerie – Ordnerübersicht
    -------------------------------------------------------------------------- */
-.galerie-raster {
+.ordner-raster {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.4rem;
+  /* auto-fit + Höchstbreite: wenige Ordner stehen mittig und werden nicht
+     unförmig breit, viele Ordner füllen die Reihe */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 400px));
+  justify-content: center;
+  gap: 1.8rem;
 }
 
-.galerie-kachel {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 220px;
+.ordner-karte {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--weiss);
+  border: 2px solid var(--wolke);
   border-radius: var(--radius);
-  font-size: 4rem;
-  box-shadow: var(--schatten);
   overflow: hidden;
-  cursor: default;
-  transition: transform var(--uebergang), box-shadow var(--uebergang);
+  box-shadow: var(--schatten);
+  transition: transform var(--uebergang), box-shadow var(--uebergang),
+              border-color var(--uebergang);
 }
 
-.galerie-kachel:hover { transform: translateY(-6px) rotate(-1deg); box-shadow: var(--schatten-hover); }
-
-.galerie-kachel span.titel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  font-family: var(--schrift-titel);
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
+.ordner-karte:hover,
+.ordner-karte:focus-visible {
+  transform: translateY(-7px);
+  box-shadow: var(--schatten-hover);
+  border-color: var(--gelb);
 }
 
-.foto-kachel img {
-  position: absolute;
-  inset: 0;
+/* Vorschau-Collage: ein Blick in den Ordner, bevor er geöffnet wird */
+.ordner-vorschau {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  height: 200px;
+  background: var(--wolke);
+}
+
+.ordner-vorschau.anzahl-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.ordner-vorschau.anzahl-2 { grid-template-rows: 1fr; }
+.ordner-vorschau.anzahl-3 .vorschau-kachel:first-child { grid-row: span 2; }
+
+.ordner-vorschau.leer {
+  place-items: center;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  font-size: 3.4rem;
+}
+
+.vorschau-kachel { overflow: hidden; }
+
+.vorschau-kachel img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
-.gk-1 { background: linear-gradient(135deg, #ffe3e3, #ffd0a3); }
-.gk-2 { background: linear-gradient(135deg, #fff3c4, #d8f3b6); }
-.gk-3 { background: linear-gradient(135deg, #d0f0fd, #d5ccff); }
-.gk-4 { background: linear-gradient(135deg, #ffe0ef, #ffe9c9); }
-.gk-5 { background: linear-gradient(135deg, #d6f7f2, #fef2c0); }
-.gk-6 { background: linear-gradient(135deg, #e6dcff, #ffdcdc); }
+.ordner-karte:hover .vorschau-kachel img { transform: scale(1.06); }
+
+.ordner-text { padding: 1.2rem 1.4rem 1.4rem; }
+
+.ordner-text h3 { font-size: 1.25rem; margin-bottom: 0.3rem; }
+
+.ordner-text p {
+  color: var(--tinte-hell);
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.ordner-zahl {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: var(--wolke);
+  color: var(--tinte-hell);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Galerie – geöffneter Ordner
+   -------------------------------------------------------------------------- */
+.ordner-kopf {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.ordner-kopf h2 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
+
+.ordner-kopf p { color: var(--tinte-hell); font-size: 0.98rem; }
+
+/* Bilder-Mauer: die Höhe jeder Kachel folgt dem Seitenverhältnis des Bildes,
+   dadurch ordnen sich die Bilder von selbst unterschiedlich hoch an. */
+.bilder-mauer {
+  columns: 3;
+  column-gap: 1.2rem;
+}
+
+.mauer-bild {
+  break-inside: avoid;
+  margin: 0 0 1.2rem;
+  background: var(--weiss);
+  border: 2px solid var(--wolke);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--schatten);
+  animation: kachel-auf 0.55s ease both;
+}
+
+.mauer-knopf {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  cursor: zoom-in;
+  background: var(--wolke);
+  aspect-ratio: 1 / var(--verhaeltnis, 0.75);
+}
+
+.mauer-knopf img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.mauer-knopf:hover img { transform: scale(1.05); }
+
+.mauer-lupe {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  opacity: 0;
+  background: rgba(61, 53, 70, 0.28);
+  transition: opacity var(--uebergang);
+}
+
+.mauer-knopf:hover .mauer-lupe,
+.mauer-knopf:focus-visible .mauer-lupe { opacity: 1; }
+
+.mauer-bild figcaption {
+  padding: 0.8rem 1rem 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+  line-height: 1.6;
+}
+
+.galerie-hinweis {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--tinte-hell);
+  font-weight: 600;
+  background: var(--wolke);
+  border-radius: var(--radius);
+}
+
+/* Öffnungs-Animation */
+@keyframes ordner-auf {
+  from { opacity: 0; transform: scale(0.96) translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes kachel-auf {
+  from { opacity: 0; transform: translateY(26px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.ordner-ansicht.oeffnet { animation: ordner-auf 0.45s ease both; }
+#ordner-uebersicht.schliesst-auf { animation: ordner-auf 0.4s ease both; }
+
+/* --------------------------------------------------------------------------
+   Galerie – Großansicht eines Bildes
+   -------------------------------------------------------------------------- */
+.lupe {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(30, 25, 36, 0.92);
+  animation: lupe-auf 0.25s ease both;
+}
+
+@keyframes lupe-auf { from { opacity: 0; } to { opacity: 1; } }
+
+body.lupe-offen { overflow: hidden; }
+
+.lupe-inhalt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(1100px, 100%);
+  margin: 0;
+}
+
+.lupe-inhalt.wechselt { animation: kachel-auf 0.35s ease both; }
+
+.lupe-inhalt img {
+  max-width: 100%;
+  max-height: 76vh;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background: var(--weiss);
+}
+
+.lupe-inhalt figcaption {
+  max-width: 46rem;
+  text-align: center;
+  color: #f3eef8;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.lupe-schliessen,
+.lupe-pfeil {
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  color: var(--tinte);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transition: background var(--uebergang), transform var(--uebergang);
+}
+
+.lupe-schliessen:hover,
+.lupe-pfeil:hover { background: var(--gelb); transform: scale(1.08); }
+
+.lupe-schliessen {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  width: 2.9rem;
+  height: 2.9rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.lupe-pfeil {
+  flex-shrink: 0;
+  width: 3.2rem;
+  height: 3.2rem;
+  font-size: 2rem;
+  line-height: 1;
+  font-family: var(--schrift-titel);
+}
+
+/* --------------------------------------------------------------------------
+   Eigener Knopf zum Dateien auswählen (Portal)
+   -------------------------------------------------------------------------- */
+.datei-wahl {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.datei-versteckt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.datei-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  font-family: var(--schrift-titel);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--tinte);
+  background: var(--wolke);
+  border: 2px dashed var(--orange);
+  transition: background var(--uebergang), transform var(--uebergang);
+}
+
+.datei-knopf:hover { background: var(--gelb); transform: translateY(-2px); }
+
+.datei-versteckt:focus-visible + .datei-knopf {
+  outline: 3px solid var(--blau);
+  outline-offset: 2px;
+}
+
+.datei-name { font-size: 0.9rem; color: var(--tinte-hell); font-weight: 600; }
 
 /* --------------------------------------------------------------------------
    Kontakt
@@ -1084,8 +1350,8 @@ a { color: var(--blau); }
 /* Zeitstrahl-Punkte kommen von links, passend zur Linie */
 .zeit-punkt.einblenden { transform: translateX(-36px); }
 
-/* Galerie-Kacheln und CTA-Banner wachsen leicht auf */
-.galerie-kachel.einblenden { transform: translateY(18px) scale(0.94); }
+/* Ordnerkarten und CTA-Banner wachsen leicht auf */
+.ordner-karte.einblenden { transform: translateY(18px) scale(0.94); }
 .cta-banner.einblenden { transform: translateY(22px) scale(0.97); }
 
 .einblenden.sichtbar { opacity: 1; transform: none; }
@@ -1133,6 +1399,12 @@ a { color: var(--blau); }
   .seiten-kopf .brotkruemel,
   .seiten-kopf h1,
   .seiten-kopf p { animation: none; }
+  .ordner-ansicht.oeffnet,
+  #ordner-uebersicht.schliesst-auf,
+  .mauer-bild,
+  .lupe,
+  .lupe-inhalt.wechselt { animation: none; }
+  .vorschau-kachel img, .mauer-knopf img { transition: none; }
   html { scroll-behavior: auto; }
 }
 
@@ -1171,6 +1443,8 @@ a { color: var(--blau); }
   .hero-bild img { width: min(280px, 70%); }
 
   .footer-oben { grid-template-columns: 1fr 1fr; }
+
+  .bilder-mauer { columns: 2; }
 }
 
 @media (max-width: 760px) {
@@ -1204,4 +1478,10 @@ a { color: var(--blau); }
   .footer-oben { grid-template-columns: 1fr; gap: 1.8rem; }
   .abschnitt { padding: 3rem 0; }
   .formular { padding: 1.5rem; }
+
+  .bilder-mauer { columns: 1; }
+  .ordner-vorschau { height: 170px; }
+  .lupe { padding: 0.8rem; gap: 0.2rem; }
+  .lupe-pfeil { width: 2.6rem; height: 2.6rem; font-size: 1.6rem; }
+  .lupe-inhalt img { max-height: 66vh; }
 }
