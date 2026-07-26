@@ -79,7 +79,44 @@ chmod 640 "$DATEN/zugang.json" 2>/dev/null || true
 gruen "Datenordner bereit: $DATEN"
 
 # --------------------------------------------------------------------------
-# 3. Dienst einrichten
+# 3. Ist der Port überhaupt frei?
+# --------------------------------------------------------------------------
+LIEF_SCHON="nein"
+if systemctl is-active --quiet "$DIENST" 2>/dev/null; then
+  LIEF_SCHON="ja"
+  systemctl stop "$DIENST"   # eigener Dienst blockiert sonst den eigenen Port
+fi
+
+if command -v ss >/dev/null 2>&1; then
+  BELEGUNG="$(ss -ltnp 2>/dev/null | awk -v p=":$PORT" 'index($4, p) && substr($4, length($4) - length(p) + 1) == p')"
+  if [ -n "$BELEGUNG" ]; then
+    PROGRAMM="$(printf '%s' "$BELEGUNG" | sed -n 's/.*users:(("\([^"]*\)".*/\1/p' | head -1)"
+    [ -z "$PROGRAMM" ] && PROGRAMM="ein anderes Programm"
+
+    rot "Port $PORT ist bereits belegt – von: $PROGRAMM"
+    echo
+    echo "Es gibt zwei Wege:"
+    echo
+    echo "  1. Die Website auf einen anderen Port legen (nichts anderes ändert sich):"
+    echo "       sudo MELLIS_PORT=8080 bash deploy/install.sh"
+    echo "     → erreichbar unter http://$(hostname).local:8080/"
+    echo
+    echo "  2. Das andere Programm abschalten – nur, wenn es nicht gebraucht wird:"
+    echo "       sudo systemctl disable --now $PROGRAMM"
+    echo "       sudo bash deploy/install.sh"
+    echo
+    echo "     Achtung: „lighttpd“ gehört meistens zu Pi-hole und sollte bleiben."
+    echo "     In dem Fall besser Weg 1 wählen."
+    echo
+
+    [ "$LIEF_SCHON" = "ja" ] && systemctl start "$DIENST"
+    exit 1
+  fi
+fi
+gruen "Port $PORT ist frei"
+
+# --------------------------------------------------------------------------
+# 4. Dienst einrichten
 # --------------------------------------------------------------------------
 cat > "/etc/systemd/system/$DIENST.service" <<DIENSTDATEI
 [Unit]
@@ -129,7 +166,7 @@ if ! systemctl is-active --quiet "$DIENST"; then
 fi
 
 # --------------------------------------------------------------------------
-# 4. Fertig
+# 5. Fertig
 # --------------------------------------------------------------------------
 NAME="$(hostname)"
 ADRESSEN="$(hostname -I 2>/dev/null || true)"

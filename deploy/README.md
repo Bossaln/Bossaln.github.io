@@ -192,20 +192,39 @@ sudo systemctl status mellis-website
 sudo journalctl -u mellis-website -n 50 --no-pager
 ```
 
-**„Port 80 ist bereits belegt“** – dann läuft schon ein anderer Webserver
-(oft Apache oder nginx). Entweder abschalten:
+**„Port 80 ist bereits belegt“** – dann läuft auf dem Pi schon ein anderer
+Webserver. Wer es ist, verrät:
 
 ```bash
-sudo systemctl disable --now apache2 nginx 2>/dev/null || true
-sudo systemctl restart mellis-website
+sudo ss -ltnp | grep ':80 '
 ```
 
-oder die Website auf einen anderen Port legen:
+Häufige Kandidaten: `lighttpd` (gehört meist zu **Pi-hole**), `apache2`,
+`nginx`. Es gibt zwei Wege:
+
+*Weg 1 – die Website auf einen anderen Port legen.* Der einfachste Weg,
+wenn das andere Programm gebraucht wird:
 
 ```bash
 sudo MELLIS_PORT=8080 bash deploy/install.sh
 # → http://raspberrypi.local:8080/
+# → Portal: http://raspberrypi.local:8080/admin.html
 ```
+
+Der Port gehört dann zur Adresse dazu – ein Lesezeichen im Browser nimmt
+einem das Tippen ab.
+
+*Weg 2 – das andere Programm abschalten.* Nur, wenn es wirklich nicht
+mehr gebraucht wird (`PROGRAMM` durch den gefundenen Namen ersetzen):
+
+```bash
+sudo systemctl disable --now PROGRAMM
+sudo bash deploy/install.sh
+```
+
+Bei Pi-hole besser Weg 1 wählen – ohne `lighttpd` fehlt dort die
+Weboberfläche. (Alternativ lässt sich Pi-hole selbst auf einen anderen
+Port legen: in `/etc/lighttpd/lighttpd.conf` `server.port` ändern.)
 
 **Portal meldet „Der Server ist nicht erreichbar“** – der Dienst läuft
 nicht oder wurde neu gestartet. Nach einem Neustart ist eine erneute
