@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAkkordeon();
   initZaehler();
   initKontaktformular();
+  initKartenConsent();
 });
 
 /* --------------------------------------------------------------------------
@@ -50,8 +51,24 @@ function initNachObenKnopf() {
   const knopf = document.querySelector(".nach-oben");
   if (!knopf) return;
 
+  // höchstens einmal pro Frame auswerten, damit das Scrollen flüssig bleibt
+  let angefragt = false;
+  let sichtbar = false;
+
+  function aktualisieren() {
+    angefragt = false;
+    const soll = window.scrollY > 450;
+    if (soll !== sichtbar) {
+      sichtbar = soll;
+      knopf.classList.toggle("sichtbar", soll);
+    }
+  }
+
   window.addEventListener("scroll", () => {
-    knopf.classList.toggle("sichtbar", window.scrollY > 450);
+    if (!angefragt) {
+      angefragt = true;
+      requestAnimationFrame(aktualisieren);
+    }
   }, { passive: true });
 
   knopf.addEventListener("click", () => {
@@ -107,42 +124,84 @@ function initSchreibmaschine() {
   // Ohne Beobachter oder bei reduzierter Bewegung: Text einfach stehen lassen
   if (bewegungReduziert || !("IntersectionObserver" in window)) return;
 
+  // zeitbasiert über requestAnimationFrame statt setInterval:
+  // ruckelt nicht, wenn der Browser gerade anderweitig beschäftigt ist
   function tippe(el) {
     const text = el.textContent;
+    const msProZeichen = 38;
     el.textContent = "";
     el.classList.add("tippt");
-    let i = 0;
+    let start = null;
+    let bisher = 0;
 
-    const intervall = setInterval(() => {
-      el.textContent = text.slice(0, ++i);
-      if (i >= text.length) {
-        clearInterval(intervall);
+    function schritt(jetzt) {
+      if (start === null) start = jetzt;
+      const anzahl = Math.min(text.length, Math.floor((jetzt - start) / msProZeichen) + 1);
+      if (anzahl !== bisher) {
+        bisher = anzahl;
+        el.textContent = text.slice(0, anzahl);
+      }
+      if (anzahl < text.length) {
+        requestAnimationFrame(schritt);
+      } else {
         // Cursor nach kurzem Nachblinken ausblenden
         setTimeout(() => el.classList.remove("tippt"), 1600);
       }
-    }, 38);
+    }
+
+    requestAnimationFrame(schritt);
   }
 
-  const beobachter = new IntersectionObserver((eintraege) => {
-    eintraege.forEach((eintrag) => {
-      if (eintrag.isIntersecting) {
-        tippe(eintrag.target);
-        beobachter.unobserve(eintrag.target);
-      }
-    });
-  }, { threshold: 0.6 });
+  function beobachten() {
+    const beobachter = new IntersectionObserver((eintraege) => {
+      eintraege.forEach((eintrag) => {
+        if (eintrag.isIntersecting) {
+          tippe(eintrag.target);
+          beobachter.unobserve(eintrag.target);
+        }
+      });
+    }, { threshold: 0.6 });
 
-  elemente.forEach((el) => beobachter.observe(el));
+    elemente.forEach((el) => beobachter.observe(el));
+  }
+
+  // erst starten, wenn der Inhalts-Loader (cms.js) die veröffentlichten
+  // Texte angewendet hat – sonst tippt der Effekt einen veralteten Text
+  if (window.cmsBereit && typeof window.cmsBereit.then === "function") {
+    let gestartet = false;
+    const einmal = () => { if (!gestartet) { gestartet = true; beobachten(); } };
+    window.cmsBereit.then(einmal, einmal);
+    setTimeout(einmal, 1500); // Sicherheitsnetz, falls das Laden hängt
+  } else {
+    beobachten();
+  }
 }
 
 /* --------------------------------------------------------------------------
    Akkordeon (FAQ, Eingewöhnung)
    -------------------------------------------------------------------------- */
 function initAkkordeon() {
+  function schliessen(punkt) {
+    const antwort = punkt.querySelector(".akkordeon-antwort");
+    // von "auto"-Höhe aus kann nicht animiert werden – erst die aktuelle
+    // Pixelhöhe setzen, Reflow erzwingen, dann auf 0 zusammenklappen
+    antwort.style.maxHeight = antwort.scrollHeight + "px";
+    void antwort.offsetHeight;
+    antwort.style.maxHeight = "0px";
+    punkt.classList.remove("offen");
+    punkt.querySelector(".akkordeon-frage").setAttribute("aria-expanded", "false");
+  }
+
   document.querySelectorAll(".akkordeon-punkt").forEach((punkt) => {
     const frage = punkt.querySelector(".akkordeon-frage");
     const antwort = punkt.querySelector(".akkordeon-antwort");
     if (!frage || !antwort) return;
+
+    // nach dem Aufklappen Höhe freigeben, damit sich der Inhalt z. B. bei
+    // Fenstergrößen-Änderungen nicht abgeschnitten wird
+    antwort.addEventListener("transitionend", () => {
+      if (punkt.classList.contains("offen")) antwort.style.maxHeight = "none";
+    });
 
     frage.addEventListener("click", () => {
       const istOffen = punkt.classList.contains("offen");
@@ -150,11 +209,7 @@ function initAkkordeon() {
       // andere Punkte im selben Akkordeon schließen
       punkt.closest(".akkordeon")
         .querySelectorAll(".akkordeon-punkt.offen")
-        .forEach((anderer) => {
-          anderer.classList.remove("offen");
-          anderer.querySelector(".akkordeon-antwort").style.maxHeight = null;
-          anderer.querySelector(".akkordeon-frage").setAttribute("aria-expanded", "false");
-        });
+        .forEach(schliessen);
 
       if (!istOffen) {
         punkt.classList.add("offen");
@@ -170,7 +225,9 @@ function initAkkordeon() {
    -------------------------------------------------------------------------- */
 function initZaehler() {
   const zaehler = document.querySelectorAll("[data-ziel]");
-  if (!zaehler.length || !("IntersectionObserver" in window)) {
+  const bewegungReduziert =
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!zaehler.length || bewegungReduziert || !("IntersectionObserver" in window)) {
     zaehler.forEach((z) => { z.textContent = z.dataset.ziel; });
     return;
   }
@@ -310,4 +367,27 @@ function initKontaktformular() {
       formular.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
+}
+
+/* --------------------------------------------------------------------------
+   Google-Maps-Karte erst nach Einwilligung laden (Zwei-Klick-Lösung):
+   ohne Klick fließen keine Daten an Google, und die Seite lädt schneller.
+   -------------------------------------------------------------------------- */
+function initKartenConsent() {
+  const consent = document.getElementById("karten-consent");
+  const knopf = document.getElementById("karte-laden");
+  if (!consent || !knopf) return;
+
+  knopf.addEventListener("click", () => {
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://www.google.com/maps?q=Im%20Looscheid%2082%2C%2045141%20Essen&output=embed&hl=de";
+    iframe.title = "Google-Maps-Karte: Im Looscheid 82, 45141 Essen (Stoppenberg)";
+    iframe.loading = "lazy";
+    iframe.referrerPolicy = "no-referrer";
+    iframe.allow = "fullscreen";
+
+    consent.classList.remove("karten-consent");
+    consent.classList.add("karten-rahmen");
+    consent.replaceChildren(iframe);
+  });
 }

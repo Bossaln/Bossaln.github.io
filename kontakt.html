@@ -7,9 +7,8 @@
 <title>Kontakt – Melli's Krabbelzwerge</title>
 <meta content="Kontaktiert Melli's Krabbelzwerge in Essen-Stoppenberg – Platz anfragen, Besichtigung vereinbaren oder Fragen stellen." name="description"/>
 <link href="assets/img/logo.png" rel="icon" type="image/png"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
 <link href="css/style.css" rel="stylesheet"/>
 </head>
 <body>
@@ -161,8 +160,15 @@
 <span class="ueberschrift-klein" data-cms="kontakt_10">So findet ihr uns</span>
 <h2 data-cms-html="kontakt_11">Im Looscheid 82, <span class="unterstrichen">Essen-Stoppenberg</span></h2>
 </div>
-<div class="bild-rahmen einblenden">
-<iframe loading="lazy" src="https://www.google.com/maps?q=Im%20Looscheid%2082%2C%2045141%20Essen&amp;output=embed&amp;hl=de" style="width: 100%; height: 380px; border: 0; display: block;" title="Google-Maps-Karte: Im Looscheid 82, 45141 Essen (Stoppenberg)"></iframe>
+<div class="bild-rahmen karten-consent einblenden" id="karten-consent">
+<div class="karten-consent-inhalt">
+<span class="karte-icon">🗺️</span>
+<h3>Karte anzeigen</h3>
+<p>Aus Datenschutzgründen wird die Karte erst nach eurem Klick von Google Maps
+           geladen. Dabei wird eine Verbindung zu Google-Servern hergestellt –
+           Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+<button class="btn btn-primaer" id="karte-laden" type="button">Karte laden</button>
+</div>
 </div>
 <p data-cms-html="kontakt_12" style="text-align: center; margin-top: 0.8rem; font-size: 0.9rem;">
 <a href="https://www.google.com/maps/search/?api=1&amp;query=Im+Looscheid+82%2C+45141+Essen" rel="noopener" target="_blank">Größere Karte in Google Maps öffnen</a>

@@ -3,73 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <!-- Maximal strikte Content-Security-Policy:
+       kein Inline-Code, keine Drittanbieter, keine Formular-Ziele,
+       Trusted Types gegen DOM-XSS. frame-ancestors wirkt nicht als
+       Meta-Tag – Einbettung wird zusätzlich per JavaScript blockiert. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'self'; manifest-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types portal-parser">
+  <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex, nofollow">
   <title>Verwaltungs-Portal – Melli's Krabbelzwerge</title>
   <link rel="icon" type="image/png" href="assets/img/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/baloo2-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    .portal-rahmen { max-width: 860px; margin: 3rem auto; width: 92%; }
-    .portal-karte {
-      background: var(--weiss); border-radius: var(--radius);
-      box-shadow: var(--schatten); padding: 2rem; margin-bottom: 1.5rem;
-    }
-    .portal-karte h2 { margin-bottom: 1rem; font-size: 1.4rem; }
-    .portal-hinweis {
-      display: none; margin-top: 1rem; padding: 0.8rem 1.1rem;
-      border-radius: 12px; font-weight: 700; font-size: 0.95rem;
-    }
-    .portal-hinweis.gut { background: #e2f7e4; color: #256b2c; }
-    .portal-hinweis.schlecht { background: #fde3e3; color: #a12525; }
-    .portal-status {
-      padding: 0.8rem 1.1rem; border-radius: 12px;
-      font-weight: 700; margin-bottom: 1.5rem;
-    }
-    .portal-status.offen { background: #fff3d6; color: #8a5b00; }
-    .portal-status.fertig { background: #e2f7e4; color: #256b2c; }
-    .bild-zeile {
-      display: grid; grid-template-columns: 110px 1fr; gap: 1rem;
-      align-items: center; margin-bottom: 1rem; padding-bottom: 1rem;
-      border-bottom: 1px solid var(--wolke);
-    }
-    .bild-zeile:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .bild-zeile img {
-      width: 110px; height: 80px; object-fit: cover;
-      border-radius: 10px; background: var(--wolke);
-    }
-    .portal-aktionen { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-    .info-kasten {
-      background: var(--wolke); border-left: 6px solid var(--gelb);
-      border-radius: 12px; padding: 1rem 1.3rem;
-      font-size: 0.95rem; color: var(--tinte-hell); margin-bottom: 1.5rem;
-    }
-    .portal-details summary {
-      cursor: pointer; font-family: var(--schrift-titel);
-      font-size: 1.2rem; font-weight: 700; list-style-position: outside;
-    }
-    .portal-details[open] summary { margin-bottom: 1.2rem; }
-    .portal-details .feld label {
-      font-weight: 700; font-size: 0.85rem; color: var(--tinte-hell);
-    }
-    .html-feld { font-family: ui-monospace, monospace; font-size: 0.9rem; }
-    .passwort-wrapper { position: relative; }
-    .passwort-wrapper input { padding-right: 3.2rem; }
-    .passwort-wrapper button {
-      position: absolute; top: 50%; right: 0.6rem;
-      transform: translateY(-50%);
-      width: 2.2rem; height: 2.2rem;
-      display: grid; place-items: center;
-      background: none; border: none; cursor: pointer;
-      font-size: 1.25rem; border-radius: 50%;
-      transition: background 0.2s;
-    }
-    .passwort-wrapper button:hover { background: var(--wolke); }
-    .html-hinweis { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
-    #portal { display: none; }
-  </style>
+  <link rel="stylesheet" href="css/portal.css">
 </head>
 <body>
 
@@ -79,13 +25,13 @@
     <div class="container">
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="index.html" class="nav-logo">
-          <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge">
+          <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge" width="78" height="54">
           <span class="nav-logo-text">
             <strong>Melli's Krabbelzwerge</strong>
             <span>Verwaltungs-Portal</span>
           </span>
         </a>
-        <ul class="nav-links" style="display: flex;">
+        <ul class="nav-links">
           <li><a href="index.html">← Zur Website</a></li>
         </ul>
       </nav>
@@ -96,9 +42,9 @@
 
     <!-- Anmeldung -->
     <section id="anmeldung">
-      <div class="portal-karte" style="max-width: 460px; margin-inline: auto;">
+      <div class="portal-karte anmelde-karte">
         <h2>🔒 Anmeldung</h2>
-        <p style="color: var(--tinte-hell); margin-bottom: 1.2rem;">
+        <p class="hinweis-text">
           Dieser Bereich ist nur für das Team von Melli's Krabbelzwergen.
         </p>
         <form id="anmelde-formular">
@@ -109,27 +55,28 @@
               <button type="button" id="passwort-auge" aria-label="Passwort kurzzeitig anzeigen" aria-pressed="false" title="Passwort anzeigen">👁️</button>
             </div>
           </div>
-          <button type="submit" class="btn btn-primaer" style="width: 100%;">Anmelden</button>
+          <button type="submit" class="btn btn-primaer volle-breite">Anmelden</button>
         </form>
-        <div id="anmelde-meldung" class="portal-hinweis"></div>
+        <div id="anmelde-meldung" class="portal-hinweis" role="alert"></div>
       </div>
     </section>
 
     <!-- Portal -->
     <section id="portal">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
-        <h1 style="font-size: 1.8rem;">Inhalte bearbeiten ✏️</h1>
+      <div class="portal-kopfzeile">
+        <h1>Inhalte bearbeiten ✏️</h1>
         <button id="abmelden" class="btn btn-sekundaer">Abmelden</button>
       </div>
 
       <div class="info-kasten">
         <strong>So funktioniert es:</strong> Änderungen mit „Vorschau speichern" testen –
-        sie sind dann sofort in diesem Browser auf der Website sichtbar. Damit
-        <em>alle Besucher</em> sie sehen: „Veröffentlichen" klicken und die
+        sie sind dann sofort in diesem Browser und in der Live-Vorschau unten sichtbar.
+        Damit <em>alle Besucher</em> sie sehen: „Veröffentlichen" klicken und die
         heruntergeladene Datei <code>inhalte.json</code> in den Ordner
         <code>daten/</code> der Website hochladen.
       </div>
 
+      <div id="scan-info" class="scan-info"></div>
       <div id="status" class="portal-status"></div>
 
       <div class="portal-karte">
@@ -174,53 +121,36 @@
 
       <div class="portal-karte">
         <h2>🖼️ Bilder</h2>
-        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-          Neue Bilder werden automatisch verkleinert. Sie erscheinen auf allen Seiten,
-          auf denen das jeweilige Bild verwendet wird.
+        <p class="gedaempft">
+          Alle auf der Website eingesetzten Bilder – automatisch erkannt.
+          Neue Bilder werden beim Hochladen verkleinert und erscheinen überall
+          dort, wo das jeweilige Bild verwendet wird.
         </p>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_logo" src="assets/img/logo.png" alt="Logo" style="object-fit: contain; background: var(--weiss);">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_logo">Logo (Kopfzeile, Startseite, Fußzeile)</label>
-            <input type="file" id="upload-bild_logo" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_team" src="assets/img/team.jpg" alt="Teamfoto">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_team">Teamfoto (Über uns, Startseite)</label>
-            <input type="file" id="upload-bild_team" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_spielzimmer" src="assets/img/spielzimmer.jpg" alt="Spielzimmer">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_spielzimmer">Spielzimmer (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_spielzimmer" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_raum" src="assets/img/raum.jpg" alt="Spiel- und Schlafraum">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_raum">Spiel- &amp; Schlafraum (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_raum" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_garten" src="assets/img/garten.jpg" alt="Außengelände">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_garten">Außengelände (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_garten" accept="image/*">
-          </div>
-        </div>
+        <div id="bilder-liste"></div>
       </div>
 
-      <h2 style="font-size: 1.4rem; margin: 2rem 0 1rem;">📝 Alle Texte der Website</h2>
-      <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-        Hier lässt sich jeder Text der Website bearbeiten – nach Seiten sortiert.
-        Einfach eine Seite aufklappen.
+      <h2 class="zwischen-titel">📝 Alle Texte der Website</h2>
+      <p class="gedaempft">
+        Das Portal liest die Website bei jeder Anmeldung neu ein – hier erscheint
+        automatisch jeder bearbeitbare Text, nach Seiten sortiert. Einfach eine
+        Seite aufklappen.
       </p>
       <div id="dynamische-bereiche"></div>
+
+      <div class="portal-karte">
+        <h2>👀 Live-Vorschau</h2>
+        <p class="gedaempft">
+          Zeigt die Website mit allen lokal gespeicherten Änderungen – noch bevor
+          sie veröffentlicht sind.
+        </p>
+        <div class="vorschau-leiste">
+          <label for="vorschau-seite">Seite:</label>
+          <select id="vorschau-seite"></select>
+          <button id="vorschau-neu" class="btn btn-sekundaer" type="button">Neu laden</button>
+        </div>
+        <iframe id="vorschau-rahmen" class="vorschau-rahmen" title="Live-Vorschau der Website"
+                sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer"></iframe>
+      </div>
 
       <div class="portal-karte">
         <h2>💾 Speichern &amp; Veröffentlichen</h2>
@@ -229,7 +159,7 @@
           <button id="exportieren" class="btn btn-sekundaer">Veröffentlichen (Datei exportieren)</button>
           <button id="zuruecksetzen" class="btn btn-sekundaer">Lokale Änderungen verwerfen</button>
         </div>
-        <div id="portal-meldung" class="portal-hinweis"></div>
+        <div id="portal-meldung" class="portal-hinweis" role="alert"></div>
       </div>
 
       <div class="portal-karte">
@@ -238,21 +168,42 @@
           <div class="formular-reihe">
             <div class="feld">
               <label for="passwort-neu">Neues Passwort (mind. 12 Zeichen)</label>
-              <input type="password" id="passwort-neu" autocomplete="new-password">
+              <input type="password" id="passwort-neu" autocomplete="new-password" minlength="12">
             </div>
             <div class="feld">
               <label for="passwort-wdh">Neues Passwort wiederholen</label>
-              <input type="password" id="passwort-wdh" autocomplete="new-password">
+              <input type="password" id="passwort-wdh" autocomplete="new-password" minlength="12">
             </div>
           </div>
           <button type="submit" class="btn btn-sekundaer">Neue Zugangsdatei erstellen</button>
         </form>
-        <div id="passwort-meldung" class="portal-hinweis"></div>
-        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
-          Die heruntergeladene Datei <code>zugang.json</code> in den Ordner
-          <code>daten/</code> hochladen – erst dann gilt das neue Passwort.
-          Es wird nur ein sicherer Prüfwert (Hash) gespeichert, nie das Passwort selbst.
+        <div id="passwort-meldung" class="portal-hinweis" role="alert"></div>
+        <p class="klein-gedaempft">
+          Tipp: Am sichersten ist eine lange Passphrase aus mehreren Wörtern
+          (z.&nbsp;B. vier zufällige Wörter). Die heruntergeladene Datei
+          <code>zugang.json</code> in den Ordner <code>daten/</code> hochladen –
+          erst dann gilt das neue Passwort. Es wird nur ein sicherer Prüfwert
+          (Hash) gespeichert, nie das Passwort selbst.
         </p>
+      </div>
+
+      <div class="portal-karte">
+        <h2>🛡️ Sicherheit dieses Portals</h2>
+        <ul class="sicherheits-liste">
+          <li>Das Passwort verlässt nie den Browser – geprüft wird nur ein
+              PBKDF2-SHA256-Prüfwert (bei neuen Passwörtern 600.000 Runden,
+              zufälliges Salt).</li>
+          <li>Nach 5 Fehlversuchen wird die Anmeldung exponentiell lange gesperrt;
+              Sitzungen enden nach 30 Minuten Inaktivität, spätestens nach 8 Stunden.</li>
+          <li>Strikte Content-Security-Policy ohne Inline-Code und ohne
+              Drittanbieter, Trusted Types gegen DOM-XSS, Schutz vor Einbettung
+              in fremde Seiten (Clickjacking), kein Referrer, für Suchmaschinen
+              gesperrt.</li>
+          <li>Gut zu wissen: Die Website ist statisch gehostet – veröffentlicht
+              wird nur, was per Datei in den Webspace hochgeladen wird. Das Portal
+              selbst enthält keine vertraulichen Daten; alle bearbeitbaren Inhalte
+              sind ohnehin öffentlich sichtbar.</li>
+        </ul>
       </div>
 
     </section>
