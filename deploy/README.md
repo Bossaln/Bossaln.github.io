@@ -243,6 +243,12 @@ Port legen: in `/etc/lighttpd/lighttpd.conf` `server.port` ändern.)
 nicht oder wurde neu gestartet. Nach einem Neustart ist eine erneute
 Anmeldung nötig.
 
+**Ein Knopf im Portal tut gar nichts** – dann hält der Browser noch eine
+alte Fassung der Skripte fest. Einmal mit `Strg` + `Umschalt` + `R`
+(Mac: `Cmd` + `Umschalt` + `R`) neu laden. Seiten, Skripte und Stile
+werden inzwischen bei jedem Aufruf beim Server geprüft, damit das nach
+einem Update nicht mehr vorkommt.
+
 **`raspberrypi.local` wird nicht gefunden** – stattdessen die IP-Adresse
 nutzen, oder auf dem Pi `sudo apt install -y avahi-daemon` nachinstallieren.
 

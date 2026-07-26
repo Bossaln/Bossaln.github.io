@@ -706,10 +706,13 @@ async function statisch(req, res, pfad) {
     ziel = path.join(ziel, "index.html");
   }
 
+  // Seiten, Skripte und Stile immer beim Server nachfragen (kostet dank ETag
+  // fast nichts). Sonst benutzt der Browser nach einem Update noch stunden-
+  // lang alte Skripte – Knöpfe wirken dann funktionslos.
   const endung = path.extname(ziel).toLowerCase();
-  const zwischenspeicher = endung === ".html"
-    ? "no-cache"
-    : (endung === ".json" ? "no-store" : "public, max-age=3600");
+  const zwischenspeicher = endung === ".json"
+    ? "no-store"
+    : ([".html", ".js", ".css"].includes(endung) ? "no-cache" : "public, max-age=3600");
 
   return dateiSenden(req, res, ziel, zwischenspeicher);
 }

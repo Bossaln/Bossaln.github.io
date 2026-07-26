@@ -53,14 +53,11 @@
     }) + " Uhr";
   }
 
+  /* Logo aus der Seite übernehmen – so zeigt der Beitragskopf immer das
+     aktuelle Logo, auch wenn es im Portal getauscht wurde. */
   function logoQuelle() {
-    const logo = document.querySelector(".profil-bild img");
+    const logo = document.querySelector('[data-cms-bild="bild_logo"]');
     return logo ? logo.getAttribute("src") : "assets/img/logo.png";
-  }
-
-  function profilName() {
-    const name = document.querySelector(".profil-name");
-    return name ? name.textContent.trim() : "Melli's Krabbelzwerge";
   }
 
   /* Baut eine Beitragskarte. Texte werden bewusst als Text eingesetzt
@@ -81,19 +78,13 @@
     avatar.alt = "";
     kopf.appendChild(avatar);
 
-    const kopfText = document.createElement("div");
-    const name = document.createElement("strong");
-    name.textContent = profilName();
-    kopfText.appendChild(name);
-
     if (gueltig) {
       const zeit = document.createElement("time");
       zeit.dateTime = zeitpunkt.toISOString();
       zeit.textContent = relativeZeit(zeitpunkt);
       zeit.title = langesDatum(zeitpunkt);
-      kopfText.appendChild(zeit);
+      kopf.appendChild(zeit);
     }
-    kopf.appendChild(kopfText);
     artikel.appendChild(kopf);
 
     if (beitrag.bild) {
@@ -149,17 +140,6 @@
     return hinweis;
   }
 
-  let anzahlBeitraege = 0;
-
-  /* „1 Beitrag“ statt „1 Beiträge“ – nur beim Standardtext, damit eine im
-     Portal geänderte Bezeichnung unangetastet bleibt. */
-  function zahlwortAnpassen() {
-    const label = document.querySelector('[data-cms="neuigkeiten_zahl_1"]');
-    if (!label) return;
-    if (!/^Beiträge?$/.test(label.textContent.trim())) return;
-    label.textContent = anzahlBeitraege === 1 ? "Beitrag" : "Beiträge";
-  }
-
   function anzeigen(beitraege) {
     const halter = document.getElementById("beitraege");
     if (!halter) return;
@@ -169,11 +149,6 @@
     const liste = (Array.isArray(beitraege) ? beitraege : [])
       .filter((b) => b && (b.titel || b.text || b.bild))
       .sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit));
-
-    anzahlBeitraege = liste.length;
-    const zaehler = document.getElementById("beitrag-zahl");
-    if (zaehler) zaehler.textContent = liste.length;
-    zahlwortAnpassen();
 
     if (!liste.length) {
       halter.appendChild(leerHinweis(
@@ -204,10 +179,6 @@
       .then((beitraege) => anzeigen(vorschau || beitraege))
       .catch(() => anzeigen(vorschau || []));
   }
-
-  // Der Inhalts-Loader setzt die Bezeichnung später neu – danach nochmal
-  // auf Einzahl/Mehrzahl schauen.
-  document.addEventListener("cms-fertig", zahlwortAnpassen);
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", laden);

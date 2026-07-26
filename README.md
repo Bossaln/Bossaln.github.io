@@ -15,7 +15,7 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 | `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
 | `galerie.html` | Galerie (Platzhalter-Kacheln, bis echte Fotos vorliegen) |
-| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom im Stil einer Profilseite |
+| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom (aus dem Portal gepflegt) |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
 | `impressum.html` | Impressum (Mustertext mit Platzhaltern) |
 | `datenschutz.html` | Datenschutzerklärung (Mustertext mit Platzhaltern) |
@@ -66,10 +66,9 @@ im Server-Betrieb nicht mehr ausgeliefert.
 
 ## Neuigkeiten (`neuigkeiten.html`)
 
-Eine Seite im Stil einer Profilseite: Profilkopf mit Logo, Name und
-Steckbrief, darunter die Beiträge – der neueste oben, jeder mit Titel,
-Nachricht, optionalem Bild und Zeitstempel („vor 3 Tagen" plus genaues
-Datum). Geschrieben werden sie im Portal unter „📣 Neuigkeiten posten":
+Ein Beitragsstrom – der neueste oben, jeder Beitrag mit Titel, Nachricht,
+optionalem Bild und Zeitstempel („vor 3 Tagen" plus genaues Datum).
+Geschrieben werden sie im Portal unter „📣 Neuigkeiten posten":
 Titel, Nachricht, wenn gewünscht ein Bild – veröffentlichen, fertig.
 Vorhandene Beiträge lassen sich dort bearbeiten und löschen.
 
