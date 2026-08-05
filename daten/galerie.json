@@ -2,32 +2,336 @@
   {
     "id": "o-unsere-raeume",
     "name": "Unsere Räume",
-    "beschreibung": "Ein Rundgang durch unser Haus und den Garten.",
-    "zeit": "2026-07-01T09:00:00.000Z",
+    "beschreibung": "Ein Rundgang durch unser 112 m² großes Haus im Looscheid 82.",
+    "zeit": "2026-08-05T09:00:00.000Z",
     "bilder": [
       {
-        "id": "g-spielzimmer",
-        "pfad": "assets/img/spielzimmer.jpg",
-        "text": "Unser Spielzimmer mit Spielteppich, Regalen und Blick in den Flur.",
-        "breite": 0,
-        "hoehe": 0,
-        "zeit": "2026-07-01T09:00:00.000Z"
+        "id": "g-08",
+        "pfad": "assets/img/galerie-08.jpg",
+        "text": "Blick durch unsere Räume – vom Spielteppich bis in den Essbereich.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:00:00.000Z"
       },
       {
-        "id": "g-raum",
-        "pfad": "assets/img/raum.jpg",
-        "text": "Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte.",
-        "breite": 0,
-        "hoehe": 0,
-        "zeit": "2026-07-01T09:01:00.000Z"
+        "id": "g-33",
+        "pfad": "assets/img/galerie-33.jpg",
+        "text": "Unser buntes Spielzimmer mit Spielteppich und viel Platz zum Toben.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:01:00.000Z"
       },
       {
-        "id": "g-garten",
-        "pfad": "assets/img/garten.jpg",
-        "text": "Unser rund 300 m² großes Außengelände mit Rutsche und Spielhäuschen.",
-        "breite": 0,
-        "hoehe": 0,
-        "zeit": "2026-07-01T09:02:00.000Z"
+        "id": "g-32",
+        "pfad": "assets/img/galerie-32.jpg",
+        "text": "Spiel- und Schlafzimmer: Jeder Zwerg hat hier sein eigenes Bettchen.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:02:00.000Z"
+      },
+      {
+        "id": "g-35",
+        "pfad": "assets/img/galerie-35.jpg",
+        "text": "Der zweite Spielraum mit Tisch zum Basteln und Malen.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:03:00.000Z"
+      },
+      {
+        "id": "g-34",
+        "pfad": "assets/img/galerie-34.jpg",
+        "text": "Der helle Flur verbindet unsere Räume miteinander.",
+        "breite": 945,
+        "hoehe": 2048,
+        "zeit": "2026-08-05T09:04:00.000Z"
+      },
+      {
+        "id": "g-36",
+        "pfad": "assets/img/galerie-36.jpg",
+        "text": "Unsere Küche – hier wird das Essen für die Kinder frisch zubereitet.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:05:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "o-aussengelaende",
+    "name": "Unser Außengelände",
+    "beschreibung": "Rund 300 m² Garten zum Spielen, Buddeln und Toben.",
+    "zeit": "2026-08-05T09:01:00.000Z",
+    "bilder": [
+      {
+        "id": "g-37",
+        "pfad": "assets/img/galerie-37.jpg",
+        "text": "Unser rund 300 m² großes Außengelände mit Spielhaus, Rutsche und Sandfläche.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:06:00.000Z"
+      },
+      {
+        "id": "g-31",
+        "pfad": "assets/img/galerie-31.jpg",
+        "text": "Im Sandkasten lässt sich der ganze Vormittag verbringen.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:07:00.000Z"
+      },
+      {
+        "id": "g-18",
+        "pfad": "assets/img/galerie-18.jpg",
+        "text": "Startklar für den nächsten Ausflug.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:08:00.000Z"
+      },
+      {
+        "id": "g-21",
+        "pfad": "assets/img/galerie-21.jpg",
+        "text": "Auch der Garten will versorgt werden.",
+        "breite": 899,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:09:00.000Z"
+      },
+      {
+        "id": "g-01",
+        "pfad": "assets/img/galerie-01.jpg",
+        "text": "Gemeinsam draußen auf der Wiese.",
+        "breite": 1152,
+        "hoehe": 648,
+        "zeit": "2026-08-05T09:10:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "o-spielen-bewegung",
+    "name": "Spielen & Bewegung",
+    "beschreibung": "Freies Spiel, Bewegung und kreative Ideen im Alltag.",
+    "zeit": "2026-08-05T09:02:00.000Z",
+    "bilder": [
+      {
+        "id": "g-02",
+        "pfad": "assets/img/galerie-02.jpg",
+        "text": "Gemeinsame Spielrunde im Gruppenraum.",
+        "breite": 1152,
+        "hoehe": 648,
+        "zeit": "2026-08-05T09:11:00.000Z"
+      },
+      {
+        "id": "g-09",
+        "pfad": "assets/img/galerie-09.jpg",
+        "text": "Der große Ball ist immer wieder ein Highlight.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:12:00.000Z"
+      },
+      {
+        "id": "g-10",
+        "pfad": "assets/img/galerie-10.jpg",
+        "text": "Klettern, rutschen, krabbeln – unsere Bewegungslandschaft.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:13:00.000Z"
+      },
+      {
+        "id": "g-11",
+        "pfad": "assets/img/galerie-11.jpg",
+        "text": "Im Bällebad wird ausgiebig getobt.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:14:00.000Z"
+      },
+      {
+        "id": "g-16",
+        "pfad": "assets/img/galerie-16.jpg",
+        "text": "Mit Schaumstoffbausteinen entstehen jeden Tag neue Wege.",
+        "breite": 1400,
+        "hoehe": 788,
+        "zeit": "2026-08-05T09:15:00.000Z"
+      },
+      {
+        "id": "g-12",
+        "pfad": "assets/img/galerie-12.jpg",
+        "text": "An der Staffelei darf frei gemalt werden.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:16:00.000Z"
+      },
+      {
+        "id": "g-14",
+        "pfad": "assets/img/galerie-14.jpg",
+        "text": "Basteln und Matschen am großen Tisch.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:17:00.000Z"
+      },
+      {
+        "id": "g-15",
+        "pfad": "assets/img/galerie-15.jpg",
+        "text": "Gemeinsam am Tisch – Essen und Trinken gehören zum Tag dazu.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:18:00.000Z"
+      },
+      {
+        "id": "g-13",
+        "pfad": "assets/img/galerie-13.jpg",
+        "text": "Draußen regnet es – drinnen wird es dafür spannend.",
+        "breite": 144,
+        "hoehe": 192,
+        "zeit": "2026-08-05T09:19:00.000Z"
+      },
+      {
+        "id": "g-03",
+        "pfad": "assets/img/galerie-03.jpg",
+        "text": "Für die Tagespflege: Hurra!",
+        "breite": 720,
+        "hoehe": 1280,
+        "zeit": "2026-08-05T09:20:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "o-ausfluege",
+    "name": "Unsere Ausflüge",
+    "beschreibung": "Bauernhof, Zoo, Wald und Wasser – wir sind gerne unterwegs.",
+    "zeit": "2026-08-05T09:03:00.000Z",
+    "bilder": [
+      {
+        "id": "g-04",
+        "pfad": "assets/img/galerie-04.jpg",
+        "text": "Ausflug ans Wasser – die ganze Gruppe an der Reling.",
+        "breite": 1152,
+        "hoehe": 648,
+        "zeit": "2026-08-05T09:21:00.000Z"
+      },
+      {
+        "id": "g-17",
+        "pfad": "assets/img/galerie-17.jpg",
+        "text": "Mit dem Krippenwagen sind wir bei fast jedem Wetter unterwegs.",
+        "breite": 1400,
+        "hoehe": 1050,
+        "zeit": "2026-08-05T09:22:00.000Z"
+      },
+      {
+        "id": "g-20",
+        "pfad": "assets/img/galerie-20.jpg",
+        "text": "Große Augen vor dem Aquarium.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:23:00.000Z"
+      },
+      {
+        "id": "g-24",
+        "pfad": "assets/img/galerie-24.jpg",
+        "text": "Durch den Tunnel geht es weiter zu den Fischen.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:24:00.000Z"
+      },
+      {
+        "id": "g-25",
+        "pfad": "assets/img/galerie-25.jpg",
+        "text": "Tiere beobachten, ganz nah dran.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:25:00.000Z"
+      },
+      {
+        "id": "g-19",
+        "pfad": "assets/img/galerie-19.jpg",
+        "text": "Was da wohl hinter der Scheibe schwimmt?",
+        "breite": 1400,
+        "hoehe": 2488,
+        "zeit": "2026-08-05T09:26:00.000Z"
+      },
+      {
+        "id": "g-22",
+        "pfad": "assets/img/galerie-22.jpg",
+        "text": "Ein Ausritt auf dem Pony gehört zu den größten Abenteuern.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:27:00.000Z"
+      },
+      {
+        "id": "g-28",
+        "pfad": "assets/img/galerie-28.jpg",
+        "text": "Auf dem Bauernhof: Die Hühner lassen sich gerne bestaunen.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:28:00.000Z"
+      },
+      {
+        "id": "g-29",
+        "pfad": "assets/img/galerie-29.jpg",
+        "text": "Pferde am Zaun – mit Aussicht über Essen.",
+        "breite": 1400,
+        "hoehe": 1050,
+        "zeit": "2026-08-05T09:29:00.000Z"
+      },
+      {
+        "id": "g-30",
+        "pfad": "assets/img/galerie-30.jpg",
+        "text": "Ziegen und Ponys ganz nah.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:30:00.000Z"
+      },
+      {
+        "id": "g-23",
+        "pfad": "assets/img/galerie-23.jpg",
+        "text": "Spaziergang durch den Wald.",
+        "breite": 899,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:31:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "o-team-feste",
+    "name": "Unser Team & Feste",
+    "beschreibung": "Die Menschen hinter den Krabbelzwergen – und die schönsten Tage im Jahr.",
+    "zeit": "2026-08-05T09:04:00.000Z",
+    "bilder": [
+      {
+        "id": "g-06",
+        "pfad": "assets/img/galerie-06.jpg",
+        "text": "Das Team der Krabbelzwerge.",
+        "breite": 648,
+        "hoehe": 1152,
+        "zeit": "2026-08-05T09:32:00.000Z"
+      },
+      {
+        "id": "g-05",
+        "pfad": "assets/img/galerie-05.jpg",
+        "text": "Team Krabbelzwerge – von hinten erkennbar.",
+        "breite": 1400,
+        "hoehe": 788,
+        "zeit": "2026-08-05T09:33:00.000Z"
+      },
+      {
+        "id": "g-07",
+        "pfad": "assets/img/galerie-07.jpg",
+        "text": "Karneval bei den Krabbelzwergen.",
+        "breite": 1200,
+        "hoehe": 1600,
+        "zeit": "2026-08-05T09:34:00.000Z"
+      },
+      {
+        "id": "g-26",
+        "pfad": "assets/img/galerie-26.jpg",
+        "text": "Der erste Schnee wird gleich beschriftet.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:35:00.000Z"
+      },
+      {
+        "id": "g-27",
+        "pfad": "assets/img/galerie-27.jpg",
+        "text": "Winterspaziergang durch den Park.",
+        "breite": 1400,
+        "hoehe": 1866,
+        "zeit": "2026-08-05T09:36:00.000Z"
       }
     ]
   }
