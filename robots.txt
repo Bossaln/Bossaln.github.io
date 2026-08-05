@@ -1,0 +1,8 @@
+# Melli's Krabbelzwerge
+
+# Das Verwaltungs-Portal und der Datenordner gehören nicht in Suchmaschinen.
+User-agent: *
+Disallow: /admin.html
+Disallow: /daten/
+Disallow: /bilder/
+Allow: /

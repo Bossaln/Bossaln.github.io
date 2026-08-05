@@ -3,14 +3,19 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"/>
+<meta content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-+oexMg2Nz/Pho01DKw5ho8iGtqc33ipapYZ/zNkGer8='; connect-src 'self'; frame-src https://www.google.com" http-equiv="Content-Security-Policy"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Neuigkeiten – Melli's Krabbelzwerge</title>
 <meta content="Aktuelles aus dem Alltag von Melli's Krabbelzwergen – Großtagespflege in Essen-Stoppenberg." name="description"/>
-<link href="assets/img/logo.png" rel="icon" type="image/png"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="css/style.css?v=2" rel="stylesheet"/>
+<link href="assets/img/favicon.png" rel="icon" type="image/png"/>
+<link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
+<link href="css/style.css?v=3" rel="stylesheet"/>
+<script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
+<script defer src="js/vendor/motion.min.js?v=3"></script>
+<script defer src="js/cms.js?v=3"></script>
+<script defer src="js/main.js?v=3"></script>
+<script defer src="js/neuigkeiten.js?v=3"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -18,7 +23,7 @@
 <div class="container">
 <nav aria-label="Hauptnavigation" class="nav">
 <a class="nav-logo" href="index.html">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async"/>
 <span class="nav-logo-text">
 <strong>Melli's Krabbelzwerge</strong>
 <span>Großtagespflege</span>
@@ -63,7 +68,7 @@
 <div class="footer-oben">
 <div>
 <div class="footer-logo">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async" loading="lazy"/>
 <strong>Melli's Krabbelzwerge</strong>
 </div>
 <p data-cms="footer_tagline">„Alles was ein Kind braucht, um glücklich zu sein." – Großtagespflege in Essen-Stoppenberg.</p>
@@ -106,8 +111,5 @@
 </div>
 </footer>
 <button aria-label="Nach oben scrollen" class="nach-oben">↑</button>
-<script src="js/cms.js?v=2"></script>
-<script src="js/neuigkeiten.js?v=2"></script>
-<script src="js/main.js?v=2"></script>
 </body>
 </html>

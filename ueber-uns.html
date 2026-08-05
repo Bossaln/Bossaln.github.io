@@ -3,14 +3,18 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"/>
+<meta content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-+oexMg2Nz/Pho01DKw5ho8iGtqc33ipapYZ/zNkGer8='; connect-src 'self'; frame-src https://www.google.com" http-equiv="Content-Security-Policy"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Über uns – Melli's Krabbelzwerge</title>
 <meta content="Lernt das Team von Melli's Krabbelzwerge kennen – liebevolle Großtagespflege in Essen-Stoppenberg." name="description"/>
-<link href="assets/img/logo.png" rel="icon" type="image/png"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="css/style.css?v=2" rel="stylesheet"/>
+<link href="assets/img/favicon.png" rel="icon" type="image/png"/>
+<link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
+<link href="css/style.css?v=3" rel="stylesheet"/>
+<script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
+<script defer src="js/vendor/motion.min.js?v=3"></script>
+<script defer src="js/cms.js?v=3"></script>
+<script defer src="js/main.js?v=3"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -18,7 +22,7 @@
 <div class="container">
 <nav aria-label="Hauptnavigation" class="nav">
 <a class="nav-logo" href="index.html">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async"/>
 <span class="nav-logo-text">
 <strong>Melli's Krabbelzwerge</strong>
 <span>Großtagespflege</span>
@@ -69,7 +73,7 @@
           </p>
 </div>
 <div class="bild-rahmen einblenden">
-<img alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte" data-cms-bild="bild_raum" src="assets/img/raum.jpg"/>
+<img alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte" data-cms-bild="bild_raum" src="assets/img/raum.jpg" width="302" height="304" decoding="async" loading="lazy"/>
 </div>
 </div>
 </section>
@@ -81,7 +85,7 @@
 </div>
 <div class="zweispaltig" style="margin-bottom: 2.5rem;">
 <div class="bild-rahmen einblenden">
-<img alt="Melanie Graw und Ivonne Braß – die beiden Schwestern hinter Melli's Krabbelzwergen" data-cms-bild="bild_team" src="assets/img/team.jpg"/>
+<img alt="Melanie Graw und Ivonne Braß – die beiden Schwestern hinter Melli's Krabbelzwergen" data-cms-bild="bild_team" src="assets/img/team.jpg" width="364" height="354" decoding="async" loading="lazy"/>
 </div>
 <div class="einblenden">
 <h3 data-cms="ueberuns_09" style="font-size: 1.5rem; margin-bottom: 0.8rem;">Zwei Schwestern, ein Herzensprojekt</h3>
@@ -152,12 +156,12 @@
             </p>
 </div>
 <div class="bild-rahmen einblenden">
-<img alt="Unser großes Außengelände mit Rasen, Rutsche und Spielhäuschen" data-cms-bild="bild_garten" src="assets/img/garten.jpg" style="width: 100%; object-fit: cover; max-height: 420px;"/>
+<img alt="Unser großes Außengelände mit Rasen, Rutsche und Spielhäuschen" data-cms-bild="bild_garten" src="assets/img/garten.jpg" style="width: 100%; object-fit: cover; max-height: 420px;" width="162" height="300" decoding="async" loading="lazy"/>
 </div>
 </div>
 <div class="zweispaltig">
 <div class="bild-rahmen einblenden">
-<img alt="Blick in unser buntes Spielzimmer mit Spielteppich und Regalen" data-cms-bild="bild_spielzimmer" src="assets/img/spielzimmer.jpg" style="width: 100%; object-fit: cover; max-height: 420px;"/>
+<img alt="Blick in unser buntes Spielzimmer mit Spielteppich und Regalen" data-cms-bild="bild_spielzimmer" src="assets/img/spielzimmer.jpg" style="width: 100%; object-fit: cover; max-height: 420px;" width="190" height="256" decoding="async" loading="lazy"/>
 </div>
 <div class="einblenden">
 <h3 data-cms="ueberuns_29" style="font-size: 1.4rem; margin-bottom: 0.8rem;">Mitten im schönen Stoppenberg</h3>
@@ -190,7 +194,7 @@
 <div class="footer-oben">
 <div>
 <div class="footer-logo">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async" loading="lazy"/>
 <strong>Melli's Krabbelzwerge</strong>
 </div>
 <p data-cms="footer_tagline">„Alles was ein Kind braucht, um glücklich zu sein." – Großtagespflege in Essen-Stoppenberg.</p>
@@ -233,7 +237,5 @@
 </div>
 </footer>
 <button aria-label="Nach oben scrollen" class="nach-oben">↑</button>
-<script src="js/cms.js?v=2"></script>
-<script src="js/main.js?v=2"></script>
 </body>
 </html>

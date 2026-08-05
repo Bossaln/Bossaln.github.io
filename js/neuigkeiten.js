@@ -57,7 +57,14 @@
      aktuelle Logo, auch wenn es im Portal getauscht wurde. */
   function logoQuelle() {
     const logo = document.querySelector('[data-cms-bild="bild_logo"]');
-    return logo ? logo.getAttribute("src") : "assets/img/logo.png";
+    return logo ? logo.getAttribute("src") : "assets/img/logo.webp";
+  }
+
+  /* Ein Beitragsbild darf nur auf eine eigene Datei zeigen – nie auf einen
+     fremden Server und nie auf eine data:-Adresse. */
+  function bildInOrdnung(pfad) {
+    return typeof pfad === "string" &&
+      /^(bilder|assets\/img)\/[A-Za-z0-9._-]{1,120}$/.test(pfad);
   }
 
   /* Baut eine Beitragskarte. Texte werden bewusst als Text eingesetzt
@@ -87,13 +94,17 @@
     }
     artikel.appendChild(kopf);
 
-    if (beitrag.bild) {
+    if (bildInOrdnung(beitrag.bild)) {
       const bildRahmen = document.createElement("div");
       bildRahmen.className = "beitrag-bild";
       const bild = document.createElement("img");
       bild.src = beitrag.bild;
       bild.alt = beitrag.titel ? "Bild zum Beitrag: " + beitrag.titel : "Bild zum Beitrag";
       bild.loading = nummer > 1 ? "lazy" : "eager";
+      bild.decoding = "async";
+      // Der erste Beitrag ist meist das größte Bild der Seite – er soll
+      // vor allem anderen geladen werden.
+      if (nummer === 1) bild.setAttribute("fetchpriority", "high");
       bildRahmen.appendChild(bild);
       artikel.appendChild(bildRahmen);
     }
@@ -144,10 +155,10 @@
     const halter = document.getElementById("beitraege");
     if (!halter) return;
 
-    halter.innerHTML = "";
+    halter.replaceChildren();
 
     const liste = (Array.isArray(beitraege) ? beitraege : [])
-      .filter((b) => b && (b.titel || b.text || b.bild))
+      .filter((b) => b && typeof b === "object" && (b.titel || b.text || b.bild))
       .sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit));
 
     if (!liste.length) {
@@ -158,23 +169,22 @@
 
     liste.forEach((beitrag, i) => halter.appendChild(beitragBauen(beitrag, i + 1)));
 
-    // Einblend-Animation auch für die frisch erzeugten Karten starten
-    if (typeof window.initEinblendungen === "function") window.initEinblendungen();
-
-    // Sicherheitsnetz: Beiträge dürfen nie unsichtbar hängen bleiben,
-    // falls die Animation nicht anspringt.
-    setTimeout(() => {
-      halter.querySelectorAll(".beitrag.einblenden").forEach((karte) => {
-        const oben = karte.getBoundingClientRect().top;
-        if (oben < window.innerHeight) karte.classList.add("sichtbar");
-      });
-    }, 2000);
+    // Einblend-Animation auch für die frisch erzeugten Karten starten.
+    // Das frühere Sicherheitsnetz („nach 2 Sekunden alles sichtbar machen")
+    // wird nicht mehr gebraucht: der Beobachter in main.js kann seit der
+    // Umstellung auf rootMargin auch bei sehr hohen Beiträgen nicht mehr
+    // hängen bleiben, und ohne Animationen sind sie ohnehin sofort da.
+    if (window.Mellis) window.Mellis.einblendungenAnmelden(halter);
+    else halter.querySelectorAll(".einblenden").forEach((k) => k.classList.remove("einblenden"));
   }
 
   function laden() {
     const vorschau = lokaleBeitraege();
 
-    fetch("daten/beitraege.json", { cache: "no-store" })
+    // Kein "no-store": der Server liefert "no-cache" mit ETag – dadurch
+    // bekommt der Browser bei unveränderten Beiträgen nur ein kurzes
+    // „unverändert" statt der ganzen Datei.
+    fetch("daten/beitraege.json")
       .then((r) => (r.ok ? r.json() : []))
       .then((beitraege) => anzeigen(vorschau || beitraege))
       .catch(() => anzeigen(vorschau || []));

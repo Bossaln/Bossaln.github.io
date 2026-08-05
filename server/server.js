@@ -48,6 +48,10 @@ const MAX_VERSUCHE = 5;              // Fehlversuche bis zur Sperre
 const MAX_KOERPER = 12 * 1024 * 1024; // größte erlaubte Anfrage (12 MB)
 const MAX_BILD = 8 * 1024 * 1024;     // größtes erlaubtes Bild (8 MB)
 const MAX_TEXT = 20000;               // größter erlaubter Textwert
+const MAX_SITZUNGEN = 200;            // mehr Anmeldungen gleichzeitig gibt es nie
+const MAX_IP_EINTRAEGE = 5000;        // Obergrenze für die Fehlversuch-Liste
+const API_ANFRAGEN_PRO_MINUTE = 120;  // Bremse gegen automatisierte Anfragen
+const MAX_GLEICHZEITIG = 4;           // parallele Schreibanfragen (Speicherschutz)
 const SICHERUNGEN_BEHALTEN = 30;
 const BILDER_JE_SCHLUESSEL_BEHALTEN = 5;
 const MAX_BEITRAEGE = 200;            // größte Zahl an Neuigkeiten
@@ -84,12 +88,51 @@ const TYPEN = {
 
 const KOMPRIMIERBAR = /^(text\/|application\/(json|xml|javascript)|image\/svg)/;
 
+/* Inhaltssicherheitsrichtlinie (CSP): sagt dem Browser, woher er überhaupt
+   etwas laden darf. Alles kommt vom eigenen Server; nur die Karte auf der
+   Kontaktseite darf von Google eingebettet werden. Skripte laufen nur aus
+   eigenen Dateien – die einzige Ausnahme ist das kurze Startskript im Kopf
+   jeder Seite, das über seinen Prüfwert (Hash) erlaubt wird.
+
+   ACHTUNG: Der Hash gehört zu genau diesem Skripttext. Wird das Startskript
+   in den HTML-Dateien geändert, muss der Hash hier mitgeändert werden –
+   sonst führt der Browser es nicht mehr aus. Der passende Wert steht in der
+   Fehlerkonsole des Browsers ("Refused to execute inline script"). */
+const START_SKRIPT_HASH = "sha256-+oexMg2Nz/Pho01DKw5ho8iGtqc33ipapYZ/zNkGer8=";
+
+const CSP = [
+  "default-src 'self'",
+  "base-uri 'none'",
+  "object-src 'none'",
+  "frame-ancestors 'self'",
+  "form-action 'self'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "script-src 'self' '" + START_SKRIPT_HASH + "'",
+  "connect-src 'self'",
+  "frame-src https://www.google.com",
+].join("; ");
+
 function grundKopfzeilen() {
-  return {
+  const kopf = {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-Frame-Options": "SAMEORIGIN",
+    "Content-Security-Policy": CSP,
+    // Kamera, Mikrofon, Standort & Co. braucht die Seite nicht – also aus.
+    "Permissions-Policy":
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), " +
+      "magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()",
+    "Cross-Origin-Resource-Policy": "same-origin",
   };
+  // Bei HTTPS: der Browser soll die Seite künftig nie mehr unverschlüsselt
+  // aufrufen. Nur setzen, wenn wirklich verschlüsselt ausgeliefert wird –
+  // sonst sperrt man sich im Heimnetz selbst aus.
+  if (TLS_CERT && TLS_KEY) {
+    kopf["Strict-Transport-Security"] = "max-age=15552000; includeSubDomains";
+  }
+  return kopf;
 }
 
 function antwortJson(res, status, objekt) {
@@ -113,11 +156,29 @@ function antwortText(res, status, text) {
 }
 
 /* Schreibt eine Datei erst vollständig und benennt sie dann um, damit bei
-   einem Stromausfall niemals eine halbe Datei zurückbleibt. */
+   einem Stromausfall niemals eine halbe Datei zurückbleibt.
+
+   Der Zwischenname bekommt einen Zufallsanteil: liefen zwei Speichervorgänge
+   gleichzeitig, benutzten sie vorher dieselbe Zwischendatei und konnten sich
+   gegenseitig überschreiben. Zusätzlich wird der Inhalt vor dem Umbenennen
+   auf die Speicherkarte geschrieben (fsync) – auf einem Raspberry Pi ohne
+   geregeltes Herunterfahren ist das der Unterschied zwischen „alter Stand"
+   und „leere Datei". */
 async function sicherSchreiben(ziel, inhalt) {
-  const temp = ziel + ".neu-" + process.pid;
-  await fsp.writeFile(temp, inhalt);
-  await fsp.rename(temp, ziel);
+  const temp = ziel + ".neu-" + process.pid + "-" + crypto.randomBytes(4).toString("hex");
+  let griff = null;
+  try {
+    griff = await fsp.open(temp, "w");
+    await griff.writeFile(inhalt);
+    await griff.sync();
+    await griff.close();
+    griff = null;
+    await fsp.rename(temp, ziel);
+  } catch (fehler) {
+    if (griff) await griff.close().catch(() => {});
+    await fsp.unlink(temp).catch(() => {});
+    throw fehler;
+  }
 }
 
 function zeitstempel() {
@@ -210,8 +271,66 @@ async function aufraeumen(ordner, muster, behalten) {
 
 const sitzungen = new Map();  // Kennung -> Ablaufzeit
 const versuche = new Map();   // IP -> { anzahl, gesperrtBis }
+const anfragen = new Map();   // IP -> { anzahl, fensterBis }
+
+/* Abgelaufene Einträge regelmäßig wegräumen.
+
+   Ohne das wüchsen die drei Listen unbegrenzt: jede fehlgeschlagene
+   Anmeldung von einer neuen Adresse hinterließ dauerhaft einen Eintrag.
+   Über Wochen wäre das auf einem Raspberry Pi ein echtes Speicherproblem –
+   und ein einfacher Weg, den Server von außen langsam vollaufen zu lassen. */
+function listenAufraeumen() {
+  const jetzt = Date.now();
+
+  for (const [kennung, bis] of sitzungen) {
+    if (bis < jetzt) sitzungen.delete(kennung);
+  }
+  for (const [ip, eintrag] of versuche) {
+    // Eine Adresse, die seit einer Stunde nichts mehr versucht hat, vergessen
+    if (eintrag.gesperrtBis < jetzt && (eintrag.zuletzt || 0) < jetzt - 3600000) {
+      versuche.delete(ip);
+    }
+  }
+  for (const [ip, eintrag] of anfragen) {
+    if (eintrag.fensterBis < jetzt) anfragen.delete(ip);
+  }
+
+  // Notbremse, falls trotzdem einmal etwas aus dem Ruder läuft
+  begrenzen(versuche, MAX_IP_EINTRAEGE);
+  begrenzen(anfragen, MAX_IP_EINTRAEGE);
+}
+
+function begrenzen(liste, hoechstzahl) {
+  if (liste.size <= hoechstzahl) return;
+  // Map merkt sich die Einfügereihenfolge – die ältesten fliegen zuerst
+  const zuViel = liste.size - hoechstzahl;
+  let i = 0;
+  for (const schluessel of liste.keys()) {
+    liste.delete(schluessel);
+    if (++i >= zuViel) break;
+  }
+}
+
+/* Bremse gegen automatisierte Anfragen an die Schnittstelle. Sie greift vor
+   der Passwortprüfung, damit ein Angreifer den Server nicht mit tausenden
+   PBKDF2-Berechnungen (jede kostet absichtlich Rechenzeit) lahmlegen kann. */
+function zuVieleAnfragen(ip) {
+  const jetzt = Date.now();
+  let eintrag = anfragen.get(ip);
+  if (!eintrag || eintrag.fensterBis < jetzt) {
+    eintrag = { anzahl: 0, fensterBis: jetzt + 60000 };
+    anfragen.set(ip, eintrag);
+  }
+  eintrag.anzahl += 1;
+  return eintrag.anzahl > API_ANFRAGEN_PRO_MINUTE;
+}
 
 function sitzungAnlegen() {
+  // Zuerst aufräumen: so bleibt die Obergrenze eine echte Obergrenze und
+  // nicht bloß eine Ansammlung längst abgelaufener Sitzungen.
+  listenAufraeumen();
+  begrenzen(sitzungen, MAX_SITZUNGEN - 1);
+
   const kennung = crypto.randomBytes(32).toString("hex");
   sitzungen.set(kennung, Date.now() + SITZUNG_MINUTEN * 60000);
   return kennung;
@@ -258,7 +377,7 @@ function absender(req) {
 }
 
 function sperreLesen(ip) {
-  return versuche.get(ip) || { anzahl: 0, gesperrtBis: 0 };
+  return versuche.get(ip) || { anzahl: 0, gesperrtBis: 0, zuletzt: 0 };
 }
 
 async function passwortPruefen(passwort) {
@@ -314,8 +433,17 @@ function koerperLesen(req) {
   });
 }
 
-/* Schutz vor untergeschobenen Anfragen von fremden Seiten. */
+/* Schutz vor untergeschobenen Anfragen von fremden Seiten (CSRF).
+
+   Zwei unabhängige Prüfungen:
+   · Sec-Fetch-Site sagt dem Server direkt, ob die Anfrage von der eigenen
+     Seite kommt. Moderne Browser schicken das immer mit und es lässt sich
+     von einer fremden Seite aus nicht fälschen.
+   · Origin als Rückfallebene für ältere Browser. */
 function herkunftInOrdnung(req) {
+  const ziel = req.headers["sec-fetch-site"];
+  if (ziel) return ziel === "same-origin" || ziel === "none";
+
   const herkunft = req.headers.origin;
   if (!herkunft) return true; // gleiche Seite, kein Origin-Kopf
   try {
@@ -330,14 +458,40 @@ function herkunftInOrdnung(req) {
 
 const BILD_MUSTER = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=\s]+)$/;
 
+/* Prüft die ersten Bytes einer Datei („magic bytes"). Bisher wurde nur die
+   Beschriftung im Daten-URI geglaubt – wer am Portal angemeldet war, konnte
+   also beliebige Daten unter dem Namen bild.png ablegen. Die Datei würde zwar
+   nie ausgeführt (der Server schickt den Typ mit und verbietet das Erraten),
+   aber es hat schlicht nichts im Bilderordner verloren. */
+function bildartErkennen(daten) {
+  if (daten.length >= 8 &&
+      daten[0] === 0x89 && daten[1] === 0x50 && daten[2] === 0x4e && daten[3] === 0x47 &&
+      daten[4] === 0x0d && daten[5] === 0x0a && daten[6] === 0x1a && daten[7] === 0x0a) {
+    return "png";
+  }
+  if (daten.length >= 3 && daten[0] === 0xff && daten[1] === 0xd8 && daten[2] === 0xff) {
+    return "jpg";
+  }
+  if (daten.length >= 12 &&
+      daten.toString("ascii", 0, 4) === "RIFF" &&
+      daten.toString("ascii", 8, 12) === "WEBP") {
+    return "webp";
+  }
+  return null;
+}
+
 async function bildAblegen(schluessel, datenUri, altAufraeumen = true) {
   const treffer = BILD_MUSTER.exec(datenUri);
   if (!treffer) throw new Error("Bildformat wird nicht unterstützt (PNG, JPG oder WebP).");
 
-  const endung = treffer[1] === "jpeg" ? "jpg" : treffer[1];
   const rohdaten = Buffer.from(treffer[2].replace(/\s/g, ""), "base64");
   if (!rohdaten.length) throw new Error("Das Bild ist leer.");
   if (rohdaten.length > MAX_BILD) throw new Error("Das Bild ist zu groß (max. 8 MB).");
+
+  // Die Endung richtet sich nach dem tatsächlichen Inhalt, nicht nach der
+  // Beschriftung – so passen Dateiname und Inhalt immer zusammen.
+  const endung = bildartErkennen(rohdaten);
+  if (!endung) throw new Error("Die Datei ist kein Bild (erlaubt sind PNG, JPG und WebP).");
 
   const sauber = String(schluessel).replace(/[^a-z0-9_]/gi, "").slice(0, 40) || "bild";
   const name = `${sauber}-${zeitstempel()}-${crypto.randomBytes(2).toString("hex")}.${endung}`;
@@ -576,8 +730,17 @@ async function api(req, res, pfad, sicher) {
   if (req.method === "POST" && !herkunftInOrdnung(req)) {
     return antwortJson(res, 403, { fehler: "Anfrage von fremder Herkunft abgelehnt." });
   }
-
   const angemeldet = sitzungPruefen(req);
+
+  /* Die Bremse gilt nur für nicht angemeldete Anfragen. Wer am Portal
+     angemeldet ist, lädt beim Anlegen eines Fotoordners schon mal hundert
+     Bilder am Stück hoch – das darf nicht als Angriff gewertet werden.
+     Für angemeldete Anfragen begrenzt stattdessen MAX_GLEICHZEITIG weiter
+     unten, wie viel davon zur selben Zeit im Speicher liegt. */
+  if (!angemeldet && zuVieleAnfragen(absender(req))) {
+    res.setHeader("Retry-After", "60");
+    return antwortJson(res, 429, { fehler: "Zu viele Anfragen. Bitte kurz warten." });
+  }
 
   if (pfad === "/api/status") {
     return antwortJson(res, 200, {
@@ -616,6 +779,7 @@ async function api(req, res, pfad, sicher) {
 
     if (!richtig) {
       sperre.anzahl += 1;
+      sperre.zuletzt = jetzt;
       if (sperre.anzahl >= MAX_VERSUCHE) {
         const minuten = Math.min(Math.pow(2, sperre.anzahl - MAX_VERSUCHE), 60);
         sperre.gesperrtBis = jetzt + minuten * 60000;
@@ -648,6 +812,28 @@ async function api(req, res, pfad, sicher) {
     return antwortJson(res, 401, { fehler: "Nicht angemeldet." });
   }
 
+  /* Jede dieser Anfragen darf bis zu 12 MB im Arbeitsspeicher halten. Ein
+     Raspberry Pi hat davon nicht viel – deshalb dürfen nur wenige davon
+     gleichzeitig laufen. Wer zu schnell ist, bekommt eine klare Antwort
+     statt eines abgestürzten Servers. */
+  if (laufendeAnfragen >= MAX_GLEICHZEITIG) {
+    res.setHeader("Retry-After", "2");
+    return antwortJson(res, 503, {
+      fehler: "Gerade sind mehrere Uploads gleichzeitig unterwegs. Bitte kurz warten.",
+    });
+  }
+
+  laufendeAnfragen += 1;
+  try {
+    return await angemeldeteAnfrage(req, res, pfad, angemeldet);
+  } finally {
+    laufendeAnfragen -= 1;
+  }
+}
+
+let laufendeAnfragen = 0;
+
+async function angemeldeteAnfrage(req, res, pfad, angemeldet) {
   let koerper;
   try {
     koerper = await koerperLesen(req);
@@ -742,6 +928,69 @@ function innerhalb(ordner, ziel) {
   return auf === path.resolve(ordner) || auf.startsWith(path.resolve(ordner) + path.sep);
 }
 
+/* --------------------- Komprimierte Dateien merken ------------------------
+
+   Bisher wurde jede Seite, jedes Stylesheet und jedes Skript bei JEDEM Aufruf
+   neu gepackt. Auf einem Raspberry Pi ist das spürbar: die Rechenzeit fürs
+   Packen kommt vor dem ersten Byte beim Besucher an. Jetzt wird das Ergebnis
+   behalten, solange sich die Datei nicht ändert (der Schlüssel enthält Größe
+   und Änderungszeit, ein Update macht den alten Eintrag also von selbst
+   ungültig). Ab dem zweiten Aufruf geht die Antwort direkt aus dem Speicher.
+   -------------------------------------------------------------------------- */
+const KOMPRIMAT = new Map();
+let komprimatBytes = 0;
+const KOMPRIMAT_HOECHSTMENGE = 8 * 1024 * 1024;   // insgesamt höchstens 8 MB
+const KOMPRIMAT_HOECHSTGROESSE = 1024 * 1024;     // je Datei höchstens 1 MB
+
+function komprimatMerken(schluessel, puffer) {
+  if (puffer.length > KOMPRIMAT_HOECHSTGROESSE) return;
+  // Platz schaffen: die am längsten nicht genutzten Einträge fliegen zuerst
+  while (komprimatBytes + puffer.length > KOMPRIMAT_HOECHSTMENGE && KOMPRIMAT.size) {
+    const aeltester = KOMPRIMAT.keys().next().value;
+    komprimatBytes -= KOMPRIMAT.get(aeltester).length;
+    KOMPRIMAT.delete(aeltester);
+  }
+  KOMPRIMAT.set(schluessel, puffer);
+  komprimatBytes += puffer.length;
+}
+
+function komprimatHolen(schluessel) {
+  const puffer = KOMPRIMAT.get(schluessel);
+  if (!puffer) return null;
+  // Neu einsortieren, damit häufig Gebrauchtes zuletzt hinausfliegt
+  KOMPRIMAT.delete(schluessel);
+  KOMPRIMAT.set(schluessel, puffer);
+  return puffer;
+}
+
+function packen(roh, verfahren) {
+  return new Promise((erfuellen, ablehnen) => {
+    const fertig = (fehler, ergebnis) => (fehler ? ablehnen(fehler) : erfuellen(ergebnis));
+    if (verfahren === "br") {
+      zlib.brotliCompress(roh, {
+        params: {
+          // Stufe 6 statt der Voreinstellung 11: fast dieselbe Ersparnis,
+          // aber ein Bruchteil der Rechenzeit – wichtig auf schwacher Hardware.
+          [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
+          [zlib.constants.BROTLI_PARAM_SIZE_HINT]: roh.length,
+        },
+      }, fertig);
+    } else {
+      zlib.gzip(roh, { level: 6 }, fertig);
+    }
+  });
+}
+
+/* Brotli packt deutlich besser als gzip und kann jeder aktuelle Browser. */
+function verfahrenWaehlen(akzeptiert, typ, groesse) {
+  if (!KOMPRIMIERBAR.test(typ)) return null;
+  if (groesse <= 1024 || groesse > 5 * 1024 * 1024) return null;
+  const angebot = String(akzeptiert || "");
+  if (/\bbr\b/.test(angebot)) return "br";
+  if (/\bgzip\b/.test(angebot)) return "gzip";
+  return null;
+}
+
 async function dateiSenden(req, res, datei, zwischenspeicher) {
   let angaben;
   try {
@@ -766,22 +1015,53 @@ async function dateiSenden(req, res, datei, zwischenspeicher) {
     return res.end();
   }
 
-  const akzeptiert = String(req.headers["accept-encoding"] || "");
-  const komprimieren = KOMPRIMIERBAR.test(typ) && /\bgzip\b/.test(akzeptiert) && angaben.size > 1024;
+  const verfahren = verfahrenWaehlen(req.headers["accept-encoding"], typ, angaben.size);
 
-  if (komprimieren) {
-    kopf["Content-Encoding"] = "gzip";
-    kopf.Vary = "Accept-Encoding";
-    res.writeHead(200, kopf);
-    if (req.method === "HEAD") return res.end();
-    fs.createReadStream(datei).pipe(zlib.createGzip()).pipe(res);
-  } else {
+  // Unkomprimiert: direkt durchreichen (Bilder, Schriften – die sind bereits
+  // gepackt, nochmal packen würde sie nur größer machen).
+  if (!verfahren) {
     kopf["Content-Length"] = angaben.size;
     res.writeHead(200, kopf);
     if (req.method === "HEAD") return res.end();
-    fs.createReadStream(datei).pipe(res);
+
+    const strom = fs.createReadStream(datei);
+    // Ohne diese Behandlung bliebe die Verbindung bei einem Lesefehler offen,
+    // bis der Browser irgendwann selbst aufgibt.
+    strom.on("error", () => res.destroy());
+    res.on("close", () => strom.destroy());
+    return strom.pipe(res);
   }
+
+  kopf["Content-Encoding"] = verfahren;
+  kopf.Vary = "Accept-Encoding";
+
+  const schluessel = datei + "|" + marke + "|" + verfahren;
+  let puffer = komprimatHolen(schluessel);
+
+  if (!puffer) {
+    try {
+      puffer = await packen(await fsp.readFile(datei), verfahren);
+    } catch (fehler) {
+      protokoll("Datei nicht lesbar:", datei, "→", fehler.message);
+      if (!res.headersSent) antwortText(res, 500, "Datei konnte nicht gelesen werden.");
+      return;
+    }
+    komprimatMerken(schluessel, puffer);
+  }
+
+  kopf["Content-Length"] = puffer.length;
+  res.writeHead(200, kopf);
+  if (req.method === "HEAD") return res.end();
+  res.end(puffer);
 }
+
+/* „no-cache" heißt nicht „nicht speichern", sondern „vor jeder Benutzung
+   nachfragen". Zusammen mit der ETag-Marke bekommt der Browser bei einer
+   unveränderten Datei nur ein knappes „unverändert" (304) statt der ganzen
+   Datei zurück. Die Inhalte sind damit immer aktuell und der zweite Aufruf
+   einer Seite kostet fast nichts mehr – vorher stand hier „no-store", was
+   jedes Mal die volle Übertragung erzwang. */
+const DATEN_ZWISCHENSPEICHER = "no-cache";
 
 async function statisch(req, res, pfad) {
   // Daten-Ordner: nur ausgewählte Dateien, niemals die Zugangsdatei
@@ -789,16 +1069,16 @@ async function statisch(req, res, pfad) {
     return antwortText(res, 404, "Seite nicht gefunden.");
   }
   if (pfad === "/daten/inhalte.json") {
-    return dateiSenden(req, res, INHALTE_DATEI, "no-store");
+    return dateiSenden(req, res, INHALTE_DATEI, DATEN_ZWISCHENSPEICHER);
   }
   if (pfad === "/daten/beitraege.json") {
-    return dateiSenden(req, res, BEITRAEGE_DATEI, "no-store");
+    return dateiSenden(req, res, BEITRAEGE_DATEI, DATEN_ZWISCHENSPEICHER);
   }
   if (pfad === "/daten/galerie.json") {
-    return dateiSenden(req, res, GALERIE_DATEI, "no-store");
+    return dateiSenden(req, res, GALERIE_DATEI, DATEN_ZWISCHENSPEICHER);
   }
   if (pfad === "/daten/portal-schema.json") {
-    return dateiSenden(req, res, SCHEMA_DATEI, "no-store");
+    return dateiSenden(req, res, SCHEMA_DATEI, DATEN_ZWISCHENSPEICHER);
   }
   if (pfad.startsWith("/daten/")) {
     return antwortText(res, 404, "Seite nicht gefunden.");
@@ -808,7 +1088,9 @@ async function statisch(req, res, pfad) {
   if (pfad.startsWith("/bilder/")) {
     const ziel = path.join(BILDER_ORDNER, pfad.slice("/bilder/".length));
     if (!innerhalb(BILDER_ORDNER, ziel)) return antwortText(res, 403, "Nicht erlaubt.");
-    return dateiSenden(req, res, ziel, "public, max-age=3600");
+    // Ein hochgeladenes Bild bekommt beim Speichern einen Namen mit
+    // Zeitstempel – dieselbe Adresse zeigt also nie auf ein anderes Bild.
+    return dateiSenden(req, res, ziel, "public, max-age=604800");
   }
 
   if (pfad === "/") pfad = "/index.html";
@@ -822,13 +1104,29 @@ async function statisch(req, res, pfad) {
     ziel = path.join(ziel, "index.html");
   }
 
-  // Seiten, Skripte und Stile immer beim Server nachfragen (kostet dank ETag
-  // fast nichts). Sonst benutzt der Browser nach einem Update noch stunden-
-  // lang alte Skripte – Knöpfe wirken dann funktionslos.
   const endung = path.extname(ziel).toLowerCase();
-  const zwischenspeicher = endung === ".json"
-    ? "no-store"
-    : ([".html", ".js", ".css"].includes(endung) ? "no-cache" : "public, max-age=3600");
+
+  // Das Portal ist keine öffentliche Seite: nicht in Suchmaschinen und
+  // niemals im Zwischenspeicher des Browsers liegen lassen.
+  if (ziel.endsWith(path.sep + "admin.html")) {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    return dateiSenden(req, res, ziel, "no-store");
+  }
+
+  let zwischenspeicher;
+  if (endung === ".json") {
+    zwischenspeicher = DATEN_ZWISCHENSPEICHER;
+  } else if (endung === ".woff2") {
+    // Schriften ändern sich nie – ein Jahr behalten, ohne Nachfrage.
+    zwischenspeicher = "public, max-age=31536000, immutable";
+  } else if ([".html", ".js", ".css"].includes(endung)) {
+    // Seiten, Skripte und Stile immer beim Server nachfragen (kostet dank
+    // ETag fast nichts). Sonst benutzt der Browser nach einem Update noch
+    // stundenlang alte Skripte – Knöpfe wirken dann funktionslos.
+    zwischenspeicher = "no-cache";
+  } else {
+    zwischenspeicher = "public, max-age=86400";
+  }
 
   return dateiSenden(req, res, ziel, zwischenspeicher);
 }
@@ -881,6 +1179,18 @@ async function start() {
     }
     process.exit(1);
   });
+
+  /* Die Verbindung länger offen halten: der Aufbau einer neuen Verbindung
+     kostet mehrere Hin- und Rückwege (bei HTTPS zusätzlich den Schlüssel-
+     austausch). Eine Seite besteht aus rund einem Dutzend Dateien – über
+     eine bestehende Verbindung geht das spürbar schneller. */
+  server.keepAliveTimeout = 30000;
+  server.headersTimeout = 35000;
+  server.requestTimeout = 120000;
+
+  // Abgelaufene Sitzungen und Sperren regelmäßig wegräumen
+  const aufraeumUhr = setInterval(listenAufraeumen, 5 * 60000);
+  aufraeumUhr.unref();
 
   server.listen(PORT, HOST, () => {
     protokoll(`Melli's Krabbelzwerge läuft auf ${mitTls ? "https" : "http"}://${HOST}:${PORT}`);

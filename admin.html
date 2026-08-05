@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'self'">
   <meta name="robots" content="noindex, nofollow">
   <title>Verwaltungs-Portal – Melli's Krabbelzwerge</title>
-  <link rel="icon" type="image/png" href="assets/img/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/style.css?v=3">
   <style>
     .portal-rahmen { max-width: 860px; margin: 3rem auto; width: 92%; }
     .portal-karte {
@@ -132,7 +129,7 @@
     <div class="container">
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="index.html" class="nav-logo">
-          <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge">
+          <img src="assets/img/logo.webp" alt="Logo von Melli's Krabbelzwerge">
           <span class="nav-logo-text">
             <strong>Melli's Krabbelzwerge</strong>
             <span>Verwaltungs-Portal</span>
@@ -245,7 +242,7 @@
         </div>
 
         <div class="bild-zeile">
-          <img id="beitrag-vorschau" src="assets/img/logo.png" alt="Vorschau des Beitragsbildes" style="display: none;">
+          <img id="beitrag-vorschau" src="assets/img/logo.webp" alt="Vorschau des Beitragsbildes" style="display: none;">
           <div class="feld" style="margin: 0;">
             <label for="beitrag-bild">Bild (optional)</label>
             <input type="file" id="beitrag-bild" accept="image/*">
@@ -333,6 +330,6 @@
 
   </main>
 
-  <script src="js/admin.js?v=2"></script>
+  <script defer src="js/admin.js?v=3"></script>
 </body>
 </html>

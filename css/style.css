@@ -3,6 +3,56 @@
    Farbwelt: Regenbogen (angelehnt an das Logo)
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   Schriften – liegen im Ordner assets/fonts und kommen vom eigenen Server.
+   Beides sind „variable Schriften": eine Datei deckt alle Schnitte ab.
+   Dadurch nur zwei kleine Downloads statt sieben, keine Verbindung zu
+   Google und kein Warten auf einen fremden Server beim Seitenaufbau.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../assets/fonts/baloo2-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../assets/fonts/baloo2-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("../assets/fonts/nunito-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("../assets/fonts/nunito-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root {
   --rot: #e63946;
   --orange: #f4900c;
@@ -52,7 +102,12 @@ body {
   overflow-x: hidden;
 }
 
-img { max-width: 100%; display: block; }
+/* „height: auto" gehört zwingend zu „max-width: 100%", sobald die Bilder im
+   HTML width- und height-Angaben tragen (die brauchen wir, damit beim Laden
+   nichts springt). Ohne diese Zeile behielte ein Bild auf schmalen Displays
+   seine volle Höhe, während die Breite schrumpft – es würde in die Länge
+   gezogen. */
+img { max-width: 100%; height: auto; display: block; }
 
 h1, h2, h3, h4 { font-family: var(--schrift-titel); line-height: 1.2; }
 
@@ -254,11 +309,25 @@ a { color: var(--blau); }
   border-radius: 50%;
   padding: 1.1rem;
   border: 5px solid transparent;
+  /* Wichtig für die ovale Form: Dieses Bild hat als einziges einen Innen-
+     abstand und einen Rahmen. Zusammen mit box-sizing: border-box würde das
+     Seitenverhältnis aus den width/height-Angaben im HTML auf den ÄUSSEREN
+     Rahmen gerechnet – die Höhe fiele dadurch rund 15 Pixel zu knapp aus und
+     das Logo wäre flachgedrückt. „auto" heißt: nimm das echte Verhältnis des
+     Bildes. Der Rand mit dem Regenbogen bleibt damit genau so oval wie
+     vorher. object-fit sorgt zusätzlich dafür, dass das Bild lieber Platz
+     frei lässt, als sich verzerren zu lassen. */
+  aspect-ratio: auto;
+  object-fit: contain;
   background:
     linear-gradient(var(--weiss), var(--weiss)) padding-box,
     var(--regenbogen) border-box;
   box-shadow: var(--schatten);
   animation: schweben 5s ease-in-out infinite;
+  /* Dauerläufer bekommen eine eigene Grafikebene: dann verschiebt die
+     Grafikeinheit nur diese Ebene, statt bei jedem Bild den Schlagschatten
+     und den Regenbogenrand neu zu zeichnen. */
+  will-change: transform;
 }
 
 @keyframes schweben {
@@ -274,6 +343,7 @@ a { color: var(--blau); }
   animation: schweben 4s ease-in-out infinite;
   user-select: none;
   pointer-events: none;
+  will-change: transform;
 }
 
 .deko:nth-of-type(1) { top: 8%; left: 4%; animation-delay: 0.4s; }
@@ -552,9 +622,6 @@ a { color: var(--blau); }
 
   .zeit-punkt:nth-child(odd)::before { left: auto; right: calc(-3rem - 9px); }
   .zeit-punkt:nth-child(even)::before { left: calc(-3rem - 9px); }
-
-  /* rechte Karten gleiten von rechts herein */
-  .zeit-punkt:nth-child(even).einblenden:not(.sichtbar) { transform: translateX(36px); }
 }
 
 /* --------------------------------------------------------------------------
@@ -600,11 +667,16 @@ a { color: var(--blau); }
 
 .akkordeon-punkt.offen .pfeil { transform: rotate(180deg); background: var(--gelb); }
 
+/* Die Höhe steuert das Skript (motion.dev). Eine Übergangszeit steht hier
+   bewusst nicht: „max-height" musste früher auf einen Schätzwert laufen und
+   wirkte dadurch am Anfang zäh und am Ende abgehackt. */
 .akkordeon-antwort {
-  max-height: 0;
+  height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease;
 }
+
+/* Ohne Skript sind die Antworten trotzdem lesbar */
+html:not(.js) .akkordeon-antwort { height: auto; }
 
 .akkordeon-antwort-innen {
   padding: 0 1.5rem 1.3rem;
@@ -729,7 +801,6 @@ a { color: var(--blau); }
   border-radius: 16px;
   overflow: hidden;
   box-shadow: var(--schatten);
-  animation: kachel-auf 0.55s ease both;
 }
 
 .mauer-knopf {
@@ -783,19 +854,12 @@ a { color: var(--blau); }
   border-radius: var(--radius);
 }
 
-/* Öffnungs-Animation */
-@keyframes ordner-auf {
-  from { opacity: 0; transform: scale(0.96) translateY(18px); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes kachel-auf {
-  from { opacity: 0; transform: translateY(26px) scale(0.96); }
-  to { opacity: 1; transform: none; }
-}
-
-.ordner-ansicht.oeffnet { animation: ordner-auf 0.45s ease both; }
-#ordner-uebersicht.schliesst-auf { animation: ordner-auf 0.4s ease both; }
+/* Das Öffnen eines Ordners, das Auffächern der Kacheln und der Bildwechsel
+   in der Großansicht laufen über motion.dev (js/galerie.js). Früher lagen
+   sie als CSS-Animationen hier – zum Neustarten musste das Skript jedes Mal
+   „void element.offsetWidth" lesen und erzwang damit mitten im Bildaufbau
+   eine komplette Neuberechnung des Layouts. Genau das war beim Öffnen
+   eines Ordners als Ruckler zu sehen. */
 
 /* --------------------------------------------------------------------------
    Galerie – Großansicht eines Bildes
@@ -825,8 +889,6 @@ body.lupe-offen { overflow: hidden; }
   max-width: min(1100px, 100%);
   margin: 0;
 }
-
-.lupe-inhalt.wechselt { animation: kachel-auf 0.35s ease both; }
 
 .lupe-inhalt img {
   max-width: 100%;
@@ -1336,25 +1398,24 @@ body.lupe-offen { overflow: hidden; }
 
 /* --------------------------------------------------------------------------
    Scroll-Einblendung
+
+   Der Startzustand (unsichtbar) gilt nur, wenn die Animationen wirklich
+   laufen können: das Skript setzt dafür die Klasse „bewegung" am <html>.
+   Ohne JavaScript, bei einem Skriptfehler oder bei reduzierter Bewegung
+   bleibt jeder Text von Anfang an sichtbar – nichts kann unsichtbar
+   hängen bleiben.
+
+   Die Bewegung selbst übernimmt motion.dev (siehe js/main.js) und
+   läuft über die Web-Animations-API. Sie wird von der Grafikeinheit
+   berechnet und stockt deshalb auch auf schwächeren Geräten nicht.
    -------------------------------------------------------------------------- */
-.einblenden {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
+.bewegung .einblenden { opacity: 0; }
 
-/* Richtungsvarianten: Zweispalter gleiten sanft von links bzw. rechts herein */
-.zweispaltig > .einblenden:first-child { transform: translateX(-36px); }
-.zweispaltig > .einblenden:last-child { transform: translateX(36px); }
-
-/* Zeitstrahl-Punkte kommen von links, passend zur Linie */
-.zeit-punkt.einblenden { transform: translateX(-36px); }
-
-/* Ordnerkarten und CTA-Banner wachsen leicht auf */
-.ordner-karte.einblenden { transform: translateY(18px) scale(0.94); }
-.cta-banner.einblenden { transform: translateY(22px) scale(0.97); }
-
-.einblenden.sichtbar { opacity: 1; transform: none; }
+/* „will-change" steht bewusst NICHT hier, sondern wird vom Skript nur für
+   das eine Element gesetzt, das gerade an der Reihe ist. Stünde es hier,
+   würde eine Neuigkeiten-Seite mit dreißig Beiträgen dreißig Grafikebenen
+   auf einmal anfordern – auf einem Handy geht dabei mehr Leistung verloren,
+   als der Hinweis einbringt. */
 
 /* --------------------------------------------------------------------------
    Sanfte Einstiegs-Animation beim Seitenaufruf
@@ -1392,18 +1453,19 @@ body.lupe-offen { overflow: hidden; }
   50% { opacity: 0; }
 }
 
+/* --------------------------------------------------------------------------
+   Wer im Betriebssystem „Bewegung reduzieren" eingestellt hat, bekommt die
+   Seite ohne jede Animation zu sehen – inhaltlich vollständig identisch.
+   Das Skript startet dann gar keine Animationen (siehe js/main.js).
+   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .einblenden { opacity: 1; transform: none; transition: none; }
-  .hero-bild img, .deko { animation: none; }
+  .bewegung .einblenden { opacity: 1; will-change: auto; }
+  .hero-bild img, .deko { animation: none; will-change: auto; }
   .hero-inhalt > div:first-child > *,
   .seiten-kopf .brotkruemel,
   .seiten-kopf h1,
   .seiten-kopf p { animation: none; }
-  .ordner-ansicht.oeffnet,
-  #ordner-uebersicht.schliesst-auf,
-  .mauer-bild,
-  .lupe,
-  .lupe-inhalt.wechselt { animation: none; }
+  .lupe { animation: none; }
   .vorschau-kachel img, .mauer-knopf img { transition: none; }
   html { scroll-behavior: auto; }
 }

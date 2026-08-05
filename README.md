@@ -30,6 +30,48 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
   da die Seite statisch ist. Für echten Versand einen Formulardienst
   (z. B. Formspree) oder ein eigenes Backend in `js/main.js` einbinden.
 
+### Skripte
+
+| Datei | Zweck |
+|---|---|
+| `js/vendor/motion.min.js` | [motion.dev](https://motion.dev) in der „mini"-Bauform (12 KB, MIT-Lizenz). Treibt alle Animationen. Liegt lokal – kein CDN, keine fremde Verbindung. |
+| `js/cms.js` | Setzt die im Portal gepflegten Texte und Bilder ein (mit Filter gegen eingeschleustes HTML) |
+| `js/main.js` | Bedienung und Bewegung: Navigation, Akkordeon, Formular, Einblendungen, Zähler, Schreibmaschine |
+| `js/galerie.js`, `js/neuigkeiten.js` | Nur auf den jeweiligen Seiten |
+| `js/admin.js` | Verwaltungs-Portal |
+
+### Schriften
+
+„Baloo 2" und „Nunito" liegen als variable Schriften in `assets/fonts/`
+und kommen vom eigenen Server – **nicht** von Google Fonts. Das ist
+schneller (zwei Dateien statt sieben, keine fremde Verbindung im
+kritischen Ladepfad) und vermeidet die Übermittlung der Besucher-IP an
+Google. Die Datenschutzerklärung ist entsprechend formuliert; wer die
+Schriften wieder extern einbindet, muss sie zurückändern.
+
+### Animationen
+
+Alle Bewegungen laufen über `Motion.animate()` und damit über die
+Web-Animations-API des Browsers: die Animation wird einmal übergeben und
+danach von der Grafikeinheit berechnet. Pro Einzelbild läuft kein
+JavaScript mehr – das hält die Seite auch auf schwacher Hardware flüssig.
+
+Zwei Dinge sind dafür wichtig zu wissen:
+
+- Im `<head>` jeder Seite steht ein kurzes Startskript, das die Klassen
+  `js` und `bewegung` an `<html>` setzt, **bevor** der Browser etwas
+  zeichnet. Nur mit `bewegung` starten Elemente unsichtbar. Fehlt das
+  Skript, ist von Anfang an alles sichtbar – nichts kann hängen bleiben.
+- Dieses Startskript ist in der Content-Security-Policy über seinen
+  Prüfwert (Hash) erlaubt. **Wird es geändert, muss der Hash an drei
+  Stellen mitgeändert werden:** im `<meta>`-Tag jeder HTML-Datei und in
+  `START_SKRIPT_HASH` in `server/server.js`. Den passenden Wert nennt der
+  Browser in der Fehlerkonsole, oder:
+
+  ```bash
+  node -e "const c=require('crypto');console.log('sha256-'+c.createHash('sha256').update(process.argv[1]).digest('base64'))" 'INHALT-DES-SKRIPTS'
+  ```
+
 ## Betrieb auf dem eigenen Server (Raspberry Pi)
 
 Die Website kann als echter Webserver auf einem Raspberry Pi laufen –
@@ -43,9 +85,27 @@ bash deploy/update.sh           # später neue Version holen
 ```
 
 Der Server (`server/server.js`) braucht nur Node.js ab Version 16 und
-keinerlei zusätzliche Pakete. Er liefert die Website aus (mit gzip,
-Zwischenspeicher-Kennzeichen und Adressen ohne `.html`) und stellt dem
-Portal eine kleine Schnittstelle bereit:
+keinerlei zusätzliche Pakete. Er liefert die Website aus und stellt dem
+Portal eine kleine Schnittstelle bereit.
+
+Beim Ausliefern:
+
+- **Brotli** (mit gzip als Rückfallebene). Das Ergebnis wird im Speicher
+  behalten, solange sich die Datei nicht ändert – sonst würde der Pi jede
+  Seite bei jedem Aufruf neu packen.
+- **ETag und `no-cache`** für Seiten, Skripte, Stile und Daten: der Browser
+  fragt jedes Mal nach, bekommt bei unveränderter Datei aber nur ein
+  knappes „unverändert" (304) statt der ganzen Datei zurück. Nach einem
+  Update gilt sofort die neue Fassung.
+- **Ein Jahr Zwischenspeicher** für Schriften, eine Woche für hochgeladene
+  Bilder (deren Dateiname enthält einen Zeitstempel, dieselbe Adresse zeigt
+  also nie auf ein anderes Bild).
+- Sicherheits-Kopfzeilen: Content-Security-Policy, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options`; bei HTTPS
+  zusätzlich HSTS.
+- Adressen ohne `.html` (z. B. `/kontakt`).
+
+Die Schnittstelle:
 
 | Aufruf | Zweck |
 |---|---|
@@ -158,13 +218,25 @@ passt Texte und Schaltflächen entsprechend an.
   ein PBKDF2-SHA256-Hash (310.000 Iterationen, zufälliges Salt).
 - Nach 5 Fehlversuchen wird die Anmeldung exponentiell lange gesperrt;
   die Sitzung läuft nach 30 Minuten Inaktivität ab.
-- Die Portal-Seite hat eine strikte Content-Security-Policy und ist für
-  Suchmaschinen gesperrt (`noindex`).
+- Die Portal-Seite hat eine strikte Content-Security-Policy, wird nie
+  zwischengespeichert (`no-store`) und ist für Suchmaschinen gesperrt
+  (`noindex`, zusätzlich über `robots.txt` und `X-Robots-Tag`).
 - Im Server-Betrieb prüft der Server das Passwort (die Zugangsdatei wird
   gar nicht erst ausgeliefert), begrenzt Fehlversuche pro IP-Adresse und
   vergibt eine Sitzung als HttpOnly-Keks mit `SameSite=Strict`.
   Hochgeladene Inhalte werden geprüft, in der Größe begrenzt und vor dem
   Überschreiben gesichert.
+- Anfragen von fremden Seiten werden über `Sec-Fetch-Site` und `Origin`
+  abgewiesen (CSRF). Nicht angemeldete Anfragen an die Schnittstelle sind
+  auf 120 pro Minute und IP begrenzt, damit niemand den Server über die
+  absichtlich rechenintensive Passwortprüfung lahmlegen kann.
+- Hochgeladene Bilder werden an ihren ersten Bytes erkannt, nicht an ihrer
+  Beschriftung – eine als `bild.png` getarnte Fremddatei wird abgelehnt.
+- Die im Portal gepflegten Texte dürfen an einigen Stellen einfache
+  Formatierung enthalten (fett, Zeilenumbruch, Link). `js/cms.js` lässt
+  dort nur eine kurze Liste harmloser Elemente und Attribute durch. Selbst
+  wer an die Inhaltsdatei käme, könnte darüber kein Skript und keinen
+  `javascript:`-Link auf der Seite unterbringen.
 - Bei statischem Hosting schützt das Passwort nur den Bearbeitungszugang:
   Die öffentliche Website kann ohne Zugriff auf den Webspace/das
   Repository nicht verändert werden – auch nicht über das Portal.

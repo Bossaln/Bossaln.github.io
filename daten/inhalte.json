@@ -151,8 +151,8 @@
   "datenschutz_08": "Beim Besuch dieser Website erhebt der Hosting-Anbieter automatisch Informationen in sogenannten Server-Log-Dateien (z. B. Browsertyp, verwendetes Betriebssystem, Uhrzeit der Serveranfrage, IP-Adresse). Diese Daten sind nicht bestimmten Personen zuordenbar und dienen der technischen Bereitstellung und Sicherheit der Website. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.",
   "datenschutz_09": "Kontaktformular",
   "datenschutz_10": "Wenn ihr uns über das Kontaktformular eine Anfrage sendet, werden eure Angaben (Name, E-Mail-Adresse, ggf. Telefonnummer sowie der Inhalt der Nachricht) ausschließlich zur Bearbeitung der Anfrage und für mögliche Anschlussfragen verwendet. Die Übermittlung erfolgt über euer eigenes E-Mail-Programm. Rechtsgrundlage der Verarbeitung ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung) bzw. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Diese Daten geben wir nicht ohne eure Einwilligung weiter.",
-  "datenschutz_11": "Externe Schriftarten (Google Fonts)",
-  "datenschutz_12": "Diese Website nutzt zur einheitlichen Darstellung Schriftarten von Google\nFonts. Beim Aufruf einer Seite lädt euer Browser die benötigten Schriften von\nServern von Google. Hierdurch erlangt Google Kenntnis darüber, dass über eure\nIP-Adresse diese Website aufgerufen wurde. Weitere Informationen findet ihr in\nder Datenschutzerklärung von Google:\n<a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">https://policies.google.com/privacy</a>.\nAlternativ können die Schriften lokal eingebunden werden.",
+  "datenschutz_schrift_titel": "Schriftarten",
+  "datenschutz_schrift_text": "Die auf dieser Website verwendeten Schriftarten („Baloo 2\" und „Nunito\") sind\nfest auf unserem eigenen Server hinterlegt und werden von dort ausgeliefert.\nBeim Aufruf einer Seite wird dafür keine Verbindung zu Servern Dritter\n– insbesondere nicht zu Google Fonts – aufgebaut. Eure IP-Adresse wird\ndabei also an niemanden außerhalb dieser Website übermittelt.",
   "datenschutz_13": "Eingebundene Karte (Google Maps)",
   "datenschutz_14": "Auf der Kontaktseite binden wir eine Karte von Google Maps ein (Anbieter:\nGoogle Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland).\nBeim Laden der Karte wird eine Verbindung zu Google-Servern hergestellt,\nwobei eure IP-Adresse übertragen wird; Google kann dabei Cookies setzen.\nWeitere Informationen:\n<a href=\"https://policies.google.com/privacy\" rel=\"noopener\" target=\"_blank\">Datenschutzerklärung von Google</a>.",
   "datenschutz_15": "4. Cookies",
@@ -163,7 +163,7 @@
   "datenschutz_20": "<strong>⚠️ Wichtiger Hinweis:</strong> Dieser Text ist ein Muster und muss vor\nVeröffentlichung an die tatsächlichen Gegebenheiten (Hosting-Anbieter,\nverantwortliche Person, eingesetzte Dienste) angepasst werden. Er ersetzt\nkeine Rechtsberatung.",
   "footer_tagline": "„Alles was ein Kind braucht, um glücklich zu sein.\" – Großtagespflege in Essen-Stoppenberg.",
   "footer_adresse": "📍 Im Looscheid 82<br/>45141 Essen-Stoppenberg",
-  "bild_logo": "assets/img/logo.png",
+  "bild_logo": "assets/img/logo.webp",
   "neuigkeiten_01": "Neues von uns 📣",
   "neuigkeiten_02": "Kleine Einblicke, Termine und Erlebnisse aus unserem Alltag."
 }

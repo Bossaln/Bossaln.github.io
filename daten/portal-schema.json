@@ -852,16 +852,16 @@
     "label": "Text: Wenn ihr uns über das Kontaktformular eine Anfrage sendet, w…"
   },
   {
-    "schluessel": "datenschutz_11",
+    "schluessel": "datenschutz_schrift_titel",
     "seite": "Datenschutz",
     "art": "text",
-    "label": "Zwischentitel: Externe Schriftarten (Google Fonts)"
+    "label": "Überschrift: Schriftarten"
   },
   {
-    "schluessel": "datenschutz_12",
+    "schluessel": "datenschutz_schrift_text",
     "seite": "Datenschutz",
-    "art": "html",
-    "label": "Text: Diese Website nutzt zur einheitlichen Darstellung Schriftart…"
+    "art": "text",
+    "label": "Text: Die auf dieser Website verwendeten Schriftarten …"
   },
   {
     "schluessel": "datenschutz_13",
