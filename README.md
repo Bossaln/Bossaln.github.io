@@ -15,7 +15,8 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 | `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
 | `galerie.html` | Galerie in Ordnern, mit Großansicht (aus dem Portal gepflegt) |
-| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom (aus dem Portal gepflegt) |
+| `konzept.html` | Das pädagogische Konzept in voller Länge, mit anklickbarem Inhaltsverzeichnis |
+| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom (aus dem Portal gepflegt, nicht mehr im Menü) |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
 | `impressum.html` | Impressum (Mustertext mit Platzhaltern) |
 | `datenschutz.html` | Datenschutzerklärung (Mustertext mit Platzhaltern) |
@@ -127,7 +128,28 @@ Textfelder mit (z. B. eine neue Seite), ergänzt der Server sie beim Start
 automatisch, ohne gepflegte Texte zu überschreiben. Die Zugangsdatei wird
 im Server-Betrieb nicht mehr ausgeliefert.
 
+## Unser Konzept (`konzept.html`)
+
+Das vollständige pädagogische Konzept „Einmal Kind sein …" auf einer
+einzigen Seite. Oben steht das Inhaltsverzeichnis; jeder Eintrag ist ein
+Sprungziel (`#anker`) **auf derselben Seite** – es öffnet sich also weder
+ein neuer Tab noch eine neue Datei, die Seite scrollt nur zum passenden
+Kapitel. Am Ende jedes Kapitels führt ein kleiner Verweis zurück zum
+Verzeichnis.
+
+Damit die Überschrift beim Anspringen nicht unter dem klebenden Kopf
+verschwindet, tragen die Kapitel `scroll-margin-top` (siehe
+`.konzept-kapitel` in `css/style.css`). Nur Überschrift und Einleitungssatz
+sind über `data-cms` (`konzept_01`, `konzept_02`) austauschbar – der
+Konzepttext selbst steht fest im HTML.
+
+Diese Seite hat im Menü den früheren Platz der Neuigkeiten übernommen.
+
 ## Neuigkeiten (`neuigkeiten.html`)
+
+Die Seite steht weiterhin unter `/neuigkeiten.html` und wird aus dem Portal
+gepflegt, ist aber **nicht mehr im Menü verlinkt** (dort steht jetzt „Unser
+Konzept"). Erreichbar ist sie über den Verweis im Portal.
 
 Ein Beitragsstrom – der neueste oben, jeder Beitrag mit Titel, Nachricht,
 optionalem Bild und Zeitstempel („vor 3 Tagen" plus genaues Datum).

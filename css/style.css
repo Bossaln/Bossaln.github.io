@@ -1547,3 +1547,182 @@ body.lupe-offen { overflow: hidden; }
   .lupe-pfeil { width: 2.6rem; height: 2.6rem; font-size: 1.6rem; }
   .lupe-inhalt img { max-height: 66vh; }
 }
+
+/* --------------------------------------------------------------------------
+   Konzept-Seite
+
+   Eine sehr lange Seite: oben ein anklickbares Inhaltsverzeichnis, darunter
+   alle Kapitel am Stück. Die Verweise springen deshalb nur innerhalb der
+   Seite (#anker) – niemand verliert den Faden durch einen Seitenwechsel.
+   -------------------------------------------------------------------------- */
+
+/* Der Kopf der Seite klebt oben – ohne diesen Abstand verschwände die
+   Kapitel-Überschrift beim Anspringen darunter. */
+.konzept-kapitel { scroll-margin-top: 96px; }
+
+.konzept-verzeichnis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.7rem;
+  max-width: 900px;
+  margin-inline: auto;
+  list-style: none;
+  counter-reset: none;
+}
+
+.konzept-verzeichnis a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  background: var(--creme);
+  color: var(--tinte);
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1.35;
+  transition: transform var(--uebergang), background var(--uebergang),
+              box-shadow var(--uebergang);
+}
+
+.konzept-verzeichnis a:hover,
+.konzept-verzeichnis a:focus-visible {
+  transform: translateX(4px);
+  background: var(--wolke);
+  box-shadow: var(--schatten);
+}
+
+.konzept-vz-nummer {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--weiss);
+  color: var(--tinte-hell);
+  font-family: var(--schrift-titel);
+  font-size: 0.95rem;
+  box-shadow: inset 0 0 0 2px var(--wolke);
+}
+
+.konzept-verzeichnis li:nth-child(6n + 1) .konzept-vz-nummer { color: var(--rot); }
+.konzept-verzeichnis li:nth-child(6n + 2) .konzept-vz-nummer { color: var(--orange); }
+.konzept-verzeichnis li:nth-child(6n + 3) .konzept-vz-nummer { color: var(--gruen); }
+.konzept-verzeichnis li:nth-child(6n + 4) .konzept-vz-nummer { color: var(--blau); }
+.konzept-verzeichnis li:nth-child(6n + 5) .konzept-vz-nummer { color: var(--lila); }
+.konzept-verzeichnis li:nth-child(6n + 6) .konzept-vz-nummer { color: var(--tuerkis); }
+
+.konzept-vz-titel small {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--tinte-hell);
+}
+
+/* ---------------------------- Ein Kapitel ------------------------------- */
+.konzept-inhalt { max-width: 780px; margin-inline: auto; }
+
+.konzept-nummer {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.konzept-inhalt h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  margin-bottom: 1.2rem;
+}
+
+.konzept-inhalt h3 {
+  font-size: 1.25rem;
+  margin: 1.8rem 0 0.5rem;
+  color: var(--tinte);
+}
+
+.konzept-inhalt p + p { margin-top: 0.9rem; }
+
+.konzept-betont {
+  font-weight: 700;
+  color: var(--tinte);
+}
+
+.konzept-liste {
+  margin: 1rem 0 0 1.2rem;
+  padding-left: 0.6rem;
+}
+
+.konzept-liste li { margin-bottom: 0.4rem; }
+
+.konzept-liste li::marker { color: var(--orange); }
+
+/* Die Leitsätze aus dem Konzept – sie dürfen ruhig auffallen. */
+.konzept-motto {
+  margin: 1.8rem 0;
+  padding: 1.4rem 1.6rem;
+  border-radius: var(--radius);
+  background: var(--wolke);
+  border-left: 6px solid var(--gelb);
+  font-family: var(--schrift-titel);
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.konzept-zeiten {
+  margin: 1.4rem 0;
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--radius);
+  background: var(--wolke);
+  box-shadow: var(--schatten);
+}
+
+.konzept-zeiten p {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.45rem 0;
+}
+
+.konzept-zeiten p + p {
+  margin-top: 0;
+  border-top: 1px dashed rgba(111, 101, 128, 0.3);
+}
+
+.konzept-bilder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: 1.8rem;
+}
+
+.konzept-bilder img {
+  width: 100%;
+  height: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+
+.konzept-zurueck {
+  display: inline-block;
+  margin-top: 1.8rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--tinte-hell);
+  text-decoration: none;
+}
+
+.konzept-zurueck:hover,
+.konzept-zurueck:focus-visible { color: var(--orange); }
+
+@media (max-width: 620px) {
+  .konzept-verzeichnis { grid-template-columns: 1fr; }
+  .konzept-bilder { grid-template-columns: 1fr; }
+  .konzept-motto { padding: 1.1rem 1.2rem; }
+}

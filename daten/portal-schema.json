@@ -246,6 +246,36 @@
     "label": "Text: Von Oktober 2012 bis August 2014 war ich als Kindertagespfle…"
   },
   {
+    "schluessel": "ueberuns_32",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Sascha Manuel Graw"
+  },
+  {
+    "schluessel": "ueberuns_33",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Kindertagespflegeperson"
+  },
+  {
+    "schluessel": "ueberuns_34",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Ich wurde 1987 in Essen geboren und wohne seitdem hier …"
+  },
+  {
+    "schluessel": "ueberuns_35",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Nach meiner Ausbildung zum Kaufmann im Einzelhandel …"
+  },
+  {
+    "schluessel": "ueberuns_36",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Seit 2017 arbeite ich nun gemeinsam mit meinen Schwestern …"
+  },
+  {
     "schluessel": "ueberuns_22",
     "seite": "Über uns",
     "art": "text",
@@ -932,6 +962,18 @@
   {
     "schluessel": "neuigkeiten_02",
     "seite": "Neuigkeiten",
+    "art": "text",
+    "label": "Text: Einleitungssatz"
+  },
+  {
+    "schluessel": "konzept_01",
+    "seite": "Unser Konzept",
+    "art": "text",
+    "label": "Text: Überschrift der Seite"
+  },
+  {
+    "schluessel": "konzept_02",
+    "seite": "Unser Konzept",
     "art": "text",
     "label": "Text: Einleitungssatz"
   }
