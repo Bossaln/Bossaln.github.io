@@ -37,6 +37,9 @@
   let bearbeiteId = null;     // wird ein vorhandener Beitrag bearbeitet?
   let galerie = [];           // Ordner aus daten/galerie.json
   const offeneOrdner = new Set();  // welche Ordner im Portal aufgeklappt sind
+  let codesVorhanden = false; // sind Wiederherstellungs-Codes hinterlegt?
+  let codesOffen = null;      // wie viele davon noch ungenutzt sind
+  let codesKlartext = [];     // frisch erzeugte Codes (nur bis zum Neuladen)
 
   document.addEventListener("DOMContentLoaded", start);
 
@@ -50,6 +53,10 @@
         const status = await antwort.json();
         servermodus = status.server === true;
         sitzungLaeuft = status.angemeldet === true;
+        codesVorhanden = status.wiederherstellung === true;
+        if (typeof status.wiederherstellungOffen === "number") {
+          codesOffen = status.wiederherstellungOffen;
+        }
       }
     } catch {
       /* keine Schnittstelle vorhanden → Datei-Betrieb */
@@ -65,6 +72,12 @@
       const [i, z] = await Promise.all(aufgaben);
       veroeffentlicht = i;
       zugang = z || null;
+      // Im Datei-Betrieb steht in der Zugangsdatei selbst, wie viele
+      // Wiederherstellungs-Codes noch offen sind.
+      if (!servermodus) {
+        codesOffen = codesAusZugang(zugang).length;
+        codesVorhanden = codesOffen > 0;
+      }
     } catch {
       meldung("anmelde-meldung",
         "Konfiguration konnte nicht geladen werden. Das Portal funktioniert nur über einen Webserver (https bzw. localhost), nicht direkt aus dem Dateisystem.");
@@ -111,6 +124,11 @@
     document.getElementById("exportieren").addEventListener("click", veroeffentlichen);
     document.getElementById("zuruecksetzen").addEventListener("click", zuruecksetzen);
     document.getElementById("passwort-formular").addEventListener("submit", passwortAendern);
+
+    document.getElementById("passwort-vergessen").addEventListener("click", zuruecksetzenZeigen);
+    document.getElementById("zuruecksetzen-formular").addEventListener("submit", passwortZuruecksetzen);
+    document.getElementById("codes-erzeugen").addEventListener("click", codesNeuErzeugen);
+    document.getElementById("codes-speichern").addEventListener("click", codesSpeichern);
 
     document.getElementById("beitrag-posten").addEventListener("click", beitragPosten);
     document.getElementById("beitrag-abbrechen").addEventListener("click", beitragAbbrechen);
@@ -388,6 +406,8 @@
     });
     beitragslisteAufbauen();
     galerieStrukturAufbauen();
+    codesStatusZeigen();
+    codesStandHolen();
     statusAktualisieren();
   }
 
@@ -1280,17 +1300,12 @@
     const iterationen = 310000;
     const hash = await pbkdf2(neu, salz, iterationen);
 
-    const inhalt = {
-      hinweis: "Enthaelt nur den PBKDF2-Hash des Portal-Passworts, niemals das Passwort selbst.",
-      algorithmus: "PBKDF2-SHA256",
-      iterationen, salz, hash,
-    };
-    const blob = new Blob([JSON.stringify(inhalt, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "zugang.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
+    // Die Wiederherstellungs-Codes hängen nicht am Passwort und bleiben
+    // deshalb erhalten – sonst wäre der Ausdruck im Ordner nach einem
+    // Passwortwechsel unbemerkt wertlos.
+    const inhalt = zugangsdateiBauen(salz, iterationen, hash,
+      zugang && zugang.wiederherstellung);
+    dateiHerunterladen("zugang.json", JSON.stringify(inhalt, null, 2), "application/json");
 
     document.getElementById("passwort-neu").value = "";
     document.getElementById("passwort-wdh").value = "";
@@ -1298,7 +1313,331 @@
       "Datei „zugang.json“ heruntergeladen. Diese Datei in den Ordner daten/ hochladen (ersetzen) – danach gilt das neue Passwort. Das alte bleibt bis dahin aktiv.", true);
   }
 
+  /* -------------------- Wiederherstellungs-Codes --------------------------
+
+     Passwort vergessen? Dann setzt einer von acht ausgedruckten Codes auf der
+     Anmeldeseite ein neues – ohne SSH, ohne Kommandozeile, ohne fremde Hilfe.
+
+     Im Server-Betrieb prüft und verbraucht der Server die Codes (die
+     Zugangsdatei liegt gar nicht im Netz). Im Datei-Betrieb passiert
+     dasselbe hier im Browser und das Ergebnis ist – wie beim Passwort
+     ändern – eine zugang.json zum Hochladen.
+
+     Gespeichert werden nur Prüfwerte (SHA-256 mit Salz), niemals die Codes.
+     Das reicht hier ohne das langsame PBKDF2: ein Code ist gewürfelt und
+     rund 74 Bit lang, nicht ausgedacht und kurz wie ein Passwort. */
+
+  // Zeichen, die sich beim Abschreiben nicht verwechseln lassen (kein I, L, O, 0, 1)
+  const CODE_ZEICHEN = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  const CODE_LAENGE = 15;
+  const CODE_GRUPPE = 5;
+  const CODE_ANZAHL = 8;
+
+  function codeFormatieren(code) {
+    return code.replace(new RegExp("(.{" + CODE_GRUPPE + "})(?=.)", "g"), "$1-");
+  }
+
+  function codeNormalisieren(roh) {
+    return String(roh || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  }
+
+  function codesAusZugang(z) {
+    const teil = z && z.wiederherstellung;
+    return teil && Array.isArray(teil.codes) ? teil.codes : [];
+  }
+
+  /* Gleichverteilt ziehen: Werte, die nicht restlos aufgehen, werden
+     verworfen statt per Rest verbogen. */
+  function codeErzeugen() {
+    const grenze = 256 - (256 % CODE_ZEICHEN.length);
+    let code = "";
+    while (code.length < CODE_LAENGE) {
+      for (const wert of crypto.getRandomValues(new Uint8Array(CODE_LAENGE))) {
+        if (wert >= grenze) continue;
+        code += CODE_ZEICHEN[wert % CODE_ZEICHEN.length];
+        if (code.length === CODE_LAENGE) break;
+      }
+    }
+    return codeFormatieren(code);
+  }
+
+  async function codeHash(code, salzHex) {
+    const salz = hexZuBytes(salzHex);
+    const roh = new TextEncoder().encode(code);
+    const zusammen = new Uint8Array(salz.length + roh.length);
+    zusammen.set(salz, 0);
+    zusammen.set(roh, salz.length);
+    return bytesZuHex(new Uint8Array(await crypto.subtle.digest("SHA-256", zusammen)));
+  }
+
+  function zugangsdateiBauen(salz, iterationen, hash, wiederherstellung) {
+    const datei = {
+      hinweis: "Enthaelt nur den PBKDF2-Hash des Portal-Passworts, niemals das Passwort selbst.",
+      algorithmus: "PBKDF2-SHA256",
+      iterationen, salz, hash,
+    };
+    if (wiederherstellung) datei.wiederherstellung = wiederherstellung;
+    return datei;
+  }
+
+  /* Einen frischen Satz Codes samt Prüfwerten würfeln (nur Datei-Betrieb –
+     im Server-Betrieb macht das der Server). */
+  async function codesSatzBauen() {
+    const codes = [];
+    for (let i = 0; i < CODE_ANZAHL; i += 1) codes.push(codeErzeugen());
+    const salz = bytesZuHex(crypto.getRandomValues(new Uint8Array(16)));
+    const geprueft = [];
+    for (const code of codes) geprueft.push(await codeHash(codeNormalisieren(code), salz));
+    return {
+      codes,
+      gespeichert: {
+        hinweis: "Enthaelt nur Pruefwerte der Wiederherstellungs-Codes. Jeder Code gilt genau einmal.",
+        algorithmus: "SHA-256",
+        salz,
+        codes: geprueft,
+      },
+    };
+  }
+
+  /* ------------------------- Zurücksetzen (Anmeldeseite) ------------------ */
+
+  function zuruecksetzenZeigen() {
+    const bereich = document.getElementById("zuruecksetzen-bereich");
+    const sichtbar = bereich.style.display === "block";
+    bereich.style.display = sichtbar ? "none" : "block";
+    if (sichtbar) return;
+
+    const einleitung = document.getElementById("zuruecksetzen-einleitung");
+    if (!codesVorhanden) {
+      einleitung.textContent =
+        "Für dieses Portal sind keine Wiederherstellungs-Codes hinterlegt. " +
+        "Das Passwort lässt sich deshalb nur direkt am Server neu setzen (siehe unten). " +
+        "Tipp für später: nach dem Anmelden im Portal einen Satz Codes erzeugen und ausdrucken.";
+      document.getElementById("zuruecksetzen-formular").style.display = "none";
+      return;
+    }
+    if (!servermodus) {
+      einleitung.textContent =
+        "Einen der ausgedruckten Wiederherstellungs-Codes eingeben und ein neues Passwort " +
+        "vergeben. Es entsteht eine Datei zugang.json, die in den Ordner daten/ der Website " +
+        "hochgeladen werden muss – erst dann gilt das neue Passwort. Jeder Code gilt genau einmal.";
+    }
+    document.getElementById("zuruecksetzen-code").focus();
+  }
+
+  async function passwortZuruecksetzen(e) {
+    e.preventDefault();
+
+    const code = document.getElementById("zuruecksetzen-code").value;
+    const neu = document.getElementById("zuruecksetzen-neu").value;
+    const wiederholung = document.getElementById("zuruecksetzen-wdh").value;
+
+    if (neu.length < 12) {
+      meldung("zuruecksetzen-meldung", "Das neue Passwort muss mindestens 12 Zeichen lang sein.");
+      return;
+    }
+    if (neu !== wiederholung) {
+      meldung("zuruecksetzen-meldung", "Die beiden Eingaben stimmen nicht überein.");
+      return;
+    }
+
+    const knopf = document.querySelector('#zuruecksetzen-formular button[type="submit"]');
+    knopf.disabled = true;
+    knopf.textContent = "Prüfe …";
+
+    try {
+      if (servermodus) {
+        let antwort;
+        try {
+          antwort = await serverAufruf("api/zuruecksetzen", { code, neu });
+        } catch {
+          meldung("zuruecksetzen-meldung", "Der Server ist nicht erreichbar. Läuft die Website noch?");
+          return;
+        }
+        if (!antwort.ok) {
+          const d = antwort.daten || {};
+          meldung("zuruecksetzen-meldung", d.wartenSekunden
+            ? `Zu viele Fehlversuche – bitte ${d.wartenSekunden} Sekunden warten.`
+            : (d.fehler || "Das Zurücksetzen hat nicht geklappt."));
+          return;
+        }
+        zuruecksetzenFertig(
+          "Neues Passwort gesetzt. Bitte oben damit anmelden. Noch offene Codes: " +
+          (antwort.daten.offen || 0) + ".");
+        return;
+      }
+
+      /* Datei-Betrieb: Prüfung im Browser, Ergebnis als Datei */
+      const gespeichert = codesAusZugang(zugang);
+      if (!gespeichert.length || typeof zugang.wiederherstellung.salz !== "string") {
+        meldung("zuruecksetzen-meldung",
+          "Für dieses Portal sind keine Wiederherstellungs-Codes hinterlegt.");
+        return;
+      }
+      const gesucht = await codeHash(codeNormalisieren(code), zugang.wiederherstellung.salz);
+      const stelle = gespeichert.indexOf(gesucht);
+      if (codeNormalisieren(code).length !== CODE_LAENGE || stelle < 0) {
+        meldung("zuruecksetzen-meldung",
+          "Dieser Wiederherstellungs-Code stimmt nicht oder wurde bereits benutzt.");
+        return;
+      }
+
+      const salz = bytesZuHex(crypto.getRandomValues(new Uint8Array(16)));
+      const iterationen = 310000;
+      const hash = await pbkdf2(neu, salz, iterationen);
+      const rest = Object.assign({}, zugang.wiederherstellung, {
+        codes: gespeichert.filter((_, i) => i !== stelle),   // benutzter Code ist verbraucht
+      });
+      dateiHerunterladen("zugang.json",
+        JSON.stringify(zugangsdateiBauen(salz, iterationen, hash, rest), null, 2),
+        "application/json");
+
+      zuruecksetzenFertig(
+        "Datei „zugang.json“ heruntergeladen. Diese Datei in den Ordner daten/ der Website " +
+        "hochladen (ersetzen) – danach gilt das neue Passwort. Noch offene Codes: " +
+        rest.codes.length + ".");
+    } finally {
+      knopf.disabled = false;
+      knopf.textContent = "Neues Passwort setzen";
+    }
+  }
+
+  function zuruecksetzenFertig(text) {
+    ["zuruecksetzen-code", "zuruecksetzen-neu", "zuruecksetzen-wdh"].forEach((id) => {
+      document.getElementById(id).value = "";
+    });
+    meldung("zuruecksetzen-meldung", text, true);
+  }
+
+  /* --------------------- Codes verwalten (im Portal) ---------------------- */
+
+  /* Wie viele Codes noch offen sind, verrät der Server erst nach der
+     Anmeldung – beim ersten Statusabruf war sie noch nicht erfolgt. */
+  async function codesStandHolen() {
+    if (!servermodus) return;
+    try {
+      const antwort = await fetch("api/status", { cache: "no-store" });
+      if (!antwort.ok) return;
+      const status = await antwort.json();
+      if (typeof status.wiederherstellungOffen !== "number") return;
+      codesOffen = status.wiederherstellungOffen;
+      codesVorhanden = codesOffen > 0;
+      codesStatusZeigen();
+    } catch { /* dann bleibt die Anzeige, wie sie ist */ }
+  }
+
+  function codesStatusZeigen() {
+    const kasten = document.getElementById("codes-status");
+    if (codesOffen === null) {
+      kasten.textContent = "Wiederherstellungs-Codes: Stand unbekannt.";
+      kasten.className = "portal-status offen";
+    } else if (codesOffen === 0) {
+      kasten.textContent =
+        "Es sind keine Wiederherstellungs-Codes hinterlegt. Bei einem vergessenen " +
+        "Passwort hilft dann nur noch ein Zugriff auf den Server selbst.";
+      kasten.className = "portal-status offen";
+    } else {
+      kasten.textContent = codesOffen === 1
+        ? "Es ist noch 1 Wiederherstellungs-Code übrig – Zeit für einen neuen Satz."
+        : `Es sind noch ${codesOffen} von ${CODE_ANZAHL} Wiederherstellungs-Codes übrig.`;
+      kasten.className = "portal-status " + (codesOffen <= 2 ? "offen" : "fertig");
+    }
+  }
+
+  async function codesNeuErzeugen() {
+    const knopf = document.getElementById("codes-erzeugen");
+    knopf.disabled = true;
+    knopf.textContent = "Erzeuge …";
+
+    try {
+      if (servermodus) {
+        let antwort;
+        try {
+          antwort = await serverAufruf("api/wiederherstellungscodes");
+        } catch {
+          meldung("codes-meldung", "Der Server ist nicht erreichbar – es wurden keine Codes erzeugt.");
+          return;
+        }
+        if (antwort.status === 401) {
+          sitzungAbgelaufen();
+          return;
+        }
+        if (!antwort.ok || !Array.isArray(antwort.daten.codes)) {
+          meldung("codes-meldung",
+            "Codes konnten nicht erzeugt werden: " + (antwort.daten.fehler || "unbekannter Fehler"));
+          return;
+        }
+        codesAnzeigen(antwort.daten.codes);
+        meldung("codes-meldung",
+          "Neue Codes erzeugt – sie gelten ab sofort, alte Codes nicht mehr. Jetzt ausdrucken " +
+          "oder abspeichern: nach dem Verlassen der Seite lassen sie sich nicht wieder anzeigen.",
+          true);
+        return;
+      }
+
+      /* Datei-Betrieb: Codes hier würfeln, Prüfwerte in eine neue zugang.json */
+      if (!zugang || !zugang.hash) {
+        meldung("codes-meldung", "Die Datei daten/zugang.json konnte nicht gelesen werden.");
+        return;
+      }
+      // Der Stand im Browser bleibt, wie er ist: gültig wird die neue Datei
+      // erst mit dem Hochladen. Sonst würde das Portal hier schon mit Codes
+      // rechnen, die auf der Website noch gar nicht gelten.
+      const satz = await codesSatzBauen();
+      const datei = zugangsdateiBauen(zugang.salz, zugang.iterationen, zugang.hash, satz.gespeichert);
+      dateiHerunterladen("zugang.json", JSON.stringify(datei, null, 2), "application/json");
+      codesAnzeigen(satz.codes);
+      meldung("codes-meldung",
+        "Codes erzeugt und die Datei „zugang.json“ heruntergeladen. Diese Datei in den Ordner " +
+        "daten/ der Website hochladen (ersetzen) – erst dann gelten die neuen Codes. " +
+        "Die Codes selbst jetzt ausdrucken oder abspeichern.", true);
+    } finally {
+      knopf.disabled = false;
+      knopf.textContent = "Neue Codes erzeugen";
+    }
+  }
+
+  function codesAnzeigen(codes) {
+    codesKlartext = codes;
+    codesOffen = codes.length;
+    codesVorhanden = codes.length > 0;
+
+    const liste = document.getElementById("codes-liste");
+    liste.replaceChildren();
+    codes.forEach((code) => {
+      const zeile = document.createElement("li");
+      zeile.textContent = code;
+      liste.appendChild(zeile);
+    });
+    liste.style.display = "grid";
+    document.getElementById("codes-speichern").style.display = "";
+    codesStatusZeigen();
+  }
+
+  function codesSpeichern() {
+    if (!codesKlartext.length) return;
+    const text = [
+      "Melli's Krabbelzwerge – Wiederherstellungs-Codes für das Verwaltungs-Portal",
+      "Erzeugt am " + new Date().toLocaleString("de-DE"),
+      "",
+      "Passwort vergessen? Auf der Anmeldeseite des Portals auf",
+      "„Passwort vergessen?\" klicken und einen dieser Codes eingeben.",
+      "Jeder Code gilt genau einmal. Bitte ausdrucken und sicher aufbewahren.",
+      "",
+    ].concat(codesKlartext.map((code, i) => "  " + (i + 1) + ". " + code)).join("\n") + "\n";
+    dateiHerunterladen("wiederherstellungs-codes.txt", text, "text/plain");
+  }
+
   /* ----------------------------- Hilfen ----------------------------- */
+
+  function dateiHerunterladen(name, inhalt, typ) {
+    const blob = new Blob([inhalt], { type: typ + ";charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
 
   function meldung(ziel, text, gut) {
     const el = document.getElementById(ziel);

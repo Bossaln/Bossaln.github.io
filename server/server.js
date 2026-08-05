@@ -45,6 +45,7 @@ const SCHEMA_DATEI = path.join(WURZEL, "daten", "portal-schema.json");
 
 const SITZUNG_MINUTEN = 30;          // Abmeldung nach Inaktivität
 const MAX_VERSUCHE = 5;              // Fehlversuche bis zur Sperre
+const CODE_ANZAHL = 8;               // Wiederherstellungs-Codes je Satz
 const MAX_KOERPER = 12 * 1024 * 1024; // größte erlaubte Anfrage (12 MB)
 const MAX_BILD = 8 * 1024 * 1024;     // größtes erlaubtes Bild (8 MB)
 const MAX_TEXT = 20000;               // größter erlaubter Textwert
@@ -394,17 +395,140 @@ async function passwortPruefen(passwort) {
     crypto.timingSafeEqual(abgeleitet, erwartet);
 }
 
-function zugangsdateiBauen(passwort) {
+function zugangsdateiBauen(passwort, wiederherstellung) {
   const iterationen = 310000;
   const salzBytes = crypto.randomBytes(16);
   const hash = crypto.pbkdf2Sync(passwort, salzBytes, iterationen, 32, "sha256");
-  return {
+  const datei = {
     hinweis: "Enthaelt nur den PBKDF2-Hash des Portal-Passworts, niemals das Passwort selbst.",
     algorithmus: "PBKDF2-SHA256",
     iterationen,
     salz: salzBytes.toString("hex"),
     hash: hash.toString("hex"),
   };
+  // Die Wiederherstellungs-Codes sind vom Passwort unabhängig und bleiben
+  // beim Passwortwechsel gültig – sonst wäre nach jedem Wechsel ein neuer
+  // Ausdruck nötig und der alte Zettel im Ordner wäre stillschweigend wertlos.
+  if (wiederherstellung) datei.wiederherstellung = wiederherstellung;
+  return datei;
+}
+
+/* Die Zugangsdatei geht niemanden sonst etwas an. sicherSchreiben legt eine
+   neue Datei an – die bekäme sonst die weiter gefassten Standardrechte,
+   und die 640 aus der Einrichtung wären nach dem ersten Passwortwechsel
+   stillschweigend weg. */
+async function zugangSchreiben(objekt) {
+  await sicherSchreiben(ZUGANG_DATEI, JSON.stringify(objekt, null, 2) + "\n");
+  await fsp.chmod(ZUGANG_DATEI, 0o640).catch(() => {});
+}
+
+/* --------------------- Wiederherstellungs-Codes ---------------------------
+
+   Für den Fall, dass das Portal-Passwort vergessen wurde. Beim Erzeugen
+   bekommt das Team acht Codes zum Ausdrucken; jeder davon setzt genau
+   einmal ein neues Passwort. Ohne sie hilft nur noch der Weg über die
+   Kommandozeile des Pi (deploy/passwort-setzen.sh) – und der ist für
+   jemanden ohne SSH-Zugang eine Sackgasse.
+
+   Gespeichert werden auch hier nur Prüfwerte, niemals die Codes selbst.
+   Anders als beim Passwort genügt dafür ein einfacher SHA-256: die
+   aufwendige Berechnung (PBKDF2) schützt kurze, ausgedachte Passwörter vor
+   dem Durchprobieren. Ein Code ist aber gewürfelt und rund 74 Bit lang –
+   da ist Durchprobieren ohnehin aussichtslos. Umgekehrt müsste der Server
+   bei jedem Versuch alle acht Codes prüfen; mit 310.000 Runden je Code
+   dauerte das auf einem Raspberry Pi mehrere Sekunden. */
+
+// Zeichen, die sich beim Abschreiben nicht verwechseln lassen (kein I, L, O, 0, 1)
+const CODE_ZEICHEN = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const CODE_LAENGE = 15;   // 15 Zeichen aus 31 möglichen ≈ 74 Bit Zufall
+const CODE_GRUPPE = 5;    // Anzeige in Fünferblöcken: XXXXX-XXXXX-XXXXX
+
+function codeFormatieren(code) {
+  return code.replace(new RegExp("(.{" + CODE_GRUPPE + "})(?=.)", "g"), "$1-");
+}
+
+/* Vergleichbar machen: Groß-/Kleinschreibung und Trennstriche sind egal. */
+function codeNormalisieren(roh) {
+  return String(roh || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function codeErzeugen() {
+  // Gleichverteilt ziehen: Bytes, die nicht restlos aufgehen, werden
+  // verworfen statt per Rest verbogen (das bevorzugte sonst die vorderen
+  // Zeichen des Alphabets und verschenkte Zufall).
+  const grenze = 256 - (256 % CODE_ZEICHEN.length);
+  let code = "";
+  while (code.length < CODE_LAENGE) {
+    for (const wert of crypto.randomBytes(CODE_LAENGE)) {
+      if (wert >= grenze) continue;
+      code += CODE_ZEICHEN[wert % CODE_ZEICHEN.length];
+      if (code.length === CODE_LAENGE) break;
+    }
+  }
+  return codeFormatieren(code);
+}
+
+function codeHash(code, salzHex) {
+  return crypto.createHash("sha256")
+    .update(Buffer.concat([Buffer.from(salzHex, "hex"), Buffer.from(code, "utf8")]))
+    .digest("hex");
+}
+
+/* Erzeugt einen frischen Satz Codes. Gibt beides zurück: den Klartext (der
+   genau einmal angezeigt und danach vergessen wird) und den Teil, der in die
+   Zugangsdatei wandert. */
+function wiederherstellungBauen() {
+  const codes = [];
+  for (let i = 0; i < CODE_ANZAHL; i += 1) codes.push(codeErzeugen());
+  const salz = crypto.randomBytes(16).toString("hex");
+  return {
+    codes,
+    gespeichert: {
+      hinweis: "Enthaelt nur Pruefwerte der Wiederherstellungs-Codes. Jeder Code gilt genau einmal.",
+      algorithmus: "SHA-256",
+      salz,
+      codes: codes.map((code) => codeHash(codeNormalisieren(code), salz)),
+    },
+  };
+}
+
+function offeneCodes(zugang) {
+  const teil = zugang && zugang.wiederherstellung;
+  return teil && Array.isArray(teil.codes) ? teil.codes.length : 0;
+}
+
+/* Sucht den passenden Code und liefert seine Stelle in der Liste (sonst -1).
+   Es wird immer die ganze Liste durchlaufen und Buffer für Buffer in
+   gleichbleibender Zeit verglichen – aus der Antwortdauer lässt sich damit
+   nicht ablesen, ob und wo etwas gepasst hat. */
+function codeStelleFinden(wiederherstellung, eingabe) {
+  const code = codeNormalisieren(eingabe);
+  if (!wiederherstellung || !Array.isArray(wiederherstellung.codes) ||
+      typeof wiederherstellung.salz !== "string" || code.length !== CODE_LAENGE) {
+    return -1;
+  }
+  const gesucht = Buffer.from(codeHash(code, wiederherstellung.salz), "hex");
+  let stelle = -1;
+  wiederherstellung.codes.forEach((gespeichert, i) => {
+    const vergleich = Buffer.from(String(gespeichert || ""), "hex");
+    if (vergleich.length === gesucht.length && crypto.timingSafeEqual(vergleich, gesucht)) {
+      stelle = i;
+    }
+  });
+  return stelle;
+}
+
+/* Zählt einen Fehlversuch und sperrt die Adresse nach zu vielen. */
+function fehlversuchMerken(ip, jetzt) {
+  const sperre = sperreLesen(ip);
+  sperre.anzahl += 1;
+  sperre.zuletzt = jetzt;
+  if (sperre.anzahl >= MAX_VERSUCHE) {
+    const minuten = Math.min(Math.pow(2, sperre.anzahl - MAX_VERSUCHE), 60);
+    sperre.gesperrtBis = jetzt + minuten * 60000;
+  }
+  versuche.set(ip, sperre);
+  return sperre;
 }
 
 /* --------------------------- Anfragen einlesen ---------------------------- */
@@ -743,11 +867,18 @@ async function api(req, res, pfad, sicher) {
   }
 
   if (pfad === "/api/status") {
-    return antwortJson(res, 200, {
+    const zugang = await zugangLesen().catch(() => null);
+    const antwort = {
       server: true,
       angemeldet: Boolean(angemeldet),
       sitzungMinuten: SITZUNG_MINUTEN,
-    });
+      // Nur ob es überhaupt Codes gibt: danach richtet sich, was auf der
+      // Anmeldeseite unter „Passwort vergessen?" steht. Die Zahl verrät der
+      // Server erst nach der Anmeldung.
+      wiederherstellung: offeneCodes(zugang) > 0,
+    };
+    if (angemeldet) antwort.wiederherstellungOffen = offeneCodes(zugang);
+    return antwortJson(res, 200, antwort);
   }
 
   if (pfad === "/api/anmelden") {
@@ -778,20 +909,14 @@ async function api(req, res, pfad, sicher) {
     }
 
     if (!richtig) {
-      sperre.anzahl += 1;
-      sperre.zuletzt = jetzt;
-      if (sperre.anzahl >= MAX_VERSUCHE) {
-        const minuten = Math.min(Math.pow(2, sperre.anzahl - MAX_VERSUCHE), 60);
-        sperre.gesperrtBis = jetzt + minuten * 60000;
-      }
-      versuche.set(ip, sperre);
-      protokoll("Fehlgeschlagene Anmeldung von", ip, `(${sperre.anzahl})`);
+      const gezaehlt = fehlversuchMerken(ip, jetzt);
+      protokoll("Fehlgeschlagene Anmeldung von", ip, `(${gezaehlt.anzahl})`);
       return antwortJson(res, 401, {
         fehler: "Falsches Passwort.",
-        versuche: sperre.anzahl,
+        versuche: gezaehlt.anzahl,
         maxVersuche: MAX_VERSUCHE,
-        wartenSekunden: sperre.gesperrtBis > jetzt
-          ? Math.ceil((sperre.gesperrtBis - jetzt) / 1000) : 0,
+        wartenSekunden: gezaehlt.gesperrtBis > jetzt
+          ? Math.ceil((gezaehlt.gesperrtBis - jetzt) / 1000) : 0,
       });
     }
 
@@ -805,6 +930,80 @@ async function api(req, res, pfad, sicher) {
     if (angemeldet) sitzungen.delete(angemeldet);
     keksSetzen(res, "", sicher);
     return antwortJson(res, 200, { ok: true });
+  }
+
+  /* Passwort vergessen: mit einem der ausgedruckten Wiederherstellungs-Codes
+     ein neues setzen. Dieser Aufruf braucht bewusst keine Anmeldung – der
+     Code ist der Nachweis. Er unterliegt derselben Sperre nach Fehlversuchen
+     wie die Anmeldung, damit hier kein Hintertürchen zum Durchprobieren
+     entsteht. */
+  if (pfad === "/api/zuruecksetzen") {
+    const ip = absender(req);
+    const jetzt = Date.now();
+    const sperre = sperreLesen(ip);
+    if (sperre.gesperrtBis > jetzt) {
+      return antwortJson(res, 429, {
+        fehler: "Zu viele Fehlversuche.",
+        wartenSekunden: Math.ceil((sperre.gesperrtBis - jetzt) / 1000),
+      });
+    }
+
+    let koerper;
+    try {
+      koerper = await koerperLesen(req);
+    } catch {
+      return antwortJson(res, 400, { fehler: "Ungültige Anfrage." });
+    }
+
+    const neu = typeof koerper.neu === "string" ? koerper.neu : "";
+    if (neu.length < 12) {
+      return antwortJson(res, 400, { fehler: "Das neue Passwort muss mindestens 12 Zeichen lang sein." });
+    }
+    if (neu.length > 512) {
+      return antwortJson(res, 400, { fehler: "Das neue Passwort ist zu lang." });
+    }
+
+    let zugang;
+    try {
+      zugang = await zugangLesen();
+    } catch (fehler) {
+      protokoll("Zugangsdatei nicht lesbar:", fehler.message);
+      return antwortJson(res, 500, { fehler: "Zugangsdatei fehlt oder ist beschädigt." });
+    }
+
+    if (!offeneCodes(zugang)) {
+      return antwortJson(res, 409, {
+        fehler: "Für dieses Portal sind keine Wiederherstellungs-Codes hinterlegt. " +
+          "Das Passwort lässt sich dann nur direkt am Server neu setzen: " +
+          "sudo bash deploy/passwort-setzen.sh",
+      });
+    }
+
+    const stelle = codeStelleFinden(zugang.wiederherstellung, koerper.code);
+    if (stelle < 0) {
+      const gezaehlt = fehlversuchMerken(ip, jetzt);
+      protokoll("Fehlgeschlagene Passwort-Rücksetzung von", ip, `(${gezaehlt.anzahl})`);
+      return antwortJson(res, 401, {
+        fehler: "Dieser Wiederherstellungs-Code stimmt nicht oder wurde bereits benutzt.",
+        versuche: gezaehlt.anzahl,
+        maxVersuche: MAX_VERSUCHE,
+        wartenSekunden: gezaehlt.gesperrtBis > jetzt
+          ? Math.ceil((gezaehlt.gesperrtBis - jetzt) / 1000) : 0,
+      });
+    }
+
+    // Der benutzte Code ist damit verbraucht – die übrigen bleiben gültig.
+    const rest = Object.assign({}, zugang.wiederherstellung, {
+      codes: zugang.wiederherstellung.codes.filter((_, i) => i !== stelle),
+    });
+    await zugangSchreiben(zugangsdateiBauen(neu, rest));
+
+    versuche.delete(ip);
+    // Wer auch immer gerade angemeldet ist: abmelden. Wird das Passwort
+    // zurückgesetzt, weil etwas nicht stimmt, endet hier jede offene Sitzung.
+    sitzungen.clear();
+    protokoll(`Passwort über Wiederherstellungs-Code neu gesetzt (${rest.codes.length} Codes übrig)`);
+    return antwortJson(res, 200, { ok: true, offen: rest.codes.length });
   }
 
   /* ab hier ist eine Anmeldung nötig */
@@ -900,8 +1099,10 @@ async function angemeldeteAnfrage(req, res, pfad, angemeldet) {
     if (neu.length > 512) {
       return antwortJson(res, 400, { fehler: "Das neue Passwort ist zu lang." });
     }
+    let zugang;
     let richtig = false;
     try {
+      zugang = await zugangLesen();
       richtig = await passwortPruefen(alt);
     } catch {
       return antwortJson(res, 500, { fehler: "Zugangsdatei fehlt oder ist beschädigt." });
@@ -909,13 +1110,31 @@ async function angemeldeteAnfrage(req, res, pfad, angemeldet) {
     if (!richtig) {
       return antwortJson(res, 401, { fehler: "Das bisherige Passwort stimmt nicht." });
     }
-    await sicherSchreiben(ZUGANG_DATEI, JSON.stringify(zugangsdateiBauen(neu), null, 2) + "\n");
+    await zugangSchreiben(zugangsdateiBauen(neu, zugang.wiederherstellung));
     // alle anderen Sitzungen beenden
     for (const kennung of [...sitzungen.keys()]) {
       if (kennung !== angemeldet) sitzungen.delete(kennung);
     }
     protokoll("Portal-Passwort geändert");
-    return antwortJson(res, 200, { ok: true });
+    return antwortJson(res, 200, { ok: true, wiederherstellungOffen: offeneCodes(zugang) });
+  }
+
+  /* Einen frischen Satz Wiederherstellungs-Codes erzeugen. Der Klartext geht
+     genau einmal an das Portal und wird nirgends gespeichert – wer ihn nicht
+     aufschreibt, braucht einen neuen Satz. Alte Codes gelten danach nicht
+     mehr (wichtig, wenn ein Ausdruck verloren gegangen ist). */
+  if (pfad === "/api/wiederherstellungscodes") {
+    let zugang;
+    try {
+      zugang = await zugangLesen();
+    } catch {
+      return antwortJson(res, 500, { fehler: "Zugangsdatei fehlt oder ist beschädigt." });
+    }
+    const neueCodes = wiederherstellungBauen();
+    zugang.wiederherstellung = neueCodes.gespeichert;
+    await zugangSchreiben(zugang);
+    protokoll(`Neue Wiederherstellungs-Codes erzeugt (${neueCodes.codes.length})`);
+    return antwortJson(res, 200, { ok: true, codes: neueCodes.codes });
   }
 
   return antwortJson(res, 404, { fehler: "Unbekannter Aufruf." });
@@ -1159,6 +1378,10 @@ async function start() {
 
   if (!fs.existsSync(ZUGANG_DATEI)) {
     protokoll("WARNUNG: " + ZUGANG_DATEI + " fehlt – das Portal kann sich nicht anmelden.");
+  } else if (!offeneCodes(await zugangLesen().catch(() => null))) {
+    protokoll("Hinweis: keine Wiederherstellungs-Codes hinterlegt. Im Portal unter " +
+      "„Wiederherstellungs-Codes\" einen Satz erzeugen – sonst hilft bei einem " +
+      "vergessenen Passwort nur noch: sudo bash deploy/passwort-setzen.sh");
   }
 
   const mitTls = Boolean(TLS_CERT && TLS_KEY);

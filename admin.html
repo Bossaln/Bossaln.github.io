@@ -118,6 +118,29 @@
       transition: background 0.2s;
     }
     .passwort-wrapper button:hover { background: var(--wolke); }
+    .text-knopf {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 700; color: var(--blau);
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    .text-knopf:hover { color: var(--rot); }
+    #zuruecksetzen-bereich {
+      display: none; margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--wolke);
+    }
+    #codes-liste {
+      display: none; list-style: none; margin: 1.2rem 0 0;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem;
+    }
+    #codes-liste li {
+      background: var(--wolke); border-radius: 10px; padding: 0.6rem 0.9rem;
+      font-family: ui-monospace, "Courier New", monospace;
+      font-size: 1.05rem; letter-spacing: 0.06em; user-select: all;
+    }
+    #zuruecksetzen-code {
+      font-family: ui-monospace, "Courier New", monospace;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
     #portal { display: none; }
   </style>
 </head>
@@ -162,6 +185,41 @@
           <button type="submit" class="btn btn-primaer" style="width: 100%;">Anmelden</button>
         </form>
         <div id="anmelde-meldung" class="portal-hinweis"></div>
+
+        <p style="margin-top: 1.2rem; text-align: center;">
+          <button type="button" id="passwort-vergessen" class="text-knopf">Passwort vergessen?</button>
+        </p>
+
+        <!-- Zurücksetzen mit einem Wiederherstellungs-Code -->
+        <div id="zuruecksetzen-bereich">
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem;">🆘 Passwort zurücksetzen</h3>
+          <p id="zuruecksetzen-einleitung" style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+            Einen der ausgedruckten Wiederherstellungs-Codes eingeben und ein
+            neues Passwort vergeben. Jeder Code gilt genau einmal.
+          </p>
+          <form id="zuruecksetzen-formular">
+            <div class="feld">
+              <label for="zuruecksetzen-code">Wiederherstellungs-Code</label>
+              <input type="text" id="zuruecksetzen-code" autocomplete="off"
+                autocapitalize="characters" autocorrect="off" spellcheck="false"
+                placeholder="XXXXX-XXXXX-XXXXX" required>
+            </div>
+            <div class="feld">
+              <label for="zuruecksetzen-neu">Neues Passwort (mind. 12 Zeichen)</label>
+              <input type="password" id="zuruecksetzen-neu" autocomplete="new-password" required>
+            </div>
+            <div class="feld">
+              <label for="zuruecksetzen-wdh">Neues Passwort wiederholen</label>
+              <input type="password" id="zuruecksetzen-wdh" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primaer" style="width: 100%;">Neues Passwort setzen</button>
+          </form>
+          <div id="zuruecksetzen-meldung" class="portal-hinweis"></div>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
+            Kein Code mehr da? Dann hilft nur der Weg über den Server selbst –
+            am Raspberry Pi: <code>sudo bash deploy/passwort-setzen.sh</code>
+          </p>
+        </div>
       </div>
     </section>
 
@@ -326,10 +384,31 @@
         </p>
       </div>
 
+      <div class="portal-karte">
+        <h2>🆘 Wiederherstellungs-Codes</h2>
+        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+          Für den Fall, dass das Passwort einmal vergessen wird: Mit einem
+          dieser Codes lässt sich auf der Anmeldeseite ein neues Passwort
+          setzen – ohne Umweg über die Kommandozeile. Am besten ausdrucken und dorthin
+          legen, wo auch die anderen wichtigen Unterlagen liegen.
+          Jeder Code gilt <strong>genau einmal</strong>.
+        </p>
+
+        <div id="codes-status" class="portal-status"></div>
+
+        <div class="portal-aktionen">
+          <button id="codes-erzeugen" class="btn btn-primaer">Neue Codes erzeugen</button>
+          <button id="codes-speichern" class="btn btn-sekundaer" style="display: none;">Codes als Datei speichern</button>
+        </div>
+
+        <ol id="codes-liste"></ol>
+        <div id="codes-meldung" class="portal-hinweis"></div>
+      </div>
+
     </section>
 
   </main>
 
-  <script defer src="js/admin.js?v=3"></script>
+  <script defer src="js/admin.js?v=4"></script>
 </body>
 </html>

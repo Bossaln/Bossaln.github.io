@@ -144,11 +144,34 @@ Name, Beschreibung und alle Texte des Ordners werden zusammen übernommen.
 Hochgeladene und gelöschte Bilder werden sofort gespeichert.
 
 Das **Passwort** lässt sich im Portal unter „Passwort ändern“ wechseln; es
-gilt sofort. Vergessen? Dann auf dem Pi:
+gilt sofort.
+
+### Passwort vergessen? Wiederherstellungs-Codes
+
+Damit ein vergessenes Passwort kein Fall für die Kommandozeile wird, gibt
+es im Portal den Abschnitt **„🆘 Wiederherstellungs-Codes“**. Ein Klick auf
+„Neue Codes erzeugen“ liefert acht Codes wie `HKK55-8HAJ6-KDCJ8`:
+
+1. Codes ausdrucken oder als Datei speichern (sie werden **nur dieses eine
+   Mal** angezeigt) und zu den wichtigen Unterlagen legen
+2. Ist das Passwort später weg: auf der Anmeldeseite auf „Passwort
+   vergessen?“ klicken, einen Code eingeben, neues Passwort vergeben
+3. Jeder Code gilt genau einmal – wie viele noch übrig sind, steht im
+   Portal. Bei den letzten Codes einfach einen neuen Satz erzeugen (alte
+   gelten dann nicht mehr)
+
+Beim Eingeben sind Groß-/Kleinschreibung und die Trennstriche egal.
+Nach fünf Fehlversuchen greift dieselbe Sperre wie bei der Anmeldung.
+
+Sind auch die Codes nicht mehr auffindbar, hilft der Weg über den Pi:
 
 ```bash
-sudo bash deploy/passwort-setzen.sh
+sudo bash deploy/passwort-setzen.sh               # nur das Passwort neu setzen
+sudo bash deploy/passwort-setzen.sh --neue-codes  # dazu einen frischen Satz Codes
 ```
+
+Vorhandene Codes bleiben beim Passwortwechsel gültig – sie hängen nicht am
+Passwort.
 
 ---
 
@@ -173,6 +196,7 @@ Android ohne weitere Einstellungen, solange der Pi im selben Netz hängt.
 | Neu starten | `sudo systemctl restart mellis-website` |
 | Neue Version von GitHub holen | `bash deploy/update.sh` |
 | Portal-Passwort neu setzen | `sudo bash deploy/passwort-setzen.sh` |
+| Neue Wiederherstellungs-Codes | `sudo bash deploy/passwort-setzen.sh --neue-codes` |
 
 Den Pi einfach ausschalten ist unproblematisch – der Dienst startet beim
 nächsten Einschalten von selbst wieder.
@@ -189,7 +213,8 @@ Website-Ordners und übersteht daher jedes Update:
 ├── inhalte.json          ← alle Texte, Zeiten, Kontaktdaten
 ├── beitraege.json        ← die Neuigkeiten-Beiträge
 ├── galerie.json          ← die Galerie-Ordner mit ihren Bildern
-├── zugang.json           ← Prüfwert des Portal-Passworts (kein Klartext)
+├── zugang.json           ← Prüfwerte von Passwort und Wiederherstellungs-Codes
+│                           (beides kein Klartext)
 ├── bilder/               ← über das Portal hochgeladene Bilder
 └── sicherungen/          ← die letzten 30 Stände beider JSON-Dateien
 ```

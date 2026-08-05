@@ -188,6 +188,11 @@ echo
 echo "  Verwaltungs-Portal:"
 echo "    http://$NAME.local$ANHANG/admin.html"
 echo
+echo "  Bitte gleich nach dem ersten Anmelden im Portal unter"
+echo "  „Wiederherstellungs-Codes“ einen Satz erzeugen und ausdrucken –"
+echo "  damit ein vergessenes Passwort später kein Fall für die"
+echo "  Kommandozeile ist."
+echo
 echo "  Nützliche Befehle:"
 echo "    sudo systemctl status $DIENST     # läuft alles?"
 echo "    sudo journalctl -u $DIENST -f     # Protokoll mitlesen"

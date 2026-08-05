@@ -117,6 +117,8 @@ Die Schnittstelle:
 | `POST /api/galerie` | Galerie-Ordner speichern (nach Anmeldung) |
 | `POST /api/bild` | Bild als Datei ablegen (nach Anmeldung) |
 | `POST /api/passwort` | Portal-Passwort ändern (nach Anmeldung) |
+| `POST /api/wiederherstellungscodes` | Neuen Satz Wiederherstellungs-Codes erzeugen (nach Anmeldung) |
+| `POST /api/zuruecksetzen` | Passwort mit einem Wiederherstellungs-Code neu setzen |
 
 Alles, was das Portal pflegt, liegt in `/var/lib/mellis-website`
 (Inhalte, Neuigkeiten, Bilder, Passwort-Prüfwert, die letzten 30
@@ -186,6 +188,7 @@ Programmierkenntnisse pflegen, was sich im Alltag ändert:
 | 🖼️ Galerie | Ordner anlegen, Bilder hochladen, Bildtexte |
 | 💾 Speichern & Veröffentlichen | Zeiten, Kontakt und Slogan live stellen |
 | 🔑 Passwort ändern | Portal-Passwort |
+| 🆘 Wiederherstellungs-Codes | Codes zum Ausdrucken für ein vergessenes Passwort |
 
 Alle übrigen Seitentexte und die festen Fotos (Logo, Teamfoto, Raumfotos)
 werden direkt in den HTML-Dateien bzw. in `daten/inhalte.json` gepflegt –
@@ -217,7 +220,8 @@ passt Texte und Schaltflächen entsprechend an.
 - Das Passwort wird niemals gespeichert – in `daten/zugang.json` liegt nur
   ein PBKDF2-SHA256-Hash (310.000 Iterationen, zufälliges Salt).
 - Nach 5 Fehlversuchen wird die Anmeldung exponentiell lange gesperrt;
-  die Sitzung läuft nach 30 Minuten Inaktivität ab.
+  die Sitzung läuft nach 30 Minuten Inaktivität ab. Dieselbe Sperre gilt
+  für das Zurücksetzen per Wiederherstellungs-Code.
 - Die Portal-Seite hat eine strikte Content-Security-Policy, wird nie
   zwischengespeichert (`no-store`) und ist für Suchmaschinen gesperrt
   (`noindex`, zusätzlich über `robots.txt` und `X-Robots-Tag`).
@@ -244,8 +248,40 @@ passt Texte und Schaltflächen entsprechend an.
 **Passwort ändern:** im Portal unter „Passwort ändern". Im Server-Betrieb
 gilt das neue Passwort sofort; bei statischem Hosting wird eine neue
 `zugang.json` erzeugt, die in `daten/` hochgeladen werden muss.
-Passwort vergessen? Auf dem Pi hilft `sudo bash deploy/passwort-setzen.sh`,
-sonst eine neue Datei per Kommandozeile erzeugen:
+
+### Passwort vergessen
+
+Dafür gibt es **Wiederherstellungs-Codes**: acht Codes der Form
+`XXXXX-XXXXX-XXXXX`, die im Portal unter „🆘 Wiederherstellungs-Codes"
+erzeugt und **einmalig** angezeigt werden – ausdrucken und zu den übrigen
+wichtigen Unterlagen legen. Ist das Passwort weg, führt auf der
+Anmeldeseite „Passwort vergessen?" zu einem Formular: einen Code eingeben,
+neues Passwort vergeben, fertig. Jeder Code gilt genau einmal, ein neuer
+Satz macht alle alten ungültig.
+
+Technisch:
+
+- In `zugang.json` liegen nur Prüfwerte der Codes (SHA-256 mit Salz),
+  niemals die Codes selbst. Das langsame PBKDF2 wie beim Passwort ist hier
+  unnötig – ein Code ist gewürfelt und rund 74 Bit lang, nicht kurz und
+  ausgedacht. Umgekehrt müsste der Pi sonst bei jedem Versuch acht Mal
+  310.000 Runden rechnen.
+- Die Codes hängen nicht am Passwort: nach einem Passwortwechsel bleibt der
+  Ausdruck gültig.
+- Das Zurücksetzen unterliegt derselben Sperre nach fünf Fehlversuchen wie
+  die Anmeldung – es ist also kein Umweg an ihr vorbei. Ein erfolgreiches
+  Zurücksetzen meldet alle offenen Sitzungen ab.
+- Verwechslungsgefährdete Zeichen (`I`, `L`, `O`, `0`, `1`) kommen nicht
+  vor; Groß-/Kleinschreibung und Trennstriche sind bei der Eingabe egal.
+
+Sind auch die Codes weg, hilft auf dem Pi:
+
+```bash
+sudo bash deploy/passwort-setzen.sh               # Passwort neu, Codes bleiben
+sudo bash deploy/passwort-setzen.sh --neue-codes  # zusätzlich neue Codes
+```
+
+Ohne Pi lässt sich die Datei auch von Hand erzeugen (dann ohne Codes):
 
 ```bash
 node -e "const c=require('crypto');const pw=process.argv[1];const salz=c.randomBytes(16).toString('hex');const it=310000;const hash=c.pbkdf2Sync(pw,Buffer.from(salz,'hex'),it,32,'sha256').toString('hex');console.log(JSON.stringify({algorithmus:'PBKDF2-SHA256',iterationen:it,salz,hash},null,2))" 'NEUES-PASSWORT'
