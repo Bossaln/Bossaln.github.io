@@ -10,7 +10,7 @@
 <link href="assets/img/favicon.png" rel="icon" type="image/png"/>
 <link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
 <link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
-<link href="css/style.css?v=4" rel="stylesheet"/>
+<link href="css/style.css?v=5" rel="stylesheet"/>
 <script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
 <script defer src="js/vendor/motion.min.js?v=3"></script>
 <script defer src="js/cms.js?v=3"></script>
@@ -68,7 +68,6 @@
 <div>
 <h3 data-cms="kontakt_05">Telefon</h3>
 <p><a data-cms-tel="telefon" href="tel:+4915787298121">0157 / 872 981 21</a><br/>
-<small>Am besten erreichbar: 12:30 – 14:00 Uhr</small></p>
 </div>
 </div>
 <div class="info-karte einblenden">
@@ -142,6 +141,10 @@ Nachbarschaft.</p>
                 <span class="pflicht">*</span></span>
 </label>
 <span class="fehlermeldung"></span>
+</div>
+<div aria-hidden="true" class="bw-falle">
+<label for="webseite">Webseite (bitte frei lassen)</label>
+<input autocomplete="off" id="webseite" name="webseite" tabindex="-1" type="text"/>
 </div>
 <button class="btn btn-primaer" style="width: 100%;" type="submit">Nachricht senden 🚀</button>
 <p style="margin-top: 0.9rem; font-size: 0.88rem; color: var(--tinte-hell); text-align: center;">

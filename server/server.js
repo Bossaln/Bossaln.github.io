@@ -25,6 +25,8 @@ const fsp = fs.promises;
 const path = require("path");
 const zlib = require("zlib");
 const crypto = require("crypto");
+const mail = require("./mail");
+const kontaktMail = require("./kontakt-mail");
 
 /* ----------------------------- Einstellungen ----------------------------- */
 
@@ -38,7 +40,7 @@ const TLS_KEY = process.env.MELLIS_TLS_KEY || "";
 const BILDER_ORDNER = path.join(DATEN, "bilder");
 const SICHERUNGEN_ORDNER = path.join(DATEN, "sicherungen");
 const INHALTE_DATEI = path.join(DATEN, "inhalte.json");
-const BEITRAEGE_DATEI = path.join(DATEN, "beitraege.json");
+const BEWERTUNGEN_DATEI = path.join(DATEN, "bewertungen.json");
 const GALERIE_DATEI = path.join(DATEN, "galerie.json");
 const ZUGANG_DATEI = path.join(DATEN, "zugang.json");
 const SCHEMA_DATEI = path.join(WURZEL, "daten", "portal-schema.json");
@@ -55,14 +57,24 @@ const API_ANFRAGEN_PRO_MINUTE = 120;  // Bremse gegen automatisierte Anfragen
 const MAX_GLEICHZEITIG = 4;           // parallele Schreibanfragen (Speicherschutz)
 const SICHERUNGEN_BEHALTEN = 30;
 const BILDER_JE_SCHLUESSEL_BEHALTEN = 5;
-const MAX_BEITRAEGE = 200;            // größte Zahl an Neuigkeiten
-const MAX_BEITRAG_TITEL = 120;
-const MAX_BEITRAG_TEXT = 3000;
 const MAX_ORDNER = 100;               // größte Zahl an Galerie-Ordnern
 const MAX_BILDER_JE_ORDNER = 300;
 const MAX_ORDNER_NAME = 80;
 const MAX_BILD_TEXT = 500;
 const BILD_SCHONFRIST = 60 * 60 * 1000; // frisch hochgeladene Bilder nie löschen
+const MAX_BEWERTUNGEN = 500;          // größte Zahl gespeicherter Bewertungen
+const MAX_BEWERTUNG_NAME = 60;
+const MAX_BEWERTUNG_ORT = 60;
+const MAX_BEWERTUNG_TEXT = 2000;
+const MAX_BEWERTUNG_BILDER = 3;
+// Bewertungen darf jeder abgeben – ohne Anmeldung. Damit daraus kein
+// Einfallstor für Werbemüll wird, darf dieselbe Adresse nur alle paar
+// Minuten eine abgeben.
+const BEWERTUNG_ABSTAND = 5 * 60 * 1000;
+// Für das Kontaktformular gilt dasselbe: ohne Anmeldung, also mit Bremse.
+const KONTAKT_ABSTAND = 2 * 60 * 1000;
+const MAX_KONTAKT_NAME = 80;
+const MAX_KONTAKT_NACHRICHT = 5000;
 
 /* ------------------------------- Hilfsmittel ------------------------------ */
 
@@ -195,7 +207,7 @@ async function datenordnerVorbereiten() {
   // Beim ersten Start die Dateien aus dem Repository übernehmen
   const vorlagen = [
     [path.join(WURZEL, "daten", "inhalte.json"), INHALTE_DATEI],
-    [path.join(WURZEL, "daten", "beitraege.json"), BEITRAEGE_DATEI],
+    [path.join(WURZEL, "daten", "bewertungen.json"), BEWERTUNGEN_DATEI],
     [path.join(WURZEL, "daten", "galerie.json"), GALERIE_DATEI],
     [path.join(WURZEL, "daten", "zugang.json"), ZUGANG_DATEI],
   ];
@@ -242,9 +254,9 @@ async function inhalteLesen() {
   }
 }
 
-async function beitraegeLesen() {
+async function bewertungenLesen() {
   try {
-    const daten = JSON.parse(await fsp.readFile(BEITRAEGE_DATEI, "utf8"));
+    const daten = JSON.parse(await fsp.readFile(BEWERTUNGEN_DATEI, "utf8"));
     return Array.isArray(daten) ? daten : [];
   } catch {
     return [];
@@ -273,6 +285,8 @@ async function aufraeumen(ordner, muster, behalten) {
 const sitzungen = new Map();  // Kennung -> Ablaufzeit
 const versuche = new Map();   // IP -> { anzahl, gesperrtBis }
 const anfragen = new Map();   // IP -> { anzahl, fensterBis }
+const bewertungsSperre = new Map(); // IP -> Zeitpunkt der letzten Bewertung
+const kontaktSperre = new Map();    // IP -> Zeitpunkt der letzten Anfrage
 
 /* Abgelaufene Einträge regelmäßig wegräumen.
 
@@ -295,10 +309,18 @@ function listenAufraeumen() {
   for (const [ip, eintrag] of anfragen) {
     if (eintrag.fensterBis < jetzt) anfragen.delete(ip);
   }
+  for (const [ip, zeitpunkt] of bewertungsSperre) {
+    if (zeitpunkt < jetzt - BEWERTUNG_ABSTAND) bewertungsSperre.delete(ip);
+  }
+  for (const [ip, zeitpunkt] of kontaktSperre) {
+    if (zeitpunkt < jetzt - KONTAKT_ABSTAND) kontaktSperre.delete(ip);
+  }
 
   // Notbremse, falls trotzdem einmal etwas aus dem Ruder läuft
   begrenzen(versuche, MAX_IP_EINTRAEGE);
   begrenzen(anfragen, MAX_IP_EINTRAEGE);
+  begrenzen(bewertungsSperre, MAX_IP_EINTRAEGE);
+  begrenzen(kontaktSperre, MAX_IP_EINTRAEGE);
 }
 
 function begrenzen(liste, hoechstzahl) {
@@ -623,7 +645,7 @@ async function bildAblegen(schluessel, datenUri, altAufraeumen = true) {
   await sicherSchreiben(path.join(BILDER_ORDNER, name), rohdaten);
   if (altAufraeumen) {
     // Bilder fester Plätze (Logo, Team …): nur die letzten Stände behalten.
-    // Beitragsbilder bleiben, solange ein Beitrag sie verwendet.
+    // Galerie- und Bewertungsbilder bleiben, solange sie verwendet werden.
     await aufraeumen(
       BILDER_ORDNER,
       new RegExp("^" + sauber + "-"),
@@ -633,37 +655,9 @@ async function bildAblegen(schluessel, datenUri, altAufraeumen = true) {
   return "bilder/" + name;
 }
 
-/* --------------------------- Neuigkeiten (Beiträge) ----------------------- */
-
-function beitragPruefen(eingang) {
-  if (!eingang || typeof eingang !== "object" || Array.isArray(eingang)) {
-    throw new Error("Ungültiger Beitrag.");
-  }
-
-  const titel = typeof eingang.titel === "string" ? eingang.titel.trim() : "";
-  const text = typeof eingang.text === "string" ? eingang.text.trim() : "";
-  if (!titel && !text) throw new Error("Ein Beitrag braucht mindestens einen Titel oder einen Text.");
-  if (titel.length > MAX_BEITRAG_TITEL) throw new Error("Der Titel ist zu lang (max. 120 Zeichen).");
-  if (text.length > MAX_BEITRAG_TEXT) throw new Error("Der Text ist zu lang (max. 3000 Zeichen).");
-
-  const bild = typeof eingang.bild === "string" ? eingang.bild.trim() : "";
-  if (bild && !/^bilder\/[A-Za-z0-9._-]{1,120}$/.test(bild)) {
-    throw new Error("Das Bild des Beitrags ist ungültig.");
-  }
-
-  const id = typeof eingang.id === "string" && /^[a-z0-9-]{1,40}$/i.test(eingang.id)
-    ? eingang.id
-    : "b-" + Date.now().toString(36) + "-" + crypto.randomBytes(3).toString("hex");
-
-  const zeitWert = Date.parse(eingang.zeit);
-  const zeit = Number.isFinite(zeitWert) ? new Date(zeitWert).toISOString() : new Date().toISOString();
-
-  return { id, titel, text, bild, zeit };
-}
-
 /* Bilder löschen, die nirgends mehr verwendet werden. Frisch hochgeladene
-   Bilder bleiben verschont – sie gehören oft zu einem Beitrag oder Ordner,
-   der gerade erst entsteht. */
+   Bilder bleiben verschont – sie gehören oft zu einer Bewertung oder einem
+   Ordner, die gerade erst entstehen. */
 async function sammlungsbilderAufraeumen(vorsilbe, gebraucht) {
   const grenze = Date.now() - BILD_SCHONFRIST;
   const muster = new RegExp("^" + vorsilbe + "-");
@@ -687,28 +681,160 @@ async function sammlungsbilderAufraeumen(vorsilbe, gebraucht) {
   }
 }
 
-async function beitraegeSpeichern(eingang) {
-  if (!Array.isArray(eingang)) throw new Error("Ungültige Daten.");
-  if (eingang.length > MAX_BEITRAEGE) {
-    throw new Error(`Es sind höchstens ${MAX_BEITRAEGE} Beiträge möglich.`);
+/* ----------------------------- Kontaktanfragen ---------------------------
+   Das Kontaktformular schickt seine Angaben hierher; der Server baut daraus
+   eine E-Mail und verschickt sie über SMTP (siehe server/mail.js). Auch das
+   geht ohne Anmeldung – also gilt: nichts glauben, alles prüfen und kürzen.
+   -------------------------------------------------------------------------- */
+
+function kontaktPruefen(koerper) {
+  // Falle für automatische Ausfüller: das Feld ist im Formular unsichtbar.
+  if (typeof koerper.webseite === "string" && koerper.webseite.trim()) {
+    throw new Error("Anfrage konnte nicht gesendet werden.");
   }
 
-  const geprueft = eingang.map(beitragPruefen);
-  // neueste zuerst
-  geprueft.sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit));
+  const name = String(koerper.name || "").trim().replace(/\s+/g, " ").slice(0, MAX_KONTAKT_NAME);
+  if (name.length < 2) throw new Error("Bitte gebt euren Namen an.");
 
-  if (fs.existsSync(BEITRAEGE_DATEI)) {
+  const email = mail.adresseSauber(koerper.email);
+  if (!email) throw new Error("Bitte gebt eine gültige E-Mail-Adresse an.");
+
+  const telefon = String(koerper.telefon || "").trim().slice(0, 40);
+  if (telefon && !/^[0-9+\-/\s()]{6,40}$/.test(telefon)) {
+    throw new Error("Die Telefonnummer sieht nicht richtig aus.");
+  }
+
+  const betreff = Object.prototype.hasOwnProperty.call(kontaktMail.BETREFF_TEXTE, koerper.betreff)
+    ? koerper.betreff
+    : "sonstiges";
+
+  const nachricht = String(koerper.nachricht || "").trim().slice(0, MAX_KONTAKT_NACHRICHT);
+  if (nachricht.length < 10) throw new Error("Bitte schreibt uns ein paar Sätze mehr.");
+
+  if (koerper.datenschutz !== true) {
+    throw new Error("Ohne die Einwilligung zur Datenschutzerklärung dürfen wir die Anfrage nicht annehmen.");
+  }
+
+  return { name, email, telefon, betreff, nachricht, zeit: new Date() };
+}
+
+async function kontaktSenden(koerper) {
+  const anfrage = kontaktPruefen(koerper);
+  const nachricht = kontaktMail.bauen(anfrage);
+  const empfaenger = await mail.senden({
+    betreff: nachricht.betreff,
+    text: nachricht.text,
+    html: nachricht.html,
+    antwortAn: anfrage.email,   // „Antworten" landet direkt beim Absender
+  });
+  return { anfrage, empfaenger };
+}
+
+/* ------------------------------- Bewertungen ------------------------------
+   Bewertungen darf jeder Besucher abgeben – ohne Anmeldung. Deshalb gilt
+   hier: dem Eingang wird nichts geglaubt. Sterne müssen 1 bis 5 sein, Name
+   und Text werden gekürzt, Bilder landen nur über bildAblegen() im
+   Bilderordner (Prüfung der ersten Bytes) und die Zeit setzt immer der
+   Server – nie der Absender.
+   -------------------------------------------------------------------------- */
+
+function bewertungPruefen(eingang) {
+  if (!eingang || typeof eingang !== "object" || Array.isArray(eingang)) {
+    throw new Error("Ungültige Bewertung.");
+  }
+
+  const sterne = Math.round(Number(eingang.sterne));
+  if (!Number.isFinite(sterne) || sterne < 1 || sterne > 5) {
+    throw new Error("Bitte 1 bis 5 Sterne vergeben.");
+  }
+
+  const name = String(eingang.name || "").trim().replace(/\s+/g, " ").slice(0, MAX_BEWERTUNG_NAME);
+  const ort = String(eingang.ort || "").trim().replace(/\s+/g, " ").slice(0, MAX_BEWERTUNG_ORT);
+  const text = String(eingang.text || "").trim().slice(0, MAX_BEWERTUNG_TEXT);
+
+  const bilder = (Array.isArray(eingang.bilder) ? eingang.bilder : [])
+    .filter((pfad) => typeof pfad === "string" && /^bilder\/[A-Za-z0-9._-]{1,120}$/.test(pfad))
+    .slice(0, MAX_BEWERTUNG_BILDER);
+
+  const id = typeof eingang.id === "string" && /^[a-z0-9-]{1,40}$/i.test(eingang.id)
+    ? eingang.id
+    : "bw-" + Date.now().toString(36) + "-" + crypto.randomBytes(3).toString("hex");
+
+  const zeitWert = Date.parse(eingang.zeit);
+  const zeit = Number.isFinite(zeitWert) ? new Date(zeitWert).toISOString() : new Date().toISOString();
+
+  return { id, name: name || "Gast", ort, sterne, text, bilder, zeit };
+}
+
+async function bewertungenSchreiben(liste) {
+  if (fs.existsSync(BEWERTUNGEN_DATEI)) {
     await fsp.mkdir(SICHERUNGEN_ORDNER, { recursive: true });
     await fsp.copyFile(
-      BEITRAEGE_DATEI,
-      path.join(SICHERUNGEN_ORDNER, `beitraege-${zeitstempel()}.json`)
+      BEWERTUNGEN_DATEI,
+      path.join(SICHERUNGEN_ORDNER, `bewertungen-${zeitstempel()}.json`)
     ).catch(() => {});
-    await aufraeumen(SICHERUNGEN_ORDNER, /^beitraege-.*\.json$/, SICHERUNGEN_BEHALTEN);
+    await aufraeumen(SICHERUNGEN_ORDNER, /^bewertungen-.*\.json$/, SICHERUNGEN_BEHALTEN);
+  }
+  await sicherSchreiben(BEWERTUNGEN_DATEI, JSON.stringify(liste, null, 2) + "\n");
+}
+
+/* Eine neue Bewertung von der Website – der öffentliche Weg. */
+async function bewertungAnnehmen(koerper) {
+  // Falle für Bots: das Feld ist im Formular versteckt. Menschen füllen es
+  // nie aus, automatische Ausfüller fast immer.
+  if (typeof koerper.webseite === "string" && koerper.webseite.trim()) {
+    throw new Error("Bewertung konnte nicht gespeichert werden.");
   }
 
-  await sicherSchreiben(BEITRAEGE_DATEI, JSON.stringify(geprueft, null, 2) + "\n");
-  await sammlungsbilderAufraeumen(
-    "beitrag", new Set(geprueft.map((b) => b.bild).filter(Boolean)));
+  const sterne = Math.round(Number(koerper.sterne));
+  if (!Number.isFinite(sterne) || sterne < 1 || sterne > 5) {
+    throw new Error("Bitte vergebt 1 bis 5 Sterne.");
+  }
+  const text = String(koerper.text || "").trim();
+  if (text.length < 5) throw new Error("Bitte schreibt ein paar Worte zu eurer Bewertung.");
+  if (text.length > MAX_BEWERTUNG_TEXT) {
+    throw new Error(`Der Text ist zu lang (max. ${MAX_BEWERTUNG_TEXT} Zeichen).`);
+  }
+
+  const eingangsBilder = Array.isArray(koerper.bilder) ? koerper.bilder : [];
+  if (eingangsBilder.length > MAX_BEWERTUNG_BILDER) {
+    throw new Error(`Es sind höchstens ${MAX_BEWERTUNG_BILDER} Bilder möglich.`);
+  }
+  const bilder = [];
+  for (const datenUri of eingangsBilder) {
+    bilder.push(await bildAblegen("bewertung", String(datenUri || ""), false));
+  }
+
+  const bewertung = bewertungPruefen({
+    name: koerper.name,
+    ort: koerper.ort,
+    sterne,
+    text,
+    bilder,
+    zeit: new Date().toISOString(),   // die Zeit setzt immer der Server
+  });
+
+  const liste = (await bewertungenLesen()).map(bewertungPruefen);
+  liste.unshift(bewertung);
+  await bewertungenSchreiben(liste.slice(0, MAX_BEWERTUNGEN));
+  return bewertung;
+}
+
+/* Die vollständige Liste aus dem Portal – damit lassen sich Bewertungen
+   löschen. Bilder, die danach niemand mehr verwendet, räumt der Server weg. */
+async function bewertungenSpeichern(eingang) {
+  if (!Array.isArray(eingang)) throw new Error("Ungültige Daten.");
+  if (eingang.length > MAX_BEWERTUNGEN) {
+    throw new Error(`Es sind höchstens ${MAX_BEWERTUNGEN} Bewertungen möglich.`);
+  }
+
+  const geprueft = eingang.map(bewertungPruefen);
+  geprueft.sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit));
+
+  await bewertungenSchreiben(geprueft);
+  const gebraucht = new Set();
+  geprueft.forEach((b) => b.bilder.forEach((pfad) => gebraucht.add(pfad)));
+  await sammlungsbilderAufraeumen("bewertung", gebraucht);
   return geprueft;
 }
 
@@ -1006,6 +1132,74 @@ async function api(req, res, pfad, sicher) {
     return antwortJson(res, 200, { ok: true, offen: rest.codes.length });
   }
 
+  /* Anfrage aus dem Kontaktformular – ohne Anmeldung, deshalb mit Bremse. */
+  if (pfad === "/api/kontakt") {
+    const ip = absender(req);
+    const wartezeit = (kontaktSperre.get(ip) || 0) + KONTAKT_ABSTAND - Date.now();
+    if (wartezeit > 0) {
+      res.setHeader("Retry-After", String(Math.ceil(wartezeit / 1000)));
+      return antwortJson(res, 429, {
+        fehler: "Ihr habt gerade erst eine Anfrage geschickt. Bitte wartet einen Moment.",
+      });
+    }
+    if (!mail.einstellungen().bereit) {
+      // Ohne SMTP-Zugang kann der Server nichts verschicken. Das Formular
+      // weicht dann auf das E-Mail-Programm der Besucher aus.
+      return antwortJson(res, 501, { fehler: "Versand nicht eingerichtet.", mailto: true });
+    }
+
+    try {
+      const koerper = await koerperLesen(req);
+      const { anfrage, empfaenger } = await kontaktSenden(koerper);
+      kontaktSperre.set(ip, Date.now());
+      protokoll(`Kontaktanfrage gesendet an ${empfaenger} (${anfrage.betreff}, von ${anfrage.email})`);
+      return antwortJson(res, 200, { ok: true });
+    } catch (fehler) {
+      protokoll("Kontaktanfrage fehlgeschlagen:", fehler.message);
+      // Ist der Mailversand selbst schuld, darf der Besucher es per
+      // E-Mail-Programm versuchen – seine Nachricht soll nicht verloren gehen.
+      const versandfehler = /SMTP|Mailserver|eingerichtet/i.test(fehler.message);
+      return antwortJson(res, versandfehler ? 502 : 400, {
+        fehler: versandfehler
+          ? "Die Nachricht konnte gerade nicht verschickt werden."
+          : fehler.message,
+        mailto: versandfehler,
+      });
+    }
+  }
+
+  /* Bewertung abgeben – der einzige Weg, auf dem jemand ohne Anmeldung
+     etwas auf der Website hinterlässt. Deshalb: eigene Bremse je Absender
+     und dieselbe Speichergrenze wie bei den Uploads aus dem Portal. */
+  if (pfad === "/api/bewertung") {
+    const ip = absender(req);
+    const zuletzt = bewertungsSperre.get(ip) || 0;
+    const wartezeit = zuletzt + BEWERTUNG_ABSTAND - Date.now();
+    if (wartezeit > 0) {
+      res.setHeader("Retry-After", String(Math.ceil(wartezeit / 1000)));
+      return antwortJson(res, 429, {
+        fehler: `Ihr habt gerade erst eine Bewertung abgegeben. Bitte wartet noch ${Math.ceil(wartezeit / 60000)} Minute(n).`,
+      });
+    }
+    if (laufendeAnfragen >= MAX_GLEICHZEITIG) {
+      res.setHeader("Retry-After", "2");
+      return antwortJson(res, 503, { fehler: "Gerade ist viel los. Bitte kurz warten." });
+    }
+
+    laufendeAnfragen += 1;
+    try {
+      const koerper = await koerperLesen(req);
+      const bewertung = await bewertungAnnehmen(koerper);
+      bewertungsSperre.set(ip, Date.now());
+      protokoll(`Bewertung erhalten (${bewertung.sterne} Sterne, ${bewertung.bilder.length} Bilder)`);
+      return antwortJson(res, 200, { ok: true, bewertung });
+    } catch (fehler) {
+      return antwortJson(res, 400, { fehler: fehler.message });
+    } finally {
+      laufendeAnfragen -= 1;
+    }
+  }
+
   /* ab hier ist eine Anmeldung nötig */
   if (!angemeldet) {
     return antwortJson(res, 401, { fehler: "Nicht angemeldet." });
@@ -1052,13 +1246,13 @@ async function angemeldeteAnfrage(req, res, pfad, angemeldet) {
     }
   }
 
-  if (pfad === "/api/beitraege") {
+  if (pfad === "/api/bewertungen") {
     try {
-      const beitraege = await beitraegeSpeichern(koerper.beitraege);
-      protokoll("Neuigkeiten gespeichert (" + beitraege.length + " Beiträge)");
-      return antwortJson(res, 200, { ok: true, beitraege });
+      const bewertungen = await bewertungenSpeichern(koerper.bewertungen);
+      protokoll("Bewertungen gespeichert (" + bewertungen.length + ")");
+      return antwortJson(res, 200, { ok: true, bewertungen });
     } catch (fehler) {
-      protokoll("Neuigkeiten speichern fehlgeschlagen:", fehler.message);
+      protokoll("Bewertungen speichern fehlgeschlagen:", fehler.message);
       return antwortJson(res, 400, { fehler: fehler.message });
     }
   }
@@ -1081,7 +1275,7 @@ async function angemeldeteAnfrage(req, res, pfad, angemeldet) {
       const pfadImNetz = await bildAblegen(
         schluessel,
         String(koerper.daten || ""),
-        !/^(beitrag|galerie)/.test(schluessel)
+        !/^(galerie|bewertung)/.test(schluessel)
       );
       protokoll("Bild gespeichert:", pfadImNetz);
       return antwortJson(res, 200, { ok: true, pfad: pfadImNetz });
@@ -1290,11 +1484,11 @@ async function statisch(req, res, pfad) {
   if (pfad === "/daten/inhalte.json") {
     return dateiSenden(req, res, INHALTE_DATEI, DATEN_ZWISCHENSPEICHER);
   }
-  if (pfad === "/daten/beitraege.json") {
-    return dateiSenden(req, res, BEITRAEGE_DATEI, DATEN_ZWISCHENSPEICHER);
-  }
   if (pfad === "/daten/galerie.json") {
     return dateiSenden(req, res, GALERIE_DATEI, DATEN_ZWISCHENSPEICHER);
+  }
+  if (pfad === "/daten/bewertungen.json") {
+    return dateiSenden(req, res, BEWERTUNGEN_DATEI, DATEN_ZWISCHENSPEICHER);
   }
   if (pfad === "/daten/portal-schema.json") {
     return dateiSenden(req, res, SCHEMA_DATEI, DATEN_ZWISCHENSPEICHER);

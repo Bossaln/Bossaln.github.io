@@ -114,21 +114,9 @@ Im Portal steht jetzt „Jetzt veröffentlichen“ statt „Datei exportieren“
 Das ist das Zeichen dafür, dass es den Pi-Server erkannt hat.
 
 Im Portal gibt es diese Bereiche: Betreuungszeiten, Kontaktdaten, Slogan,
-Neuigkeiten, Galerie, Veröffentlichen und Passwort ändern. **Bilder** landen
+Bewertungen, Galerie, Veröffentlichen und Passwort ändern. **Bilder** landen
 dabei direkt auf dem Pi und werden nicht in die Inhaltsdatei gepackt – die
 Website bleibt dadurch schnell.
-
-### Neuigkeiten posten
-
-Im Portal gibt es den Bereich **„📣 Neuigkeiten posten"**: Titel,
-Nachricht und wenn du magst ein Bild – auf „Beitrag veröffentlichen"
-klicken, und der Beitrag steht mit Datum und Uhrzeit ganz oben auf der
-Seite `/neuigkeiten.html`. Eine Leerzeile im Text beginnt einen neuen
-Absatz. Vorhandene Beiträge lassen sich darunter jederzeit bearbeiten oder
-löschen.
-
-Diese Beiträge brauchen kein „Jetzt veröffentlichen" – sie sind mit dem
-Klick sofort live.
 
 ### Galerie pflegen
 
@@ -175,6 +163,47 @@ Passwort.
 
 ---
 
+## E-Mail-Versand für das Kontaktformular
+
+Ohne Zugangsdaten öffnet das Kontaktformular wie früher das E-Mail-Programm
+der Besucher. Damit der Pi die Anfragen selbst verschickt, braucht er ein
+Postfach. Die Zugangsdaten kommen in eine eigene Datei, die nur root lesen
+darf – nicht in die Dienstdatei:
+
+```bash
+sudo install -m 600 /dev/null /etc/mellis-website.env
+sudo nano /etc/mellis-website.env
+```
+
+Inhalt (Beispiel für einen Anbieter mit STARTTLS auf Port 587):
+
+```ini
+MELLIS_SMTP_HOST=smtp.euer-anbieter.de
+MELLIS_SMTP_PORT=587
+MELLIS_SMTP_USER=website@mellis-krabbelzwerge.de
+MELLIS_SMTP_PASS=hier-das-passwort
+MELLIS_SMTP_VON=website@mellis-krabbelzwerge.de
+MELLIS_KONTAKT_AN=luca.klemme@icloud.com
+```
+
+Danach den Dienst neu starten:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart mellis-website
+```
+
+Ob es klappt, zeigt das Protokoll: `journalctl -u mellis-website -f`.
+Dort steht nach jeder Anfrage entweder „Kontaktanfrage gesendet an …" oder
+„Kontaktanfrage fehlgeschlagen: …" samt Grund. Passwörter tauchen im
+Protokoll nie auf.
+
+**Hinweis zu iCloud und Gmail:** Beide brauchen ein *app-spezifisches
+Passwort*, das normale Kontopasswort wird abgelehnt. Bei iCloud lautet der
+Server `smtp.mail.me.com` (Port 587); als Absender muss die eigene
+iCloud-Adresse eingetragen sein.
+
+
 ## Feste Adresse im Heimnetz
 
 Damit sich die IP-Adresse des Pi nicht ändert, im Router eine feste
@@ -211,7 +240,7 @@ Website-Ordners und übersteht daher jedes Update:
 ```
 /var/lib/mellis-website/
 ├── inhalte.json          ← alle Texte, Zeiten, Kontaktdaten
-├── beitraege.json        ← die Neuigkeiten-Beiträge
+├── bewertungen.json      ← die Bewertungen der Besucher
 ├── galerie.json          ← die Galerie-Ordner mit ihren Bildern
 ├── zugang.json           ← Prüfwerte von Passwort und Wiederherstellungs-Codes
 │                           (beides kein Klartext)

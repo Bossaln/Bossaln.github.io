@@ -11,12 +11,11 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 
 | Datei | Inhalt |
 |---|---|
-| `index.html` | Startseite mit Hero, Vorteilen, Zahlen, Betreuungszeiten |
-| `ueber-uns.html` | Team, Werte und Vorstellung der Großtagespflege |
+| `index.html` | Startseite mit Hero, Vorteilen, Zahlen, **Bewertungen** und Betreuungszeiten |
+| `ueber-uns.html` | Team (Melanie, Ivonne, Sascha), Räumlichkeiten und Lage – Inhalt des Info-Plakats |
 | `tagesablauf.html` | Tagesablauf als Zeitstrahl + FAQ |
 | `galerie.html` | Galerie in Ordnern, mit Großansicht (aus dem Portal gepflegt) |
 | `konzept.html` | Das pädagogische Konzept in voller Länge, mit anklickbarem Inhaltsverzeichnis |
-| `neuigkeiten.html` | Neuigkeiten als Beitragsstrom (aus dem Portal gepflegt, nicht mehr im Menü) |
 | `kontakt.html` | Kontaktformular mit Validierung, Adresse, Karte |
 | `impressum.html` | Impressum (Mustertext mit Platzhaltern) |
 | `datenschutz.html` | Datenschutzerklärung (Mustertext mit Platzhaltern) |
@@ -27,9 +26,10 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 - Responsives Design (Mobile-Menü ab 760px Breite)
 - JavaScript-Funktionen: Hamburger-Menü, Scroll-Einblendungen, Akkordeons,
   animierte Zähler, „Nach oben"-Button, Formular-Validierung
-- Das Kontaktformular öffnet aktuell eine vorbefüllte E-Mail (`mailto:`),
-  da die Seite statisch ist. Für echten Versand einen Formulardienst
-  (z. B. Formspree) oder ein eigenes Backend in `js/main.js` einbinden.
+- Das Kontaktformular schickt die Anfrage an den eigenen Server, der daraus
+  eine E-Mail baut und verschickt (siehe „Kontaktformular" weiter unten).
+  Ohne Server – oder wenn kein SMTP-Zugang hinterlegt ist – öffnet sich wie
+  früher eine vorbefüllte E-Mail im Programm der Besucher.
 
 ### Skripte
 
@@ -38,8 +38,10 @@ Betrieben von Melanie Graw und Ivonne Braß · Im Looscheid 82, 45141 Essen
 | `js/vendor/motion.min.js` | [motion.dev](https://motion.dev) in der „mini"-Bauform (12 KB, MIT-Lizenz). Treibt alle Animationen. Liegt lokal – kein CDN, keine fremde Verbindung. |
 | `js/cms.js` | Setzt die im Portal gepflegten Texte und Bilder ein (mit Filter gegen eingeschleustes HTML) |
 | `js/main.js` | Bedienung und Bewegung: Navigation, Akkordeon, Formular, Einblendungen, Zähler, Schreibmaschine |
-| `js/galerie.js`, `js/neuigkeiten.js` | Nur auf den jeweiligen Seiten |
+| `js/galerie.js`, `js/bewertungen.js` | Nur auf den jeweiligen Seiten |
 | `js/admin.js` | Verwaltungs-Portal |
+| `server/mail.js` | Kleiner SMTP-Client ohne Fremdpakete (STARTTLS bzw. TLS, AUTH PLAIN/LOGIN) |
+| `server/kontakt-mail.js` | Vorlage der Anfrage-E-Mail (Text und HTML im Stil der Website) |
 
 ### Schriften
 
@@ -114,7 +116,9 @@ Die Schnittstelle:
 | `POST /api/anmelden` | Passwortprüfung auf dem Server, setzt einen HttpOnly-Sitzungskeks |
 | `POST /api/abmelden` | Sitzung beenden |
 | `POST /api/veroeffentlichen` | Inhalte speichern (nach Anmeldung) |
-| `POST /api/beitraege` | Neuigkeiten speichern (nach Anmeldung) |
+| `POST /api/kontakt` | **Anfrage aus dem Kontaktformular – ohne Anmeldung** (Bremse: eine je Absender alle 2 Minuten) |
+| `POST /api/bewertung` | **Eine Bewertung abgeben – ohne Anmeldung** (Bremse: eine je Absender alle 5 Minuten) |
+| `POST /api/bewertungen` | Bewertungen speichern bzw. löschen (nach Anmeldung) |
 | `POST /api/galerie` | Galerie-Ordner speichern (nach Anmeldung) |
 | `POST /api/bild` | Bild als Datei ablegen (nach Anmeldung) |
 | `POST /api/passwort` | Portal-Passwort ändern (nach Anmeldung) |
@@ -122,7 +126,7 @@ Die Schnittstelle:
 | `POST /api/zuruecksetzen` | Passwort mit einem Wiederherstellungs-Code neu setzen |
 
 Alles, was das Portal pflegt, liegt in `/var/lib/mellis-website`
-(Inhalte, Neuigkeiten, Bilder, Passwort-Prüfwert, die letzten 30
+(Inhalte, Bewertungen, Bilder, Passwort-Prüfwert, die letzten 30
 Sicherungen) und bleibt bei Updates unangetastet. Bringt ein Update neue
 Textfelder mit (z. B. eine neue Seite), ergänzt der Server sie beim Start
 automatisch, ohne gepflegte Texte zu überschreiben. Die Zugangsdatei wird
@@ -142,30 +146,6 @@ verschwindet, tragen die Kapitel `scroll-margin-top` (siehe
 `.konzept-kapitel` in `css/style.css`). Nur Überschrift und Einleitungssatz
 sind über `data-cms` (`konzept_01`, `konzept_02`) austauschbar – der
 Konzepttext selbst steht fest im HTML.
-
-Diese Seite hat im Menü den früheren Platz der Neuigkeiten übernommen.
-
-## Neuigkeiten (`neuigkeiten.html`)
-
-Die Seite steht weiterhin unter `/neuigkeiten.html` und wird aus dem Portal
-gepflegt, ist aber **nicht mehr im Menü verlinkt** (dort steht jetzt „Unser
-Konzept"). Erreichbar ist sie über den Verweis im Portal.
-
-Ein Beitragsstrom – der neueste oben, jeder Beitrag mit Titel, Nachricht,
-optionalem Bild und Zeitstempel („vor 3 Tagen" plus genaues Datum).
-Geschrieben werden sie im Portal unter „📣 Neuigkeiten posten":
-Titel, Nachricht, wenn gewünscht ein Bild – veröffentlichen, fertig.
-Vorhandene Beiträge lassen sich dort bearbeiten und löschen.
-
-Gespeichert wird in `daten/beitraege.json`:
-
-```json
-[{ "id": "b-…", "titel": "…", "text": "…", "bild": "bilder/…jpg", "zeit": "2026-07-26T18:30:00.000Z" }]
-```
-
-Texte werden auf der Seite als reiner Text eingesetzt (kein `innerHTML`),
-Leerzeilen werden zu Absätzen. Bilder von gelöschten Beiträgen räumt der
-Server nach einer Stunde selbst auf.
 
 ## Galerie (`galerie.html`)
 
@@ -206,7 +186,7 @@ Programmierkenntnisse pflegen, was sich im Alltag ändert:
 | 🕐 Betreuungszeiten | Mo – Do, Fr, Sa & So |
 | 📞 Kontaktdaten | Telefonnummer, E-Mail-Adresse |
 | 💬 Slogan | Slogan auf der Startseite |
-| 📣 Neuigkeiten posten | Beiträge mit Titel, Text, Bild |
+| ⭐ Bewertungen | Alle Bewertungen ansehen und einzelne löschen |
 | 🖼️ Galerie | Ordner anlegen, Bilder hochladen, Bildtexte |
 | 💾 Speichern & Veröffentlichen | Zeiten, Kontakt und Slogan live stellen |
 | 🔑 Passwort ändern | Portal-Passwort |

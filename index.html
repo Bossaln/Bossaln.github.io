@@ -10,11 +10,12 @@
 <link href="assets/img/favicon.png" rel="icon" type="image/png"/>
 <link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
 <link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
-<link href="css/style.css?v=4" rel="stylesheet"/>
+<link href="css/style.css?v=5" rel="stylesheet"/>
 <script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
 <script defer src="js/vendor/motion.min.js?v=3"></script>
 <script defer src="js/cms.js?v=3"></script>
 <script defer src="js/main.js?v=3"></script>
+<script defer src="js/bewertungen.js?v=1"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -52,7 +53,7 @@
 <div class="container hero-inhalt">
 <div>
 <span class="hero-badge" data-cms="start_01">🌈 Großtagespflege in Essen-Stoppenberg</span>
-<h1 data-cms-html="start_02">Willkommen bei <span class="regenbogen-text">Melli's Krabbelzwergen</span></h1>
+<h1 data-cms-html="start_02"><span class="regenbogen-text">Willkommen bei Melli's Krabbelzwergen</span></h1>
 <p class="hero-slogan" data-cms="slogan" data-tippen="">„Alles was ein Kind braucht, um glücklich zu sein.&quot;</p>
 <p data-cms="start_03" style="margin-bottom: 1.8rem; color: var(--tinte-hell); max-width: 34rem;">In unserer Großtagespflege im Looscheid 82 betreuen wir Kinder im Alter von 0 bis 3 Jahren – mit Herz, Geduld und ganz viel Spaß, in familiärer Atmosphäre und kleinen Gruppen.</p>
 <div class="hero-buttons">
@@ -93,16 +94,121 @@
 <section class="abschnitt abschnitt-hell">
 <div class="container zweispaltig">
 <div class="bild-rahmen einblenden">
-<img alt="Melanie Graw und Ivonne Braß von Melli's Krabbelzwergen" data-cms-bild="bild_team" src="assets/img/team.jpg" width="364" height="354" decoding="async" loading="lazy"/>
+<img alt="Melanie Graw, Ivonne Braß und Sascha Manuel Graw – das Team von Melli's Krabbelzwerge" data-cms-bild="bild_team" src="assets/img/galerie-06.jpg" width="648" height="1152" style="width: 100%; object-fit: cover; max-height: 500px; object-position: 50% 60%;" decoding="async" loading="lazy"/>
 </div>
 <div class="einblenden">
 <span class="ueberschrift-klein" data-cms="start_17" style="color: var(--orange); font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.9rem;">Über uns</span>
 <h2 data-cms="start_18">Ein zweites Zuhause für eure Zwerge</h2>
-<p data-cms="start_19">Wir sind Melanie, Ivonne und Sascha – drei Geschwister aus Essen-Stoppenberg und die Gesichter hinter Melli&#x27;s Krabbelzwergen. Seit Januar 2016 betreuen wir in unserer Großtagespflege Kinder in familiärer Atmosphäre, seit 2017 zu dritt.</p>
+<p data-cms="start_19">Wir sind Melanie, Ivonne und Sascha – drei Geschwister aus Essen-Stoppenberg und die Gesichter hinter Melli&#x27;s Krabbelzwergen. Melanie und Ivonne führen die Großtagespflege seit Januar 2016, seit 2017 ist Bruder Sascha als qualifizierte Kindertagespflegeperson fest mit dabei. So betreuen wir eure Zwerge zu dritt in familiärer Atmosphäre.</p>
 <p data-cms="start_20">In unserem 112 m² großen Haus mit rund 300 m² Außengelände ist jede Menge Platz zum Spielen, Tanzen, Toben und Schlafen – denn nur glückliche Kinder können die Welt unbeschwert entdecken.</p>
 <div style="margin-top: 1.6rem;">
 <a class="btn btn-primaer" data-cms="start_21" href="ueber-uns.html">Mehr über uns erfahren</a>
 </div>
+</div>
+</div>
+</section>
+<!-- Bewertungen -->
+<section class="abschnitt" id="bewertungen">
+<div class="container">
+<div class="abschnitt-kopf einblenden">
+<span class="ueberschrift-klein">Elternstimmen</span>
+<h2>Das sagen <span class="unterstrichen">unsere Familien</span></h2>
+<p>Ihr kennt uns schon? Dann freuen wir uns riesig über eure Bewertung – mit Sternen, ein paar Worten und, wenn ihr mögt, einem Foto.</p>
+</div>
+
+<div class="bw-uebersicht einblenden" hidden id="bw-uebersicht">
+<div class="bw-schnitt">
+<div class="bw-schnitt-zahl" id="bw-schnitt-zahl">–</div>
+<div aria-hidden="true" class="bw-sterne bw-sterne-gross" id="bw-schnitt-sterne"></div>
+<p class="bw-schnitt-anzahl" id="bw-schnitt-anzahl">noch keine Bewertungen</p>
+</div>
+<div class="bw-verteilung" id="bw-verteilung"></div>
+</div>
+
+<div class="bw-werkzeuge einblenden" hidden id="bw-werkzeuge">
+<div aria-label="Nach Sternen filtern" class="bw-filter" id="bw-filter" role="group">
+<button aria-pressed="true" class="bw-chip aktiv" data-sterne="alle" type="button">Alle</button>
+<button aria-pressed="false" class="bw-chip" data-sterne="5" type="button">5 ★</button>
+<button aria-pressed="false" class="bw-chip" data-sterne="4" type="button">4 ★</button>
+<button aria-pressed="false" class="bw-chip" data-sterne="3" type="button">3 ★</button>
+<button aria-pressed="false" class="bw-chip" data-sterne="2" type="button">2 ★</button>
+<button aria-pressed="false" class="bw-chip" data-sterne="1" type="button">1 ★</button>
+</div>
+<div class="bw-werkzeuge-rechts">
+<label class="bw-schalter"><input id="bw-nur-fotos" type="checkbox"/> <span>nur mit Fotos</span></label>
+<label class="bw-sortierung"><span>Sortieren:</span>
+<select id="bw-sortierung">
+<option value="neu">Neueste zuerst</option>
+<option value="alt">Älteste zuerst</option>
+<option value="hoch">Beste Bewertung</option>
+<option value="niedrig">Kritischste zuerst</option>
+</select>
+</label>
+</div>
+</div>
+
+<p class="bw-treffer" hidden id="bw-treffer"></p>
+<div class="bw-liste" id="bw-liste">
+<p class="hinweis-zeile">Bewertungen werden geladen …</p>
+</div>
+<div class="bw-mehr-zeile">
+<button class="btn btn-sekundaer" hidden id="bw-mehr" type="button">Weitere Bewertungen zeigen</button>
+</div>
+
+<div class="bw-formular-karte einblenden" id="bw-formular-karte">
+<h3 id="bw-formular-titel">Schreibt uns eure Bewertung ⭐</h3>
+<p class="bw-formular-text">Eure Bewertung erscheint sofort hier auf der Seite. Bitte schreibt keine Namen anderer Kinder und ladet nur Fotos hoch, auf denen keine fremden Kinder zu erkennen sind.</p>
+<form class="formular bw-formular" id="bw-formular" novalidate="">
+<div class="formular-reihe">
+<div class="feld">
+<label for="bw-name">Euer Name</label>
+<input autocomplete="name" id="bw-name" maxlength="60" name="name" placeholder="z. B. Familie Müller" required="" type="text"/>
+</div>
+<div class="feld">
+<label for="bw-ort">Wer seid ihr? <small>(freiwillig)</small></label>
+<input autocomplete="off" id="bw-ort" maxlength="60" name="ort" placeholder="z. B. Mama von Emil" type="text"/>
+</div>
+</div>
+
+<fieldset class="feld bw-sterne-wahl">
+<legend>Wie viele Sterne gebt ihr uns?</legend>
+<!-- Reihenfolge absichtlich von 5 nach 1: das Formular zeigt sie über
+     „row-reverse" wieder von 1 bis 5 an, und CSS kann so alle Sterne bis
+     zum gewählten einfärben (Geschwister-Regel wirkt nur nach vorn). -->
+<div class="bw-sterne-knoepfe">
+<input id="bw-stern-5" name="sterne" required="" type="radio" value="5"/><label for="bw-stern-5" title="5 Sterne – rundum glücklich">★<span class="bw-versteckt">5 Sterne</span></label>
+<input id="bw-stern-4" name="sterne" type="radio" value="4"/><label for="bw-stern-4" title="4 Sterne – richtig gut">★<span class="bw-versteckt">4 Sterne</span></label>
+<input id="bw-stern-3" name="sterne" type="radio" value="3"/><label for="bw-stern-3" title="3 Sterne – in Ordnung">★<span class="bw-versteckt">3 Sterne</span></label>
+<input id="bw-stern-2" name="sterne" type="radio" value="2"/><label for="bw-stern-2" title="2 Sterne – geht besser">★<span class="bw-versteckt">2 Sterne</span></label>
+<input id="bw-stern-1" name="sterne" type="radio" value="1"/><label for="bw-stern-1" title="1 Stern – gar nicht gut">★<span class="bw-versteckt">1 Stern</span></label>
+</div>
+<span class="bw-sterne-text" id="bw-sterne-text">Bitte wählt eine Bewertung</span>
+</fieldset>
+
+<div class="feld">
+<label for="bw-text">Eure Erfahrung</label>
+<textarea id="bw-text" maxlength="2000" name="text" placeholder="Was gefällt euch bei uns besonders? Wie war die Eingewöhnung? Was möchtet ihr anderen Eltern mitgeben?" required="" rows="5"></textarea>
+<small class="bw-zaehler" id="bw-zaehler">0 / 2000 Zeichen</small>
+</div>
+
+<div class="feld">
+<label for="bw-bilder">Fotos <small>(freiwillig, bis zu 3)</small></label>
+<div class="datei-wahl">
+<input accept="image/png,image/jpeg,image/webp" class="datei-versteckt" id="bw-bilder" multiple="" name="bilder" type="file"/>
+<label class="datei-knopf" for="bw-bilder">📷 Fotos auswählen</label>
+<span class="datei-name" id="bw-bilder-name">Keine Fotos ausgewählt</span>
+</div>
+<div class="bw-vorschau" id="bw-vorschau"></div>
+</div>
+
+<div aria-hidden="true" class="bw-falle">
+<label for="bw-webseite">Webseite (bitte frei lassen)</label>
+<input autocomplete="off" id="bw-webseite" name="webseite" tabindex="-1" type="text"/>
+</div>
+
+<button class="btn btn-primaer" id="bw-senden" type="submit">Bewertung abschicken</button>
+<div class="bw-meldung" id="bw-meldung" role="status"></div>
+</form>
 </div>
 </div>
 </section>

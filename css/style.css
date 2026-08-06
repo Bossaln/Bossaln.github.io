@@ -284,7 +284,10 @@ a { color: var(--blau); }
   margin-bottom: 1rem;
 }
 
-.hero h1 .regenbogen-text {
+/* Regenbogenschrift. Bewusst als eigene Klasse und nicht als style-Attribut
+   im HTML: der Filter in js/cms.js wirft style-Attribute weg, sobald ein Text
+   aus dem Portal kommt – der Farbverlauf wäre dann verschwunden. */
+.regenbogen-text {
   background: var(--regenbogen);
   -webkit-background-clip: text;
   background-clip: text;
@@ -473,6 +476,17 @@ a { color: var(--blau); }
 .karte.team-karte { text-align: left; }
 .karte.team-karte h3 { text-align: center; }
 .karte.team-karte p + p { margin-top: 0.7rem; }
+
+/* Die Rolle unter dem Namen – kleine Zeile in Versalien */
+.team-rolle {
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
 
 /* --------------------------------------------------------------------------
    Zwei-Spalten-Layout (Bild + Text)
@@ -1208,84 +1222,9 @@ body.lupe-offen { overflow: hidden; }
 .brotkruemel a { color: var(--orange); text-decoration: none; }
 
 /* --------------------------------------------------------------------------
-   Neuigkeiten – Beitragsstrom
+   Kurzer Hinweis in einer Liste („wird geladen …", „noch nichts da")
    -------------------------------------------------------------------------- */
-.btn-klein {
-  padding: 0.45rem 1.1rem;
-  font-size: 0.9rem;
-  background: var(--wolke);
-  color: var(--tinte);
-}
-
-.btn-klein:hover { background: var(--gelb); }
-
-.btn-sekundaer.btn-klein { background: var(--weiss); border-width: 2px; }
-
-.beitrag-liste {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  max-width: 42rem;
-  margin: 0 auto;
-}
-
-.beitrag {
-  background: var(--weiss);
-  border: 2px solid var(--wolke);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--schatten);
-  transition: transform var(--uebergang), box-shadow var(--uebergang);
-}
-
-.beitrag:hover { transform: translateY(-4px); box-shadow: var(--schatten-hover); }
-
-.beitrag-kopf {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.9rem 1.4rem;
-  border-bottom: 1px solid var(--wolke);
-}
-
-.beitrag-avatar {
-  width: 46px;
-  height: 46px;
-  object-fit: contain;
-  border-radius: 50%;
-  padding: 2px;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(var(--weiss), var(--weiss)) padding-box,
-    var(--regenbogen) border-box;
-  flex-shrink: 0;
-}
-
-.beitrag-kopf time { font-size: 0.9rem; font-weight: 700; color: var(--tinte-hell); }
-
-.beitrag-bild { background: var(--wolke); }
-
-.beitrag-bild img {
-  display: block;
-  width: 100%;
-  max-height: 34rem;
-  object-fit: cover;
-}
-
-.beitrag-text { padding: 1.4rem 1.4rem 0.4rem; }
-
-.beitrag-text h3 { font-size: 1.3rem; margin-bottom: 0.6rem; }
-
-.beitrag-text p { color: var(--tinte-hell); margin-bottom: 0.8rem; }
-
-.beitrag-fuss {
-  padding: 0.6rem 1.4rem 1.2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--tinte-hell);
-}
-
-.beitrag-hinweis {
+.hinweis-zeile {
   text-align: center;
   padding: 3rem 1.5rem;
   color: var(--tinte-hell);
@@ -1413,7 +1352,7 @@ body.lupe-offen { overflow: hidden; }
 
 /* „will-change" steht bewusst NICHT hier, sondern wird vom Skript nur für
    das eine Element gesetzt, das gerade an der Reihe ist. Stünde es hier,
-   würde eine Neuigkeiten-Seite mit dreißig Beiträgen dreißig Grafikebenen
+   würde eine Seite mit dreißig Bewertungen dreißig Grafikebenen
    auf einmal anfordern – auf einem Handy geht dabei mehr Leistung verloren,
    als der Hinweis einbringt. */
 
@@ -1725,4 +1664,382 @@ body.lupe-offen { overflow: hidden; }
   .konzept-verzeichnis { grid-template-columns: 1fr; }
   .konzept-bilder { grid-template-columns: 1fr; }
   .konzept-motto { padding: 1.1rem 1.2rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Bewertungen (Startseite)
+
+   Aufbau von oben nach unten: Durchschnitt mit Sternen, Verteilung auf die
+   fünf Stufen (anklickbar – das ist zugleich ein Filter), Filterleiste,
+   die Bewertungen selbst und ganz unten das Formular.
+   -------------------------------------------------------------------------- */
+
+.bw-uebersicht {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  margin-bottom: 1.6rem;
+  background: var(--weiss);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  border-top: 6px solid var(--gelb);
+}
+
+.bw-schnitt { text-align: center; }
+
+.bw-schnitt-zahl {
+  font-family: var(--schrift-titel);
+  font-size: 3.4rem;
+  line-height: 1;
+  color: var(--orange);
+}
+
+.bw-schnitt-anzahl {
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.bw-sterne { display: inline-flex; gap: 0.1rem; }
+
+.bw-stern { color: rgba(111, 101, 128, 0.25); font-size: 1.05rem; line-height: 1; }
+.bw-stern.voll { color: var(--gelb); }
+
+.bw-sterne-gross { margin-top: 0.4rem; }
+.bw-sterne-gross .bw-stern { font-size: 1.5rem; }
+
+/* Verteilung: jede Zeile ist ein Knopf und filtert die Liste */
+.bw-verteilung { display: grid; gap: 0.35rem; }
+
+.bw-balken-zeile {
+  display: grid;
+  grid-template-columns: 3rem 1fr 2.2rem;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  color: var(--tinte-hell);
+  cursor: pointer;
+  transition: background var(--uebergang);
+}
+
+.bw-balken-zeile:hover { background: var(--wolke); }
+
+.bw-balken-stufe { font-weight: 700; color: var(--tinte); white-space: nowrap; }
+
+.bw-balken-spur {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--wolke);
+  overflow: hidden;
+}
+
+.bw-balken-fuellung {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--regenbogen);
+  transition: width 0.6s ease;
+}
+
+.bw-balken-zahl { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------ Filterleiste ---------------------------- */
+.bw-werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.bw-filter { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.bw-chip {
+  padding: 0.4rem 0.9rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--weiss);
+  box-shadow: var(--schatten);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--tinte-hell);
+  cursor: pointer;
+  transition: transform var(--uebergang), color var(--uebergang), border-color var(--uebergang);
+}
+
+.bw-chip:hover { transform: translateY(-2px); }
+.bw-chip.aktiv { color: var(--tinte); border-color: var(--gelb); }
+
+.bw-werkzeuge-rechts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+.bw-schalter, .bw-sortierung {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.bw-sortierung select {
+  padding: 0.35rem 0.6rem;
+  border: 2px solid var(--wolke);
+  border-radius: 10px;
+  background: var(--weiss);
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--tinte);
+}
+
+.bw-treffer {
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+/* -------------------------- Eine Bewertungskarte ------------------------ */
+.bw-liste { display: grid; gap: 1.2rem; }
+
+.bw-karte {
+  padding: 1.6rem;
+  background: var(--weiss);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  transition: box-shadow var(--uebergang);
+}
+
+.bw-karte:hover { box-shadow: var(--schatten-hover); }
+
+.bw-karte-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.bw-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: hsl(var(--avatar-ton, 40deg) 70% 92%);
+  color: hsl(var(--avatar-ton, 40deg) 45% 35%);
+  font-family: var(--schrift-titel);
+  font-size: 1.3rem;
+}
+
+.bw-wer { display: flex; flex-direction: column; line-height: 1.3; margin-right: auto; }
+.bw-wer strong { font-family: var(--schrift-titel); font-size: 1.1rem; }
+.bw-ort { font-size: 0.9rem; color: var(--tinte-hell); }
+.bw-zeit { font-size: 0.82rem; color: var(--tinte-hell); }
+
+.bw-text p + p { margin-top: 0.7rem; }
+
+.bw-bilder { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+
+.bw-bild-knopf {
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.bw-bild-knopf img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  transition: transform var(--uebergang);
+}
+
+.bw-bild-knopf:hover img { transform: scale(1.05); }
+
+.bw-mehr-zeile { text-align: center; margin-top: 1.4rem; }
+
+/* ------------------------------ Großansicht ----------------------------- */
+.bw-lupe {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(35, 30, 40, 0.9);
+}
+
+.bw-lupe.offen { display: grid; }
+
+.bw-lupe img {
+  max-width: min(92vw, 900px);
+  max-height: 86vh;
+  border-radius: 14px;
+}
+
+.bw-lupe-schliessen {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--weiss);
+  color: var(--tinte);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* -------------------------------- Formular ------------------------------ */
+.bw-formular-karte {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: var(--wolke);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+.bw-formular-karte h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+.bw-formular-text {
+  margin-bottom: 1.4rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.bw-formular { background: var(--weiss); }
+
+.bw-sterne-wahl { border: none; position: relative; }
+.bw-sterne-wahl legend { font-weight: 700; margin-bottom: 0.3rem; }
+
+/* Die Sterne sind Radioknöpfe: Tastatur und Vorlesegeräte bedienen sie
+   damit von Haus aus. Sichtbar ist nur die Beschriftung.
+   Gefüllt wird von links bis zum gewählten Stern – dafür steht die Reihe
+   in umgekehrter Richtung und CSS färbt „den gewählten und alle danach". */
+.bw-sterne-knoepfe {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 0.15rem;
+}
+
+.bw-sterne-knoepfe input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bw-sterne-knoepfe label {
+  font-size: 2.1rem;
+  line-height: 1;
+  color: rgba(111, 101, 128, 0.28);
+  cursor: pointer;
+  transition: transform var(--uebergang), color var(--uebergang);
+}
+
+.bw-sterne-knoepfe label:hover,
+.bw-sterne-knoepfe label:hover ~ label,
+.bw-sterne-knoepfe input:checked ~ label,
+.bw-sterne-knoepfe input:checked + label { color: var(--gelb); }
+
+.bw-sterne-knoepfe label:hover { transform: scale(1.12); }
+
+.bw-sterne-knoepfe input:focus-visible + label {
+  outline: 3px solid var(--blau);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.bw-versteckt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.bw-sterne-text {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+.bw-zaehler { display: block; margin-top: 0.3rem; color: var(--tinte-hell); font-size: 0.85rem; }
+
+.bw-vorschau { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+
+.bw-vorschau-kachel { position: relative; line-height: 0; }
+
+.bw-vorschau-kachel img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.bw-vorschau-weg {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: var(--rot);
+  color: var(--weiss);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Falle für automatische Ausfüller – für Menschen unsichtbar */
+.bw-falle {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.bw-meldung {
+  display: none;
+  margin-top: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: var(--wolke);
+  color: var(--tinte);
+}
+
+.bw-meldung.erfolg { background: #e6f6e7; color: #2f7a35; }
+.bw-meldung.fehler { background: #fde8ea; color: #b3202f; }
+
+@media (max-width: 760px) {
+  .bw-uebersicht { grid-template-columns: 1fr; gap: 1.2rem; padding: 1.5rem; }
+  .bw-werkzeuge { justify-content: flex-start; }
+  .bw-formular-karte { padding: 1.3rem; }
+  .bw-bild-knopf img { width: 96px; height: 96px; }
 }

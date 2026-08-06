@@ -107,7 +107,7 @@
   }
 
   /* Ein Beobachter für die ganze Seite. „rootMargin" statt „threshold":
-     ein Beitrag, der höher ist als das Fenster, erreicht nie 12 % Sichtbarkeit
+     eine Karte, die höher ist als das Fenster, erreicht nie 12 % Sichtbarkeit
      und wäre früher unsichtbar hängen geblieben. Deshalb gab es bisher einen
      Notfall-Timer nach zwei Sekunden – der ist damit überflüssig. */
   let beobachter = null;
@@ -127,7 +127,7 @@
   }
 
   /* Meldet alle .einblenden-Elemente unterhalb von „bereich" an. Wird auch
-     von galerie.js und neuigkeiten.js für nachgeladene Karten aufgerufen. */
+     von galerie.js und bewertungen.js für nachgeladene Karten aufgerufen. */
   function einblendungenAnmelden(bereich) {
     const elemente = (bereich || document).querySelectorAll(".einblenden");
     if (!elemente.length) return;
@@ -489,31 +489,82 @@
         return;
       }
 
-      // Die Nachricht wird im E-Mail-Programm der Besucher geöffnet – die
-      // Seite verschickt nichts selbst und speichert auch nichts.
+      /* Die Anfrage geht an den eigenen Server, der daraus eine E-Mail
+         baut und verschickt. Klappt das nicht – etwa weil die Seite ohne
+         Server läuft oder der Mailversand streikt –, öffnet sich wie
+         bisher das E-Mail-Programm der Besucher. So geht keine Nachricht
+         verloren. */
       const daten = new FormData(formular);
       const gewaehlt = formular.querySelector('[name="betreff"] option:checked');
       const betreffText = gewaehlt ? gewaehlt.textContent.trim() : "Anfrage";
+      const knopf = formular.querySelector('button[type="submit"]');
 
-      const mailBetreff = encodeURIComponent(`[Website] ${betreffText} – ${daten.get("name")}`);
-      const mailText = encodeURIComponent(
-        `Name: ${daten.get("name")}\n` +
-        `E-Mail: ${daten.get("email")}\n` +
-        `Telefon: ${daten.get("telefon") || "–"}\n` +
-        `Betreff: ${betreffText}\n\n` +
-        `Nachricht:\n${daten.get("nachricht")}`
-      );
-
-      const feld = document.querySelector('[data-cms-mail="email"]');
-      const empfaenger = (feld && feld.textContent.trim()) || "info@mellis-krabbelzwerge.de";
-
-      window.location.href = `mailto:${empfaenger}?subject=${mailBetreff}&body=${mailText}`;
-
-      formular.style.display = "none";
-      if (erfolg) {
-        erfolg.style.display = "block";
-        erfolg.scrollIntoView({ behavior: bewegung ? "smooth" : "auto", block: "center" });
+      function mailProgrammOeffnen() {
+        const mailBetreff = encodeURIComponent(`[Website] ${betreffText} – ${daten.get("name")}`);
+        const mailText = encodeURIComponent(
+          `Name: ${daten.get("name")}\n` +
+          `E-Mail: ${daten.get("email")}\n` +
+          `Telefon: ${daten.get("telefon") || "–"}\n` +
+          `Betreff: ${betreffText}\n\n` +
+          `Nachricht:\n${daten.get("nachricht")}`
+        );
+        const feld = document.querySelector('[data-cms-mail="email"]');
+        const empfaenger = (feld && feld.textContent.trim()) || "info@mellis-krabbelzwerge.de";
+        window.location.href = `mailto:${empfaenger}?subject=${mailBetreff}&body=${mailText}`;
       }
+
+      function fertigMelden() {
+        formular.style.display = "none";
+        if (erfolg) {
+          erfolg.style.display = "block";
+          erfolg.scrollIntoView({ behavior: bewegung ? "smooth" : "auto", block: "center" });
+        }
+      }
+
+      const ursprungstext = knopf ? knopf.textContent : "";
+      if (knopf) {
+        knopf.disabled = true;
+        knopf.textContent = "Wird gesendet …";
+      }
+
+      fetch("api/kontakt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: daten.get("name"),
+          email: daten.get("email"),
+          telefon: daten.get("telefon") || "",
+          betreff: daten.get("betreff"),
+          nachricht: daten.get("nachricht"),
+          datenschutz: formular.querySelector("#datenschutz").checked,
+          webseite: daten.get("webseite") || "",
+        }),
+      })
+        .then((antwort) => antwort.json().catch(() => ({})).then((inhalt) => ({ antwort, inhalt })))
+        .then(({ antwort, inhalt }) => {
+          if (antwort.ok) return fertigMelden();
+          if (inhalt.mailto) {              // Server kann nicht verschicken
+            mailProgrammOeffnen();
+            return fertigMelden();
+          }
+          throw new Error(inhalt.fehler || "Das hat leider nicht geklappt.");
+        })
+        .catch((fehler) => {
+          // Keine Schnittstelle erreichbar (z. B. statisches Hosting):
+          // dann übernimmt wie früher das E-Mail-Programm.
+          if (fehler instanceof TypeError) {
+            mailProgrammOeffnen();
+            return fertigMelden();
+          }
+          window.alert(fehler.message +
+            "\n\nBitte versucht es später noch einmal oder ruft uns einfach an.");
+        })
+        .then(() => {
+          if (knopf) {
+            knopf.disabled = false;
+            knopf.textContent = ursprungstext;
+          }
+        });
     });
 
     const nochmalKnopf = document.getElementById("formular-nochmal");
@@ -533,7 +584,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     Start – und eine kleine Schnittstelle für galerie.js und neuigkeiten.js,
+     Start – und eine kleine Schnittstelle für galerie.js und bewertungen.js,
      damit auch nachgeladene Karten sauber eingeblendet werden.
      -------------------------------------------------------------------------- */
   window.Mellis = {

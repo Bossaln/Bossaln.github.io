@@ -134,6 +134,10 @@ Environment=NODE_ENV=production
 Environment=MELLIS_WEB=$WEB
 Environment=MELLIS_DATEN=$DATEN
 Environment=MELLIS_PORT=$PORT
+# Zugangsdaten für den E-Mail-Versand des Kontaktformulars (optional).
+# Die Datei gehört root und ist nur für root lesbar – deshalb stehen die
+# Zugangsdaten dort und nicht in dieser Dienstdatei.
+EnvironmentFile=-/etc/mellis-website.env
 ExecStart=$NODE $WEB/server/server.js
 Restart=always
 RestartSec=3

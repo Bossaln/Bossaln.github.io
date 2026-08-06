@@ -178,7 +178,7 @@
     });
   }
 
-  /* Andere Skripte (z. B. die Neuigkeiten) können darauf reagieren,
+  /* Andere Skripte (z. B. die Bewertungen) können darauf reagieren,
      sobald alle Texte gesetzt sind. */
   function fertigMelden() {
     document.dispatchEvent(new CustomEvent("cms-fertig"));
