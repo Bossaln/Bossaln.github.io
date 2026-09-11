@@ -118,6 +118,21 @@ gruen "Port $PORT ist frei"
 # --------------------------------------------------------------------------
 # 4. Dienst einrichten
 # --------------------------------------------------------------------------
+# --------------------------------------------------------------------------
+# Protokolle nach 30 Tagen löschen
+#
+# Der Dienst schreibt Ereignisse (Anmeldungen am Portal, Versand von
+# Kontaktanfragen, Fehler) ins Systemprotokoll – teils mit IP-Adresse. Die
+# Datenschutzerklärung sagt zu, dass diese Einträge spätestens nach 30 Tagen
+# verschwinden. Genau das stellt diese Einstellung sicher.
+# --------------------------------------------------------------------------
+mkdir -p /etc/systemd/journald.conf.d
+cat > /etc/systemd/journald.conf.d/50-mellis-website.conf <<JOURNALDATEI
+[Journal]
+MaxRetentionSec=30day
+JOURNALDATEI
+systemctl restart systemd-journald || true
+
 cat > "/etc/systemd/system/$DIENST.service" <<DIENSTDATEI
 [Unit]
 Description=Melli's Krabbelzwerge – Website
@@ -192,6 +207,21 @@ echo
 echo "  Verwaltungs-Portal:"
 echo "    http://$NAME.local$ANHANG/admin.html"
 echo
+
+# Steht die Seite schon unter eigener Domain im Internet? Dann sagen, wie.
+DOMAIN_DATEI="/etc/cloudflared/mellis-domain"
+if [ -s "$DOMAIN_DATEI" ]; then
+  echo "  Im Internet erreichbar unter:"
+  echo "    https://$(cat "$DOMAIN_DATEI")/"
+  echo
+elif systemctl is-active --quiet mellis-tunnel 2>/dev/null; then
+  echo "  Im Internet erreichbar – aktuelle Adresse zeigt:"
+  echo "    mellis-tunnel-adresse"
+  echo
+  echo "  Feste Adresse unter eigener Domain einrichten:"
+  echo "    sudo bash deploy/domain-einrichten.sh pexel.space"
+  echo
+fi
 echo "  Bitte gleich nach dem ersten Anmelden im Portal unter"
 echo "  „Wiederherstellungs-Codes“ einen Satz erzeugen und ausdrucken –"
 echo "  damit ein vergessenes Passwort später kein Fall für die"

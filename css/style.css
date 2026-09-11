@@ -118,6 +118,13 @@ a { color: var(--blau); }
   margin-inline: auto;
 }
 
+/* Breitere Variante fuer Seiten mit Kachel-Rastern (Galerie). 1400px ist so
+   gewaehlt, dass genau vier Ordnerkarten nebeneinander Platz finden - mehr
+   waere auf grossen Bildschirmen unruhig. */
+.container-weit {
+  width: min(1400px, 92%);
+}
+
 /* --------------------------------------------------------------------------
    Regenbogen-Leiste ganz oben
    -------------------------------------------------------------------------- */
@@ -432,6 +439,222 @@ a { color: var(--blau); }
 }
 
 /* --------------------------------------------------------------------------
+   Weiche Abschnitts-Übergänge
+
+   Die Seite wechselt von Abschnitt zu Abschnitt zwischen Weiß
+   (.abschnitt-hell) und Warmweiß – dem Creme des Seitenhintergrunds bzw. dem
+   Wolkenton des Seitenkopfs. Ohne Hilfe entsteht dabei eine schnurgerade
+   Kante quer über den ganzen Bildschirm. Gerade Linien fallen dem Auge sofort
+   auf, selbst wenn die beiden Farben kaum auseinanderliegen.
+
+   Deshalb bekommt jeder Abschnitt, auf den ein andersfarbiger folgt, unten
+   eine Übergangsfläche. Wichtig: Sie liegt IM aktuellen Abschnitt, ist aber
+   in der Farbe des NÄCHSTEN gefüllt. Dadurch läuft der eigene Hintergrund –
+   beim Hero zum Beispiel die bunten Farbschleier – bis genau an die
+   geschwungene Kante heran. So bleibt nirgends eine gerade Linie übrig.
+   Andersherum (Fläche im nächsten Abschnitt, in der Farbe des vorherigen)
+   ginge das nicht: dann träfe ein einfarbiger Streifen auf die Farbschleier
+   und die gerade Kante wäre wieder da.
+
+   Fünf Formen stehen bereit. Umgeschaltet wird am <html>-Element über
+   data-uebergang="…" – zum Ausprobieren genügt ?uebergang=… an der Adresse
+   (siehe js/main.js):
+
+     wellen    zwei ineinander laufende Wellen          ← Standard
+     verlauf   reiner Farbverlauf, praktisch unsichtbar
+     bogen     ein einzelner weiter Bogen
+     wolken    runde Wolkenkuppen
+     schimmer  Farbverlauf mit warmem Farbschimmer
+
+   Ohne Attribut gilt der Standard weiter unten im „Grundgerüst".
+   -------------------------------------------------------------------------- */
+
+/* ----------------------------- Grundgerüst ------------------------------ */
+
+:where(.hero, .seiten-kopf, .abschnitt) {
+  position: relative;
+
+  /* Farbe des Abschnitts, der DANACH kommt. „transparent" heißt: kein
+     Farbwechsel an dieser Stelle – und damit auch kein Übergang. */
+  --u-farbe: transparent;
+
+  /* 1, sobald ein Übergang gezeichnet wird. Nur der Farbschimmer braucht
+     das, weil er als eigene Fläche über allem liegt. */
+  --u-an: 0;
+
+  /* Höhe: jede Form bringt ihr eigenes Maß mit, --u-skala verkleinert es
+     auf schmalen Displays. */
+  --u-mass: 96px;
+  --u-skala: 1;
+  --u-hoehe: calc(var(--u-mass) * var(--u-skala));
+}
+
+/* Danach kommt ein weißer Abschnitt. */
+:where(.hero, .seiten-kopf, .abschnitt):has(+ .abschnitt-hell) {
+  --u-farbe: var(--weiss);
+  --u-an: 1;
+}
+
+/* Weißer Abschnitt, danach geht es wieder in Creme weiter. */
+.abschnitt-hell:has(+ .abschnitt:not(.abschnitt-hell)) {
+  --u-farbe: var(--creme);
+  --u-an: 1;
+}
+
+/* Weißer Abschnitt ganz am Ende: darunter liegt der Abstand vor dem Footer,
+   und der zeigt wieder das Creme des Seitenhintergrunds. Bewusst eine eigene
+   Regel: sollte ein sehr alter Browser :has() nicht kennen, verwirft er nur
+   die beiden Regeln darüber und nicht auch noch diese hier. */
+main > .abschnitt-hell:last-child {
+  --u-farbe: var(--creme);
+  --u-an: 1;
+}
+
+/* Die Übergangsfläche selbst. Sie liegt in der unteren Innenkante des
+   Abschnitts – dort ist ohnehin nur Luft. Damit trotzdem garantiert nichts
+   verdeckt wird, hebt das Inhaltsband eine Ebene höher. */
+:where(.hero, .seiten-kopf, .abschnitt) > .container {
+  position: relative;
+  z-index: 1;
+}
+
+:where(.hero, .seiten-kopf, .abschnitt)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Der Deckel bei 55 % ist für die kurzen Abschnitte da – der Seitenkopf
+     der Unterseiten ist keine 200 Pixel hoch, ein 180 Pixel langer Verlauf
+     würde ihn fast vollständig überziehen. */
+  height: min(var(--u-hoehe), 55%);
+  pointer-events: none;
+
+  /* Standardform „wellen": eine volle Fläche in der Farbe des nächsten
+     Abschnitts, aus der die Maske die Wellen ausschneidet. Die hintere Welle
+     ist im SVG nur zu 45 % deckend – dadurch entsteht ein Zwischenton und die
+     beiden Wellen wirken wie zwei Ebenen, obwohl es nur eine Farbe ist. */
+  background: var(--u-farbe);
+  -webkit-mask: var(--u-form-wellen) 50% 100% / 100% 100% no-repeat;
+  mask: var(--u-form-wellen) 50% 100% / 100% 100% no-repeat;
+
+  --u-form-wellen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='black' fill-opacity='.45' d='M0 44 C210 90 400 12 690 42 C980 72 1200 16 1440 52 L1440 120 L0 120 Z'/%3E%3Cpath fill='black' d='M0 74 C230 36 430 104 720 76 C1010 48 1230 106 1440 68 L1440 120 L0 120 Z'/%3E%3C/svg%3E");
+}
+
+/* Auf schmalen Displays sind die Abschnitte kürzer – dann darf auch der
+   Übergang nicht mehr so viel Platz einnehmen. */
+@media (max-width: 760px) {
+  :where(.hero, .seiten-kopf, .abschnitt) { --u-skala: 0.68; }
+}
+
+@media (max-width: 520px) {
+  :where(.hero, .seiten-kopf, .abschnitt) { --u-skala: 0.52; }
+}
+
+/* Auf Papier bringt der Übergang nichts und kostet nur Farbe. */
+@media print {
+  :where(.hero, .seiten-kopf, .abschnitt)::before,
+  :where(.hero, .seiten-kopf, .abschnitt)::after { display: none; }
+}
+
+/* ------------------------ Form 2: reiner Verlauf ------------------------ */
+/* Die zurückhaltendste Variante: kein Umriss, nur ein langer Farbverlauf.
+   Die vielen Zwischenstufen sind Absicht – ein glatter Verlauf von „nichts"
+   auf die Zielfarbe wandert in der Mitte sonst sichtbar schnell. */
+
+[data-uebergang="verlauf"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 180px; }
+
+[data-uebergang="verlauf"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--u-farbe), transparent 100%) 0%,
+      color-mix(in srgb, var(--u-farbe), transparent 90%) 24%,
+      color-mix(in srgb, var(--u-farbe), transparent 66%) 46%,
+      color-mix(in srgb, var(--u-farbe), transparent 34%) 68%,
+      color-mix(in srgb, var(--u-farbe), transparent 10%) 86%,
+      var(--u-farbe) 100%);
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* --------------------------- Form 3: Bogen ------------------------------ */
+/* Ein einziger, sehr flacher Bogen über die ganze Breite. Ruhiger als die
+   Wellen: der nächste Abschnitt wölbt sich nur leicht nach oben. */
+
+[data-uebergang="bogen"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 88px; }
+
+[data-uebergang="bogen"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: var(--u-farbe);
+  -webkit-mask: var(--u-form-bogen) 50% 100% / 100% 100% no-repeat;
+  mask: var(--u-form-bogen) 50% 100% / 100% 100% no-repeat;
+
+  --u-form-bogen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0 120 L0 92 Q720 -8 1440 92 L1440 120 Z'/%3E%3C/svg%3E");
+}
+
+/* -------------------------- Form 4: Wolken ------------------------------ */
+/* Runde Kuppen in zwei Größen, die sich überlappen – das ergibt eine
+   Wolkenkante. Ganz ohne Grafikdatei: zwei sich wiederholende Kreisverläufe
+   als Maske, darunter eine volle Fläche.
+   Die Kuppen sind in Pixeln bemessen und nicht in Prozent. So bleiben sie auf
+   jedem Bildschirm gleich groß, statt auf breiten Monitoren zu Hügeln zu
+   werden. */
+
+[data-uebergang="wolken"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 74px; }
+
+[data-uebergang="wolken"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: var(--u-farbe);
+  -webkit-mask:
+    radial-gradient(40px 28px at 50% 100%, black 98%, transparent 100%) 0 0 / 80px 46px repeat-x,
+    radial-gradient(62px 46px at 50% 100%, black 98%, transparent 100%) 0 0 / 160px 46px repeat-x,
+    linear-gradient(black, black) 0 100% / 100% calc(100% - 46px) no-repeat;
+  mask:
+    radial-gradient(40px 28px at 50% 100%, black 98%, transparent 100%) 0 0 / 80px 46px repeat-x,
+    radial-gradient(62px 46px at 50% 100%, black 98%, transparent 100%) 0 0 / 160px 46px repeat-x,
+    linear-gradient(black, black) 0 100% / 100% calc(100% - 46px) no-repeat;
+}
+
+/* ------------------------ Form 5: Farbschimmer -------------------------- */
+/* Wie „verlauf", aber der Übergang wird zur eigenen kleinen Bühne: hinter dem
+   Verlauf liegt ein warmer Schleier aus Gelb, Rosa und Blau. Der Farbwechsel
+   verschwindet damit nicht nur, er wird zu etwas Eigenem.
+   Der Schleier liegt als ::before UNTER der Verlaufsfläche und wird oben wie
+   unten weggeblendet – er darf die Kanten nicht erreichen, sonst entsteht
+   genau dort wieder ein sichtbarer Absatz. */
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 185px; }
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--u-farbe), transparent 100%) 0%,
+      color-mix(in srgb, var(--u-farbe), transparent 90%) 24%,
+      color-mix(in srgb, var(--u-farbe), transparent 66%) 46%,
+      color-mix(in srgb, var(--u-farbe), transparent 34%) 68%,
+      color-mix(in srgb, var(--u-farbe), transparent 10%) 86%,
+      var(--u-farbe) 100%);
+  -webkit-mask: none;
+  mask: none;
+}
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Der Deckel bei 55 % ist für die kurzen Abschnitte da – der Seitenkopf
+     der Unterseiten ist keine 200 Pixel hoch, ein 180 Pixel langer Verlauf
+     würde ihn fast vollständig überziehen. */
+  height: min(var(--u-hoehe), 55%);
+  pointer-events: none;
+  opacity: var(--u-an);
+  background:
+    radial-gradient(42% 68% at 16% 54%, rgba(247, 201, 72, 0.30), transparent 72%),
+    radial-gradient(38% 62% at 52% 42%, rgba(242, 138, 178, 0.24), transparent 72%),
+    radial-gradient(40% 66% at 86% 56%, rgba(61, 155, 233, 0.18), transparent 72%);
+  -webkit-mask: linear-gradient(to bottom, transparent, black 48%, transparent);
+  mask: linear-gradient(to bottom, transparent, black 48%, transparent);
+}
+
+/* --------------------------------------------------------------------------
    Karten
    -------------------------------------------------------------------------- */
 .karten-raster {
@@ -702,10 +925,17 @@ html:not(.js) .akkordeon-antwort { height: auto; }
    -------------------------------------------------------------------------- */
 .ordner-raster {
   display: grid;
-  /* auto-fit + Höchstbreite: wenige Ordner stehen mittig und werden nicht
-     unförmig breit, viele Ordner füllen die Reihe */
-  grid-template-columns: repeat(auto-fit, minmax(260px, 400px));
-  justify-content: center;
+  /* auto-fit mit 1fr: die Karten teilen sich die Reihe restlos auf. Wie viele
+     Spalten entstehen, ergibt sich allein aus der Breite - 260px Mindestbreite
+     plus Abstand bedeutet:
+
+       ab ~1130px Rasterbreite  ->  4 Spalten  (grosse Monitore)
+       ab  ~840px               ->  3 Spalten  (Laptop, Tablet quer)
+       ab  ~550px               ->  2 Spalten  (Tablet hoch)
+       darunter                 ->  1 Spalte   (Handy)
+
+     Keine Media Query noetig, das regelt der Browser selbst. */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.8rem;
 }
 
@@ -805,6 +1035,12 @@ html:not(.js) .akkordeon-antwort { height: auto; }
 .bilder-mauer {
   columns: 3;
   column-gap: 1.2rem;
+}
+
+/* Passend zum breiteren Raster: auf grossen Bildschirmen eine Spalte mehr,
+   damit die Bilder nicht unnoetig gross werden. */
+@media (min-width: 1200px) {
+  .bilder-mauer { columns: 4; }
 }
 
 .mauer-bild {
@@ -2043,3 +2279,121 @@ body.lupe-offen { overflow: hidden; }
   .bw-formular-karte { padding: 1.3rem; }
   .bw-bild-knopf img { width: 96px; height: 96px; }
 }
+
+/* --------------------------------------------------------------------------
+   Instagram-Knopf in der Navigation
+   -------------------------------------------------------------------------- */
+/* Runder Knopf im Regenbogen-Verlauf der Seite (gelb -> rosa -> lila), damit
+   er neben dem orangen Kontakt-Knopf auffaellt, ohne aus dem Rahmen zu fallen.
+   Der Text „Instagram" steckt nur fuer das Handy-Menue im Markup und ist am
+   Schreibtisch ausgeblendet - dort spricht das Symbol fuer sich. */
+.nav-links a.nav-instagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: var(--weiss);
+  background: linear-gradient(135deg, var(--gelb), var(--rosa) 45%, var(--lila));
+  box-shadow: 0 4px 14px rgba(155, 93, 229, 0.32);
+}
+
+.nav-links a.nav-instagram:hover,
+.nav-links a.nav-instagram:focus-visible {
+  background: linear-gradient(135deg, var(--orange), var(--rosa) 40%, var(--lila));
+  transform: translateY(-2px);
+}
+
+.nav-instagram svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.nav-instagram-text { display: none; }
+
+@media (max-width: 760px) {
+  /* Im aufgeklappten Handy-Menue wird aus dem runden Symbol eine volle Zeile
+     mit Beschriftung - genau wie bei den uebrigen Menuepunkten. */
+  .nav-links a.nav-instagram {
+    width: auto;
+    height: auto;
+    padding: 0.8rem;
+  }
+
+  .nav-instagram-text { display: inline; }
+}
+
+/* Ab Tablet-Breite trennt eine feine Linie das Symbol von den Menuepunkten. */
+@media (min-width: 761px) {
+  .nav-instagram-eintrag {
+    display: flex;
+    align-items: center;
+    margin-left: 0.9rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid rgba(61, 53, 70, 0.12);
+  }
+}
+
+/* Auf grossen Bildschirmen wandert das Symbol aus dem Inhaltsband heraus an
+   den rechten Rand des Headers - dort steht es voellig frei neben der
+   Navigation. Erst ab 1300px ist links und rechts genug Luft neben dem
+   1120px breiten Band (mind. 90px), damit nichts mit den Menuepunkten
+   zusammenstoesst; darunter bleibt die Variante mit der Trennlinie. */
+@media (min-width: 1300px) {
+  .nav-instagram-eintrag {
+    position: absolute;
+    top: 50%;
+    right: clamp(1rem, 1.6vw, 2rem);
+    transform: translateY(-50%);
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Karten-Vorschau (Zwei-Klick-Lösung)
+   -------------------------------------------------------------------------- */
+/* Steht anstelle der Google-Karte, bis jemand sie bewusst lädt. Bewusst ohne
+   Vorschaubild von Google – sonst würde beim Aufruf schon eine Verbindung
+   dorthin aufgebaut, genau das soll die Fläche ja verhindern. */
+.karte-zustimmung {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 380px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(46, 196, 182, 0.16), transparent 45%),
+    radial-gradient(circle at 80% 75%, rgba(61, 155, 233, 0.16), transparent 45%),
+    var(--wolke);
+}
+
+.karte-symbol { font-size: 2.6rem; line-height: 1; }
+
+.karte-zustimmung h3 { font-size: 1.25rem; margin: 0; }
+
+.karte-zustimmung p {
+  max-width: 46ch;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.karte-fusszeile { font-size: 0.85rem; }
+
+/* Aufzählungen in Impressum und Datenschutzerklärung */
+.rechtstext ul {
+  margin: 0.6rem 0 0.6rem 1.4rem;
+  padding: 0;
+}
+
+.rechtstext li { margin-bottom: 0.4rem; }
+
+.rechtstext li::marker { color: var(--orange); }

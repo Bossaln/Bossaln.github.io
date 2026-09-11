@@ -13,6 +13,8 @@
      MELLIS_DATEN  beschreibbarer Datenordner    (Standard: <MELLIS_WEB>/daten)
      MELLIS_PORT   Port                          (Standard: 8080)
      MELLIS_HOST   Netzwerk-Adresse              (Standard: 0.0.0.0)
+     MELLIS_DOMAIN eigene Domain im Internet     (z. B. pexel.space)
+     MELLIS_SUCHMASCHINEN  ja = bei Google erlaubt   (Standard: nein)
      MELLIS_TLS_CERT / MELLIS_TLS_KEY  optional: HTTPS statt HTTP
    ========================================================================== */
 
@@ -36,6 +38,19 @@ const PORT = Number(process.env.MELLIS_PORT || 8080);
 const HOST = process.env.MELLIS_HOST || "0.0.0.0";
 const TLS_CERT = process.env.MELLIS_TLS_CERT || "";
 const TLS_KEY = process.env.MELLIS_TLS_KEY || "";
+/* Die eigene Domain, unter der die Seite im Internet steht (z. B.
+   pexel.space). Ist sie gesetzt, schickt der Server Besucher von
+   www.<Domain> auf die Domain ohne „www" weiter – sonst kennen
+   Suchmaschinen jede Seite doppelt. Leer = keine Weiterleitung. */
+const DOMAIN = (process.env.MELLIS_DOMAIN || "").trim().toLowerCase();
+/* Darf die Seite in Suchmaschinen?
+
+   Absichtlich standardmäßig „nein". Solange die Seite unter einer
+   Probe-Adresse läuft, wäre eine Aufnahme bei Google schädlich: die Texte
+   stünden doppelt im Index, und eine Adresse wieder herauszubekommen ist
+   deutlich mühsamer, als sie hineinzubekommen. Erst wenn die endgültige
+   Domain steht, wird hier auf „ja" gestellt. */
+const SUCHMASCHINEN = /^(ja|yes|true|1)$/i.test((process.env.MELLIS_SUCHMASCHINEN || "").trim());
 
 const BILDER_ORDNER = path.join(DATEN, "bilder");
 const SICHERUNGEN_ORDNER = path.join(DATEN, "sicherungen");
@@ -395,8 +410,49 @@ function keksSetzen(res, kennung, sicher) {
   res.setHeader("Set-Cookie", teile.join("; "));
 }
 
+/* Kommt die Anfrage vom Rechner selbst? Genau das ist der Fall, wenn der
+   Cloudflare-Tunnel davorsteht: cloudflared läuft auf dem Pi und reicht
+   alles über 127.0.0.1 weiter. */
+function vomSelbenRechner(adresse) {
+  return adresse === "127.0.0.1" || adresse === "::1" || adresse === "::ffff:127.0.0.1";
+}
+
+/* Die echte Adresse des Besuchers.
+
+   Ohne Tunnel steht sie direkt an der Verbindung. Mit Tunnel sähe dagegen
+   jeder Besucher wie 127.0.0.1 aus – Anmelde-Sperre und Protokoll wären
+   damit wertlos, denn fünf Fehlversuche irgendwo auf der Welt würden alle
+   anderen mitsperren. Cloudflare trägt die echte Adresse in
+   „CF-Connecting-IP" ein.
+
+   Diesen Kopfzeilen wird nur getraut, wenn die Verbindung wirklich vom
+   selben Rechner kommt. Von außen lässt sich so keine fremde Adresse
+   unterschieben. */
 function absender(req) {
-  return req.socket.remoteAddress || "unbekannt";
+  const direkt = req.socket.remoteAddress || "unbekannt";
+  if (!vomSelbenRechner(direkt)) return direkt;
+
+  const vonCloudflare = req.headers["cf-connecting-ip"];
+  if (typeof vonCloudflare === "string" && vonCloudflare.trim()) {
+    return vonCloudflare.trim();
+  }
+
+  const weitergereicht = req.headers["x-forwarded-for"];
+  if (typeof weitergereicht === "string" && weitergereicht.trim()) {
+    return weitergereicht.split(",")[0].trim();
+  }
+
+  return direkt;
+}
+
+/* Kam der Besucher über HTTPS? Hinter dem Tunnel erreicht die Anfrage den
+   Pi als einfaches HTTP, obwohl der Browser mit Cloudflare verschlüsselt
+   spricht. Der ursprüngliche Weg steht in „X-Forwarded-Proto" – dann darf
+   der Sitzungs-Keks das Merkmal „Secure" tragen. */
+function ueberHttps(req) {
+  if (!vomSelbenRechner(req.socket.remoteAddress || "")) return false;
+  const weg = req.headers["x-forwarded-proto"];
+  return typeof weg === "string" && weg.split(",")[0].trim() === "https";
 }
 
 function sperreLesen(ip) {
@@ -1476,6 +1532,102 @@ async function dateiSenden(req, res, datei, zwischenspeicher) {
    jedes Mal die volle Übertragung erzwang. */
 const DATEN_ZWISCHENSPEICHER = "no-cache";
 
+/* ---------------------------- Suchmaschinen ------------------------------ */
+
+function antwortInhalt(res, typ, text, zwischenspeicher) {
+  const koerper = Buffer.from(text, "utf8");
+  res.writeHead(200, Object.assign(grundKopfzeilen(), {
+    "Content-Type": typ,
+    "Content-Length": koerper.length,
+    "Cache-Control": zwischenspeicher,
+  }));
+  res.end(koerper);
+}
+
+function weiterleiten(req, res, ziel) {
+  const frage = (req.url || "").indexOf("?");
+  res.writeHead(301, Object.assign(grundKopfzeilen(), {
+    Location: encodeURI(ziel) + (frage >= 0 ? req.url.slice(frage) : ""),
+    "Cache-Control": "no-cache",
+    "Content-Length": 0,
+  }));
+  res.end();
+}
+
+/* Die öffentlichen Seiten – Grundlage für die sitemap.xml. Das Portal
+   gehört ausdrücklich nicht dazu. Die Liste entsteht aus dem Ordner, damit
+   eine neue Seite nicht vergessen werden kann. */
+async function oeffentlicheSeiten() {
+  let dateien;
+  try {
+    dateien = await fsp.readdir(WURZEL);
+  } catch {
+    return [];
+  }
+  return dateien
+    .filter((name) => name.endsWith(".html") && name !== "admin.html")
+    .sort((a, b) => {
+      if (a === "index.html") return -1;
+      if (b === "index.html") return 1;
+      return a.localeCompare(b, "de");
+    });
+}
+
+/* robots.txt wird gebaut statt ausgeliefert – nur so passt sie zum Schalter
+   MELLIS_SUCHMASCHINEN und kennt die eigene Domain. */
+function robotsText() {
+  if (!SUCHMASCHINEN) {
+    return [
+      "# Diese Adresse läuft im Probebetrieb und gehört nicht in Suchmaschinen.",
+      "# Freigabe über MELLIS_SUCHMASCHINEN=ja in /etc/mellis-website.env",
+      "User-agent: *",
+      "Disallow: /",
+      "",
+    ].join("\n");
+  }
+
+  const zeilen = [
+    "# Melli's Krabbelzwerge",
+    "",
+    "# Das Verwaltungs-Portal und der Datenordner gehören nicht in Suchmaschinen.",
+    "User-agent: *",
+    "Disallow: /admin.html",
+    "Disallow: /daten/",
+    "Disallow: /bilder/",
+    "Allow: /",
+  ];
+  if (DOMAIN) zeilen.push("", "Sitemap: https://" + DOMAIN + "/sitemap.xml");
+  zeilen.push("");
+  return zeilen.join("\n");
+}
+
+/* Die Wegweiser-Datei für Suchmaschinen: welche Seiten es gibt und wann sie
+   zuletzt geändert wurden. Google holt sie sich selbst ab, sobald sie in der
+   robots.txt steht. */
+async function sitemapText() {
+  const teile = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ];
+
+  for (const seite of await oeffentlicheSeiten()) {
+    let geaendert = "";
+    try {
+      geaendert = (await fsp.stat(path.join(WURZEL, seite))).mtime.toISOString().slice(0, 10);
+    } catch {
+      /* ohne Datum ist die Sitemap immer noch gültig */
+    }
+    const adresse = "https://" + DOMAIN + "/" + (seite === "index.html" ? "" : seite);
+    teile.push("  <url>");
+    teile.push("    <loc>" + adresse + "</loc>");
+    if (geaendert) teile.push("    <lastmod>" + geaendert + "</lastmod>");
+    teile.push("  </url>");
+  }
+
+  teile.push("</urlset>", "");
+  return teile.join("\n");
+}
+
 async function statisch(req, res, pfad) {
   // Daten-Ordner: nur ausgewählte Dateien, niemals die Zugangsdatei
   if (pfad === "/daten/zugang.json" || pfad.startsWith("/daten/sicherungen")) {
@@ -1506,13 +1658,27 @@ async function statisch(req, res, pfad) {
     return dateiSenden(req, res, ziel, "public, max-age=604800");
   }
 
+  if (pfad === "/robots.txt") {
+    return antwortInhalt(res, "text/plain; charset=utf-8", robotsText(), "public, max-age=3600");
+  }
+  if (pfad === "/sitemap.xml") {
+    if (!SUCHMASCHINEN || !DOMAIN) return antwortText(res, 404, "Seite nicht gefunden.");
+    return antwortInhalt(res, "application/xml; charset=utf-8", await sitemapText(),
+      "public, max-age=3600");
+  }
+
   if (pfad === "/") pfad = "/index.html";
 
   let ziel = path.join(WURZEL, pfad);
   if (!innerhalb(WURZEL, ziel)) return antwortText(res, 403, "Nicht erlaubt.");
 
-  // Adressen ohne .html erlauben (z. B. /kontakt statt /kontakt.html)
-  if (!path.extname(ziel) && fs.existsSync(ziel + ".html")) ziel += ".html";
+  /* /kontakt und /kontakt.html lieferten bisher dieselbe Seite. Für
+     Suchmaschinen sind das zwei Seiten mit gleichem Inhalt – das schwächt
+     beide. Deshalb führt die kurze Adresse dauerhaft auf die lange, die auch
+     in allen Verweisen der Seite steht. */
+  if (!path.extname(ziel) && fs.existsSync(ziel + ".html")) {
+    return weiterleiten(req, res, pfad + ".html");
+  }
   if (!path.extname(ziel) && fs.existsSync(path.join(ziel, "index.html"))) {
     ziel = path.join(ziel, "index.html");
   }
@@ -1541,10 +1707,40 @@ async function statisch(req, res, pfad) {
     zwischenspeicher = "public, max-age=86400";
   }
 
+  /* Im Probebetrieb bleibt jede Seite aus den Suchmaschinen heraus. Die
+     robots.txt allein genügt dafür nicht: sie hält Google vom Besuch ab,
+     nicht aber davor, die Adresse aus fremden Verweisen doch aufzunehmen.
+     Diese Kopfzeile sagt es unmissverständlich. */
+  if (!SUCHMASCHINEN && endung === ".html") {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+  }
+
   return dateiSenden(req, res, ziel, zwischenspeicher);
 }
 
 /* --------------------------------- Server -------------------------------- */
+
+/* Besucher von www.<Domain> auf <Domain> weiterleiten. Sonst kennen
+   Suchmaschinen jede Seite doppelt und Lesezeichen zeigen mal so, mal so.
+   Nur beim Abrufen von Seiten – Formulare und Portal-Befehle laufen
+   unverändert durch, damit eine Umleitung nichts abschneiden kann. */
+function wwwWeiterleitung(req, res) {
+  if (!DOMAIN) return false;
+  if (req.method !== "GET" && req.method !== "HEAD") return false;
+
+  const gastgeber = String(req.headers.host || "").toLowerCase();
+  if (gastgeber !== "www." + DOMAIN) return false;
+
+  // Nur unauffällige Adressen weiterreichen (keine Steuerzeichen im Ziel)
+  if (!/^\/[\x21-\x7e]*$/.test(req.url || "")) return false;
+
+  res.writeHead(301, {
+    Location: "https://" + DOMAIN + req.url,
+    "Cache-Control": "no-cache",
+  });
+  res.end();
+  return true;
+}
 
 async function behandeln(req, res, sicher) {
   let pfad;
@@ -1555,8 +1751,10 @@ async function behandeln(req, res, sicher) {
   }
   if (pfad.includes("\0")) return antwortText(res, 400, "Ungültige Adresse.");
 
+  if (wwwWeiterleitung(req, res)) return;
+
   try {
-    if (pfad.startsWith("/api/")) return await api(req, res, pfad, sicher);
+    if (pfad.startsWith("/api/")) return await api(req, res, pfad, sicher || ueberHttps(req));
     if (req.method !== "GET" && req.method !== "HEAD") {
       return antwortText(res, 405, "Methode nicht erlaubt.");
     }

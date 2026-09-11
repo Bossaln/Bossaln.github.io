@@ -455,6 +455,12 @@
       if (!gewaehlt) return meldung("Bitte vergebt zuerst Sterne.", "fehler");
       if (!name) return meldung("Bitte tragt einen Namen ein.", "fehler");
       if (text.length < 5) return meldung("Bitte schreibt noch ein paar Worte dazu.", "fehler");
+      const einwilligung = document.getElementById("bw-einwilligung");
+      if (einwilligung && !einwilligung.checked) {
+        // Ohne dieses Häkchen fehlt die Rechtsgrundlage für die
+        // Veröffentlichung – die Bewertung darf gar nicht erst losgeschickt werden.
+        return meldung("Bitte bestätigt noch, dass eure Bewertung öffentlich erscheinen darf.", "fehler");
+      }
 
       knopf.disabled = true;
       meldung("Bewertung wird gesendet …", "");

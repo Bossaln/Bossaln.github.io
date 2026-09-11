@@ -20,6 +20,21 @@
 
   const wurzel = document.documentElement;
 
+  /* Übergangsform zum Vergleichen: ?uebergang=wellen|verlauf|bogen|wolken|
+     schimmer an die Adresse hängen, dann zeichnet die Seite die Übergänge
+     zwischen den Abschnitten in dieser Form. Ohne Angabe bleibt die
+     Standardform aus dem Stylesheet (siehe css/style.css, Abschnitt
+     „Weiche Abschnitts-Übergänge"). Die Liste steht bewusst auch hier: so
+     landet nur ein bekannter Wert im HTML und nicht irgendetwas aus der
+     Adresszeile. */
+  const UEBERGANGSFORMEN = ["wellen", "verlauf", "bogen", "wolken", "schimmer"];
+  try {
+    const wunsch = new URLSearchParams(location.search).get("uebergang");
+    if (UEBERGANGSFORMEN.indexOf(wunsch) !== -1) wurzel.dataset.uebergang = wunsch;
+  } catch (fehler) {
+    /* Unlesbare Adresse? Dann bleibt es bei der Standardform. */
+  }
+
   /* motion.dev vorhanden? Sonst läuft die Seite ganz ohne Animationen. */
   const motion =
     window.Motion && typeof window.Motion.animate === "function" ? window.Motion : null;
@@ -594,12 +609,42 @@
     ease: EASE,
   };
 
+  /* --------------------------------------------------------------------------
+     Karte erst auf Klick laden (Zwei-Klick-Lösung)
+
+     Google Maps würde beim bloßen Aufruf der Kontaktseite schon die IP-Adresse
+     unserer Besucher an Google übertragen. Ohne Einwilligung ist das nicht
+     zulässig – deshalb steht in der Seite zunächst nur eine Vorschaufläche,
+     und der iframe entsteht erst, wenn jemand bewusst auf den Knopf drückt.
+     -------------------------------------------------------------------------- */
+  function initKarte() {
+    document.querySelectorAll(".karte-zustimmung").forEach((flaeche) => {
+      const knopf = flaeche.querySelector("[data-karte-knopf]");
+      const adresse = flaeche.getAttribute("data-karte");
+      if (!knopf || !adresse) return;
+
+      knopf.addEventListener("click", () => {
+        const rahmen = document.createElement("iframe");
+        rahmen.src = adresse;
+        rahmen.title = flaeche.getAttribute("data-karte-titel") || "Karte";
+        rahmen.loading = "lazy";
+        rahmen.referrerPolicy = "no-referrer";
+        rahmen.setAttribute("style", "width: 100%; height: 380px; border: 0; display: block;");
+        flaeche.replaceWith(rahmen);
+        // Nach dem Austausch liegt der Fokus im Nichts – er gehört auf die Karte.
+        rahmen.setAttribute("tabindex", "0");
+        rahmen.focus({ preventScroll: true });
+      });
+    });
+  }
+
   function start() {
     initNavigation();
     initNachObenKnopf();
     initAkkordeon();
     initZaehler();
     initKontaktformular();
+    initKarte();
     einblendungenAnmelden(document);
 
     // Die Schreibmaschine erst starten, wenn cms.js die veröffentlichten

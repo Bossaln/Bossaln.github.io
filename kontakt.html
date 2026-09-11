@@ -10,11 +10,11 @@
 <link href="assets/img/favicon.png" rel="icon" type="image/png"/>
 <link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
 <link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
-<link href="css/style.css?v=5" rel="stylesheet"/>
+<link href="css/style.css?v=10" rel="stylesheet"/>
 <script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
 <script defer src="js/vendor/motion.min.js?v=3"></script>
 <script defer src="js/cms.js?v=3"></script>
-<script defer src="js/main.js?v=3"></script>
+<script defer src="js/main.js?v=5"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -38,6 +38,7 @@
 <li><a href="galerie.html">Galerie</a></li>
 <li><a href="konzept.html">Unser Konzept</a></li>
 <li><a class="nav-cta aktiv" href="kontakt.html">Kontakt</a></li>
+<li class="nav-instagram-eintrag"><a class="nav-instagram" href="https://www.instagram.com/mellis_krabbelzwerge/" target="_blank" rel="noopener noreferrer" title="Melli's Krabbelzwerge auf Instagram" aria-label="Melli's Krabbelzwerge auf Instagram (öffnet in neuem Tab)"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5.4"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.3" cy="6.7" r="1.15" fill="currentColor" stroke="none"/></svg><span class="nav-instagram-text">Instagram</span></a></li>
 </ul>
 </nav>
 </div>
@@ -67,7 +68,7 @@
 <span class="karte-icon">📞</span>
 <div>
 <h3 data-cms="kontakt_05">Telefon</h3>
-<p><a data-cms-tel="telefon" href="tel:+4915787298121">0157 / 872 981 21</a><br/>
+<p><a data-cms-tel="telefon" href="tel:+4915787298121">0157 / 872 981 21</a></p>
 </div>
 </div>
 <div class="info-karte einblenden">
@@ -169,8 +170,14 @@ Nachbarschaft.</p>
 <span class="ueberschrift-klein" data-cms="kontakt_10">So findet ihr uns</span>
 <h2 data-cms-html="kontakt_11">Im Looscheid 82, <span class="unterstrichen">Essen-Stoppenberg</span></h2>
 </div>
-<div class="bild-rahmen einblenden">
-<iframe loading="lazy" src="https://www.google.com/maps?q=Im%20Looscheid%2082%2C%2045141%20Essen&amp;output=embed&amp;hl=de" style="width: 100%; height: 380px; border: 0; display: block;" title="Google-Maps-Karte: Im Looscheid 82, 45141 Essen (Stoppenberg)"></iframe>
+<div class="bild-rahmen einblenden karte-rahmen">
+<div class="karte-zustimmung" data-karte="https://www.google.com/maps?q=Im%20Looscheid%2082%2C%2045141%20Essen&amp;output=embed&amp;hl=de" data-karte-titel="Google-Maps-Karte: Im Looscheid 82, 45141 Essen (Stoppenberg)">
+<span aria-hidden="true" class="karte-symbol">🗺️</span>
+<h3 data-cms="kontakt_karte_titel">Karte von Google Maps</h3>
+<p data-cms="kontakt_karte_text">Wir laden die Karte nicht automatisch. Erst wenn ihr auf „Karte laden“ klickt, verbindet sich euer Browser mit Google – dabei werden eure IP-Adresse und Gerätedaten an Google übertragen und Google kann Cookies setzen. Vorher passiert nichts.</p>
+<button class="btn btn-primaer" data-karte-knopf="" type="button">Karte laden</button>
+<p class="karte-fusszeile"><a href="datenschutz.html">Mehr dazu in unserer Datenschutzerklärung</a></p>
+</div>
 </div>
 <p data-cms-html="kontakt_12" style="text-align: center; margin-top: 0.8rem; font-size: 0.9rem;"><a href="https://www.google.com/maps/search/?api=1&amp;query=Im+Looscheid+82%2C+45141+Essen" rel="noopener" target="_blank">Größere Karte in Google Maps öffnen</a></p>
 </div>

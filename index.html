@@ -10,12 +10,12 @@
 <link href="assets/img/favicon.png" rel="icon" type="image/png"/>
 <link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
 <link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
-<link href="css/style.css?v=5" rel="stylesheet"/>
+<link href="css/style.css?v=10" rel="stylesheet"/>
 <script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
 <script defer src="js/vendor/motion.min.js?v=3"></script>
 <script defer src="js/cms.js?v=3"></script>
-<script defer src="js/main.js?v=3"></script>
-<script defer src="js/bewertungen.js?v=1"></script>
+<script defer src="js/main.js?v=5"></script>
+<script defer src="js/bewertungen.js?v=2"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -39,6 +39,7 @@
 <li><a href="galerie.html">Galerie</a></li>
 <li><a href="konzept.html">Unser Konzept</a></li>
 <li><a class="nav-cta" href="kontakt.html">Kontakt</a></li>
+<li class="nav-instagram-eintrag"><a class="nav-instagram" href="https://www.instagram.com/mellis_krabbelzwerge/" target="_blank" rel="noopener noreferrer" title="Melli's Krabbelzwerge auf Instagram" aria-label="Melli's Krabbelzwerge auf Instagram (öffnet in neuem Tab)"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5.4"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.3" cy="6.7" r="1.15" fill="currentColor" stroke="none"/></svg><span class="nav-instagram-text">Instagram</span></a></li>
 </ul>
 </nav>
 </div>
@@ -99,7 +100,7 @@
 <div class="einblenden">
 <span class="ueberschrift-klein" data-cms="start_17" style="color: var(--orange); font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.9rem;">Über uns</span>
 <h2 data-cms="start_18">Ein zweites Zuhause für eure Zwerge</h2>
-<p data-cms="start_19">Wir sind Melanie, Ivonne und Sascha – drei Geschwister aus Essen-Stoppenberg und die Gesichter hinter Melli&#x27;s Krabbelzwergen. Melanie und Ivonne führen die Großtagespflege seit Januar 2016, seit 2017 ist Bruder Sascha als qualifizierte Kindertagespflegeperson fest mit dabei. So betreuen wir eure Zwerge zu dritt in familiärer Atmosphäre.</p>
+<p data-cms="start_19">Wir sind Melanie, Ivonne und Sascha – drei Geschwister aus Essen-Stoppenberg und die Gesichter hinter Melli&#x27;s Krabbelzwergen. Melanie und Ivonne führen die Großtagespflege seit Januar 2016, seit 2017 ist unser Bruder Sascha als qualifizierte Kindertagespflegeperson fest mit dabei. So betreuen wir eure Zwerge zu dritt in familiärer Atmosphäre.</p>
 <p data-cms="start_20">In unserem 112 m² großen Haus mit rund 300 m² Außengelände ist jede Menge Platz zum Spielen, Tanzen, Toben und Schlafen – denn nur glückliche Kinder können die Welt unbeschwert entdecken.</p>
 <div style="margin-top: 1.6rem;">
 <a class="btn btn-primaer" data-cms="start_21" href="ueber-uns.html">Mehr über uns erfahren</a>
@@ -204,6 +205,14 @@
 <div aria-hidden="true" class="bw-falle">
 <label for="bw-webseite">Webseite (bitte frei lassen)</label>
 <input autocomplete="off" id="bw-webseite" name="webseite" tabindex="-1" type="text"/>
+</div>
+
+<div class="feld">
+<label class="checkbox-feld">
+<input id="bw-einwilligung" name="einwilligung" required="" type="checkbox"/>
+<span>Ich bin damit einverstanden, dass mein Name, mein Text und die von mir hochgeladenen Fotos auf dieser Website <strong>öffentlich veröffentlicht</strong> werden. Ich habe die <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen und weiß, dass ich diese Einwilligung jederzeit formlos widerrufen kann. <span class="pflicht">*</span></span>
+</label>
+<span class="fehlermeldung"></span>
 </div>
 
 <button class="btn btn-primaer" id="bw-senden" type="submit">Bewertung abschicken</button>

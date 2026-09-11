@@ -224,6 +224,8 @@ Android ohne weitere Einstellungen, solange der Pi im selben Netz hängt.
 | Protokoll mitlesen | `sudo journalctl -u mellis-website -f` |
 | Neu starten | `sudo systemctl restart mellis-website` |
 | Neue Version von GitHub holen | `bash deploy/update.sh` |
+| Ist die Seite online? | `bash deploy/domain-pruefen.sh` |
+| Öffentliche Adresse anzeigen | `mellis-tunnel-adresse` |
 | Portal-Passwort neu setzen | `sudo bash deploy/passwort-setzen.sh` |
 | Neue Wiederherstellungs-Codes | `sudo bash deploy/passwort-setzen.sh --neue-codes` |
 
@@ -324,26 +326,167 @@ nutzen, oder auf dem Pi `sudo apt install -y avahi-daemon` nachinstallieren.
 
 ---
 
-## Später: ins Internet stellen
+## Ins Internet stellen – unter pexel.space
 
-Der Server ist darauf vorbereitet – es fehlt nur der Weg von außen zum Pi.
-Zwei bewährte Möglichkeiten:
+**Eingerichtet: Cloudflare-Tunnel auf die eigene Domain.**
 
-**a) Cloudflare Tunnel (empfohlen, keine Portfreigabe nötig)**
+Ein zweiter Dienst, `mellis-tunnel`, baut vom Pi aus eine Verbindung zu
+Cloudflare auf und reicht Besucher von dort an `http://127.0.0.1:8080`
+weiter. Vorteile gegenüber einer Portfreigabe: keine Änderung am Router
+nötig, die Heim-IP-Adresse bleibt verborgen, HTTPS bringt Cloudflare
+gratis mit – und es funktioniert auch an DS-Lite-Anschlüssen ohne eigene
+IPv4-Adresse.
 
-Funktioniert auch bei DS-Lite-Anschlüssen ohne eigene IPv4-Adresse,
-verbirgt die Heim-IP und bringt HTTPS gratis mit. Auf dem Pi
-`cloudflared` installieren, einen Tunnel anlegen und ihn auf
-`http://localhost:80` zeigen lassen.
+### Der Weg in drei Schritten
 
-**b) Eigene Domain mit Portfreigabe**
+**1. Domain bei Cloudflare anlegen** (im Browser, einmalig)
 
-Im Router die Ports 80 und 443 auf den Pi weiterleiten, die Domain per
-DynDNS aktuell halten und mit `certbot` ein Let's-Encrypt-Zertifikat
-holen – entweder direkt oder mit nginx davor.
+* Kostenloses Konto auf [dash.cloudflare.com](https://dash.cloudflare.com)
+* „Add a domain“ → `pexel.space` → Tarif **Free**
+* Cloudflare zeigt danach **zwei Nameserver** an, etwa
+  `dana.ns.cloudflare.com` und `rick.ns.cloudflare.com`
 
-In beiden Fällen sollte das Portal per HTTPS laufen. Der Server kann das
-auch selbst, wenn Zertifikat und Schlüssel hinterlegt werden – dazu in
+**2. Nameserver beim Registrar umstellen**
+
+`pexel.space` liegt bei **Strato**. Dort im Kundenbereich unter
+*Domainverwaltung → pexel.space → Nameserver* die beiden Cloudflare-Namen
+eintragen und die alten (`shades12.rzone.de`, `docks10.rzone.de`)
+ersetzen. Die Umstellung braucht meist ein paar Stunden, gelegentlich bis
+zu 24. Cloudflare schickt eine E-Mail, sobald die Domain **„Active“** ist.
+
+**3. Tunnel auf dem Pi einrichten** (einmalig, ein Befehl)
+
+```bash
+sudo bash deploy/domain-einrichten.sh pexel.space
+```
+
+Das Skript
+
+1. meldet den Pi bei Cloudflare an – dazu erscheint ein Link, der auf
+   irgendeinem Gerät mit Browser geöffnet wird (Handy genügt); dort die
+   Domain `pexel.space` auswählen,
+2. legt den benannten Tunnel `mellis` an und hinterlegt seinen Schlüssel
+   unter `/etc/cloudflared/`,
+3. schreibt den Wegweiser `/etc/cloudflared/config.yml`
+   (`pexel.space` und `www.pexel.space` → Website auf Port 8080),
+4. trägt bei Cloudflare die passenden DNS-Einträge ein,
+5. stellt den Dienst `mellis-tunnel` von der Zufallsadresse auf die feste
+   Adresse um und startet ihn.
+
+Der dritte Schritt darf **vor oder nach** dem Nameserver-Wechsel laufen –
+und beliebig oft. Läuft er vorher, steht alles bereit und die Seite geht
+in dem Moment online, in dem Cloudflare die Domain übernimmt.
+
+> Nur wenn `pexel.space` im Cloudflare-Konto noch gar nicht angelegt ist,
+> kann das Skript die DNS-Einträge nicht setzen. Es sagt das deutlich –
+> dann Schritt 1 nachholen und das Skript noch einmal starten.
+
+### Läuft es?
+
+```bash
+bash deploy/domain-pruefen.sh
+```
+
+Die Prüfung geht die ganze Kette durch – Website auf dem Pi, Tunnel,
+Nameserver, DNS-Einträge, Aufruf von außen – und sagt bei jedem Punkt
+✓ oder ✗ samt Grund. Solange die Nameserver noch bei Strato stehen,
+meldet Punkt 3 und 5 ein ✗; das ist genau richtig und erledigt sich mit
+dem Wechsel von selbst.
+
+Die aktuelle Adresse zeigt jederzeit:
+
+```bash
+mellis-tunnel-adresse
+```
+
+### Danach im Cloudflare-Dashboard
+
+Zwei Schalter, die dafür sorgen, dass wirklich jeder Besucher verschlüsselt
+ankommt (beide unter der Domain `pexel.space`):
+
+| Wo | Einstellung |
+|---|---|
+| SSL/TLS → Overview | Verschlüsselungsmodus **Full** |
+| SSL/TLS → Edge Certificates | **Always Use HTTPS** einschalten |
+| SSL/TLS → Edge Certificates | **Automatic HTTPS Rewrites** einschalten |
+
+Das Zertifikat für `pexel.space` stellt Cloudflare selbst aus – auf dem Pi
+ist nichts zu verlängern und nichts zu warten.
+
+**Wichtig – die Prüfseite abschalten.** Neue Zonen bringen bei Cloudflare oft
+den *Bot Fight Mode* mit. Besucher sehen dann kurz „Just a moment …", bevor
+die Seite kommt. Für Menschen mit Browser ist das nur eine Verzögerung –
+**Suchmaschinen kommen damit aber gar nicht durch**, die Seite taucht bei
+Google also nie auf. Deshalb ausschalten:
+
+| Wo | Einstellung |
+|---|---|
+| Security → Bots | **Bot Fight Mode** → aus |
+| Security → Settings | Security Level auf **Medium** (nicht „I'm Under Attack") |
+
+Ob noch eine Prüfseite davorsteht, sagt `bash deploy/domain-pruefen.sh` im
+Klartext.
+
+### Was sich sonst ändert
+
+* **`www.pexel.space` leitet auf `pexel.space`** – damit Suchmaschinen die
+  Seite nicht doppelt kennen. Die Weiterleitung macht der Pi selbst; er
+  erfährt seine Domain über `MELLIS_DOMAIN` in `/etc/mellis-website.env`,
+  das vom Einrichtungsskript gesetzt wird.
+* **Im Heimnetz bleibt alles wie bisher**: `http://home.local:8080/`
+  funktioniert weiter, unabhängig vom Tunnel.
+* **Das Protokoll zeigt jetzt die echte Besucher-Adresse.** Ohne diesen
+  Zusatz sähe hinter dem Tunnel jeder Besucher wie `127.0.0.1` aus – fünf
+  Fehlversuche irgendwo auf der Welt hätten dann alle anderen mitgesperrt.
+
+### Alltag mit dem Tunnel
+
+```bash
+sudo systemctl status mellis-tunnel     # läuft er?
+sudo systemctl restart mellis-tunnel    # neu starten (Adresse bleibt!)
+sudo systemctl stop mellis-tunnel       # Website wieder nur im Heimnetz
+sudo systemctl disable mellis-tunnel    # auch nach Reboot aus
+journalctl -u mellis-tunnel -f          # Protokoll mitlesen
+```
+
+> **Hinweis zum Passwort:** Über den Tunnel läuft alles per HTTPS, das
+> Portal-Passwort geht also verschlüsselt raus. Ruft man das Portal
+> dagegen direkt im Heimnetz über `http://<Pi-IP>:8080` auf, ist die
+> Verbindung unverschlüsselt – im eigenen WLAN vertretbar, aber der Weg
+> über `https://pexel.space` ist auch von zu Hause aus der sicherere.
+>
+> Da das Portal aus dem Internet erreichbar ist, sollte das Passwort lang
+> und einzigartig sein – notfalls neu setzen mit
+> `sudo bash deploy/passwort-setzen.sh`.
+
+### Fehlersuche
+
+**`domain-pruefen.sh` meldet HTTP 502 oder 530** – Cloudflare erreicht den
+Pi nicht. Meist läuft die Website gerade nicht:
+`sudo systemctl status mellis-website`.
+
+**Die Seite zeigt eine Cloudflare-Fehlerseite „Host Error“** – der Tunnel
+steht, aber der Wegweiser zeigt auf den falschen Port. Prüfen mit
+`cat /etc/cloudflared/config.yml`; der Port dort muss zu
+`Environment=MELLIS_PORT=` in `/etc/systemd/system/mellis-website.service`
+passen. Danach `sudo bash deploy/domain-einrichten.sh pexel.space`.
+
+**Alles noch einmal von vorn** – Tunnel bei Cloudflare löschen und neu
+aufsetzen:
+
+```bash
+sudo systemctl stop mellis-tunnel
+sudo cloudflared --origincert /etc/cloudflared/cert.pem tunnel delete mellis
+sudo bash deploy/domain-einrichten.sh pexel.space
+```
+
+### Alternative: eigene Domain mit Portfreigabe
+
+Statt des Tunnels ginge auch: im Router die Ports 80 und 443 auf den Pi
+weiterleiten, die Domain per DynDNS aktuell halten und mit `certbot` ein
+Let's-Encrypt-Zertifikat holen. Nur bei dieser Variante muss man sich
+selbst um HTTPS kümmern. Der Server kann HTTPS auch direkt, wenn
+Zertifikat und Schlüssel hinterlegt werden – dazu in
 `/etc/systemd/system/mellis-website.service` ergänzen:
 
 ```ini
@@ -353,7 +496,122 @@ Environment=MELLIS_TLS_KEY=/pfad/zum/privkey.pem
 
 Danach `sudo systemctl daemon-reload && sudo systemctl restart mellis-website`.
 
-> **Hinweis zum Heimnetz-Betrieb:** Ohne HTTPS wird das Portal-Passwort
-> unverschlüsselt durchs eigene WLAN geschickt. Im privaten Heimnetz ist
-> das vertretbar; sobald die Website öffentlich erreichbar ist, sollte
-> HTTPS eingerichtet sein.
+Auf dem Pi belegt allerdings **Pi-hole** die Ports 80 und 443 – dieser Weg
+wäre also erst nach einer Umverteilung der Ports gangbar. Der Tunnel
+umgeht das Problem vollständig; das ist der Grund für die obige Wahl.
+
+---
+
+## Bei Google auftauchen
+
+**Kurz: erst die endgültige Domain, dann Google.**
+
+Solange die Seite unter einer Probe-Adresse läuft, wäre eine Aufnahme in den
+Index schädlich. Die Texte stünden doppelt in der Suche, Google müsste raten,
+welche Adresse die richtige ist – und eine Adresse wieder *aus* dem Index zu
+bekommen dauert Wochen, während das Hineinkommen Tage dauert.
+
+Deshalb hält sich der Server im Probebetrieb von selbst zurück:
+
+| | Probebetrieb | Freigegeben |
+|---|---|---|
+| `robots.txt` | `Disallow: /` | normale Regeln + Verweis auf die Sitemap |
+| Kopfzeile jeder Seite | `X-Robots-Tag: noindex, nofollow` | keine |
+| `/sitemap.xml` | 404 | alle öffentlichen Seiten mit Änderungsdatum |
+
+Gesteuert wird das über **eine** Zeile in `/etc/mellis-website.env`:
+
+```ini
+MELLIS_SUCHMASCHINEN=nein
+```
+
+Das Verwaltungs-Portal `admin.html` bleibt in **beiden** Fällen draußen.
+
+### Wenn die endgültige Domain steht
+
+**1. Domain umstellen** – genau wie beim ersten Mal:
+
+```bash
+sudo bash deploy/domain-einrichten.sh mellis-krabbelzwerge.de
+bash deploy/domain-pruefen.sh
+```
+
+**2. Für Suchmaschinen freigeben**
+
+```bash
+sudo sed -i 's/^MELLIS_SUCHMASCHINEN=.*/MELLIS_SUCHMASCHINEN=ja/' /etc/mellis-website.env
+sudo systemctl restart mellis-website
+```
+
+Prüfen, ob es gegriffen hat – die erste Zeile darf **nicht** mehr
+„Disallow: /" enthalten, die zweite muss eine Seitenliste zeigen:
+
+```bash
+curl https://mellis-krabbelzwerge.de/robots.txt
+curl https://mellis-krabbelzwerge.de/sitemap.xml
+```
+
+**3. Die alte Probe-Adresse abschalten.** Sonst steht dieselbe Seite unter
+zwei Namen im Netz. Im Wegweiser `/etc/cloudflared/config.yml` bleibt nur
+noch die echte Domain übrig – das erledigt Schritt 1 automatisch, weil er
+die Datei neu schreibt.
+
+**4. Google Search Console** – [search.google.com/search-console](https://search.google.com/search-console)
+
+* „Property hinzufügen" → **Domain** (nicht „URL-Präfix")
+* Google nennt einen TXT-Eintrag. Den im Cloudflare-Dashboard unter
+  *DNS → Add record* als `TXT` mit Namen `@` eintragen. Das geht sofort,
+  weil die Domain schon bei Cloudflare liegt.
+* Nach der Bestätigung: *Sitemaps* → `sitemap.xml` eintragen
+* *URL-Prüfung* → Startseite eingeben → „Indexierung beantragen"
+
+**5. Google Unternehmensprofil** – [business.google.com](https://business.google.com)
+
+Für eine Großtagespflege ist das **wichtiger als alles andere**: Wer „Kita
+Essen Stoppenberg" sucht, bekommt zuerst die Karte mit den Einträgen aus dem
+Unternehmensprofil, erst darunter normale Treffer. Eintragen: Name, Adresse,
+Telefon, Öffnungszeiten, Fotos, Website-Adresse. Google schickt eine Postkarte
+mit einem Bestätigungscode an die Adresse.
+
+**Achtung – überall dieselbe Schreibweise.** Name, Adresse und Telefonnummer
+müssen im Unternehmensprofil, im Impressum und auf der Kontaktseite Zeichen
+für Zeichen gleich stehen. Google gleicht das ab; Abweichungen kosten
+Sichtbarkeit.
+
+### Wie lange dauert das?
+
+* Search Console erkennt die Sitemap meist innerhalb von **1–3 Tagen**
+* Die ersten Seiten stehen nach **wenigen Tagen bis zwei Wochen** in der Suche
+* Das Unternehmensprofil ist nach der Postkarten-Bestätigung (**1–2 Wochen**)
+  sofort in der Karte sichtbar
+
+Nachhelfen lässt sich kaum – wer „schnelle Indexierung" verkauft, verkauft
+Luft. Was wirklich hilft: ein Eintrag im Unternehmensprofil und Verweise von
+Seiten, die es schon gibt (Stadtportal, Träger, Elternvereine, Facebook).
+
+### Noch nicht eingebaut
+
+Zwei Dinge würden die Darstellung verbessern, brauchen aber die endgültige
+Domain, weil dort vollständige Adressen hineingehören:
+
+* **Vorschaubild beim Teilen** (`og:`-Angaben) – bestimmt, wie die Seite in
+  WhatsApp, Facebook und Signal aussieht. Ohne das erscheint nur der nackte
+  Link.
+* **Strukturierte Daten** (`ChildCare` als JSON-LD) – liefert Google Adresse,
+  Öffnungszeiten und Telefonnummer maschinenlesbar mit.
+
+---
+
+## Protokolle nach 30 Tagen löschen (Datenschutz)
+
+Die Datenschutzerklärung sagt zu, dass Protokolleinträge – darunter
+IP-Adressen fehlgeschlagener Portal-Anmeldungen – spätestens nach 30 Tagen
+gelöscht werden. Neue Installationen richten das automatisch ein. Auf einem
+bereits laufenden Pi einmalig nachholen:
+
+```bash
+sudo mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nMaxRetentionSec=30day\n' | sudo tee /etc/systemd/journald.conf.d/50-mellis-website.conf
+sudo systemctl restart systemd-journald
+sudo journalctl --vacuum-time=30d      # ältere Einträge sofort entfernen
+```

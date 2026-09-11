@@ -1,6 +1,10 @@
 # Melli's Krabbelzwerge
+#
+# Diese Datei ist nur der Rückfall für den Fall, dass der Ordner von einem
+# fremden Webserver ausgeliefert wird. Im Normalbetrieb baut server.js die
+# robots.txt selbst – abhängig von MELLIS_SUCHMASCHINEN und der eigenen
+# Domain (siehe deploy/README.md, Abschnitt „Bei Google auftauchen").
 
-# Das Verwaltungs-Portal und der Datenordner gehören nicht in Suchmaschinen.
 User-agent: *
 Disallow: /admin.html
 Disallow: /daten/
