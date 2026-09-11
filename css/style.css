@@ -700,15 +700,34 @@ main > .abschnitt-hell:last-child {
 .karte.team-karte h3 { text-align: center; }
 .karte.team-karte p + p { margin-top: 0.7rem; }
 
-/* Die Rolle unter dem Namen – kleine Zeile in Versalien */
+/* Die Rolle unter dem Namen – die Hauptzeile, die zuerst ins Auge fällt */
 .team-rolle {
   margin-bottom: 1rem;
   text-align: center;
   font-weight: 800;
-  font-size: 0.82rem;
-  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--orange);
+}
+
+/* Kleine Vorzeile darüber: der erlernte Beruf. Bewusst zurückhaltend –
+   grau statt orange, kleiner und leichter –, damit die Kindertagespflege
+   als eigentliche Rolle zuerst gelesen wird. */
+.team-vorbildung {
+  margin-bottom: 0.15rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinte-hell);
+}
+
+/* Vorzeile und Rolle sind ein Block – der Absatzabstand aus
+   „.team-karte p + p“ würde sie sonst auseinanderziehen. */
+.karte.team-karte .team-vorbildung + .team-rolle {
+  margin-top: 0;
 }
 
 /* --------------------------------------------------------------------------

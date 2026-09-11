@@ -366,6 +366,24 @@
     "label": "Button/Link: Termin vereinbaren"
   },
   {
+    "schluessel": "ueberuns_51",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Gelernte Rechtsanwaltsfachangestellte (Melanie)"
+  },
+  {
+    "schluessel": "ueberuns_52",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Kindertagespflegeperson (Ivonne)"
+  },
+  {
+    "schluessel": "ueberuns_53",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Gelernter Einzelhandelskaufmann (Sascha)"
+  },
+  {
     "schluessel": "tag_01",
     "seite": "Tagesablauf",
     "art": "text",
