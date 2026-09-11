@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'self'">
   <meta name="robots" content="noindex, nofollow">
   <title>Verwaltungs-Portal – Melli's Krabbelzwerge</title>
-  <link rel="icon" type="image/png" href="assets/img/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/style.css?v=11">
   <style>
     .portal-rahmen { max-width: 860px; margin: 3rem auto; width: 92%; }
     .portal-karte {
@@ -46,15 +43,68 @@
       border-radius: 12px; padding: 1rem 1.3rem;
       font-size: 0.95rem; color: var(--tinte-hell); margin-bottom: 1.5rem;
     }
-    .portal-details summary {
-      cursor: pointer; font-family: var(--schrift-titel);
-      font-size: 1.2rem; font-weight: 700; list-style-position: outside;
-    }
-    .portal-details[open] summary { margin-bottom: 1.2rem; }
-    .portal-details .feld label {
+    .ordner-block .feld label {
       font-weight: 700; font-size: 0.85rem; color: var(--tinte-hell);
     }
-    .html-feld { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    .bewertung-eintrag {
+      display: grid; grid-template-columns: 84px 1fr auto;
+      gap: 1rem; align-items: center;
+      padding: 0.9rem 0; border-bottom: 1px solid var(--wolke);
+    }
+    .bewertung-eintrag:last-child { border-bottom: none; padding-bottom: 0; }
+    .bewertung-eintrag img, .bewertung-eintrag .ohne-bild {
+      width: 84px; height: 62px; border-radius: 10px; background: var(--wolke);
+    }
+    .bewertung-eintrag img { object-fit: cover; }
+    .bewertung-eintrag .ohne-bild { display: grid; place-items: center; font-size: 1.5rem; }
+    .bewertung-eintrag h4 { font-size: 1.02rem; margin-bottom: 0.15rem; }
+    .bewertung-eintrag p { font-size: 0.9rem; color: var(--tinte-hell); }
+    .bewertung-eintrag small { color: var(--tinte-hell); font-weight: 700; }
+    .bewertung-eintrag .knoepfe { display: flex; gap: 0.5rem; }
+    @media (max-width: 640px) {
+      .bewertung-eintrag { grid-template-columns: 62px 1fr; }
+      .bewertung-eintrag img, .bewertung-eintrag .ohne-bild { width: 62px; height: 48px; }
+      .bewertung-eintrag .knoepfe { grid-column: 1 / -1; }
+    }
+    .ordner-block {
+      border: 2px solid var(--wolke); border-radius: 14px;
+      padding: 1.1rem 1.2rem; margin-bottom: 1.2rem;
+    }
+    .ordner-block > summary {
+      cursor: pointer; font-family: var(--schrift-titel);
+      font-size: 1.1rem; font-weight: 700;
+    }
+    .ordner-block[open] > summary { margin-bottom: 1rem; }
+    .ordner-zeile {
+      display: flex; flex-wrap: wrap; gap: 0.6rem;
+      align-items: center; margin-bottom: 1rem;
+    }
+    .galerie-bilder {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1rem;
+    }
+    .galerie-bild {
+      border: 1px solid var(--wolke); border-radius: 12px;
+      padding: 0.6rem; background: var(--creme);
+    }
+    .galerie-bild img {
+      width: 100%; height: 130px; object-fit: cover;
+      border-radius: 8px; background: var(--wolke); display: block;
+    }
+    .galerie-bild textarea {
+      width: 100%; margin: 0.6rem 0 0.5rem;
+      padding: 0.5rem 0.7rem; resize: vertical;
+      font-family: var(--schrift-text); font-size: 0.9rem;
+      color: var(--tinte); background: var(--weiss);
+      border: 2px solid #ece2d4; border-radius: 10px;
+      transition: border-color var(--uebergang), box-shadow var(--uebergang);
+    }
+    .galerie-bild textarea:focus {
+      outline: none; border-color: var(--blau);
+      box-shadow: 0 0 0 3px rgba(61, 155, 233, 0.15);
+    }
+    .galerie-bild .werkzeuge { display: flex; justify-content: space-between; gap: 0.5rem; }
+    .fortschritt { font-weight: 700; color: var(--tinte-hell); font-size: 0.9rem; }
     .passwort-wrapper { position: relative; }
     .passwort-wrapper input { padding-right: 3.2rem; }
     .passwort-wrapper button {
@@ -67,7 +117,29 @@
       transition: background 0.2s;
     }
     .passwort-wrapper button:hover { background: var(--wolke); }
-    .html-hinweis { display: block; margin-top: 0.25rem; color: var(--tinte-hell); }
+    .text-knopf {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 700; color: var(--blau);
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    .text-knopf:hover { color: var(--rot); }
+    #zuruecksetzen-bereich {
+      display: none; margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--wolke);
+    }
+    #codes-liste {
+      display: none; list-style: none; margin: 1.2rem 0 0;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem;
+    }
+    #codes-liste li {
+      background: var(--wolke); border-radius: 10px; padding: 0.6rem 0.9rem;
+      font-family: ui-monospace, "Courier New", monospace;
+      font-size: 1.05rem; letter-spacing: 0.06em; user-select: all;
+    }
+    #zuruecksetzen-code {
+      font-family: ui-monospace, "Courier New", monospace;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
     #portal { display: none; }
   </style>
 </head>
@@ -79,7 +151,7 @@
     <div class="container">
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="index.html" class="nav-logo">
-          <img src="assets/img/logo.png" alt="Logo von Melli's Krabbelzwerge">
+          <img src="assets/img/logo.webp" alt="Logo von Melli's Krabbelzwerge">
           <span class="nav-logo-text">
             <strong>Melli's Krabbelzwerge</strong>
             <span>Verwaltungs-Portal</span>
@@ -112,6 +184,41 @@
           <button type="submit" class="btn btn-primaer" style="width: 100%;">Anmelden</button>
         </form>
         <div id="anmelde-meldung" class="portal-hinweis"></div>
+
+        <p style="margin-top: 1.2rem; text-align: center;">
+          <button type="button" id="passwort-vergessen" class="text-knopf">Passwort vergessen?</button>
+        </p>
+
+        <!-- Zurücksetzen mit einem Wiederherstellungs-Code -->
+        <div id="zuruecksetzen-bereich">
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem;">🆘 Passwort zurücksetzen</h3>
+          <p id="zuruecksetzen-einleitung" style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+            Einen der ausgedruckten Wiederherstellungs-Codes eingeben und ein
+            neues Passwort vergeben. Jeder Code gilt genau einmal.
+          </p>
+          <form id="zuruecksetzen-formular">
+            <div class="feld">
+              <label for="zuruecksetzen-code">Wiederherstellungs-Code</label>
+              <input type="text" id="zuruecksetzen-code" autocomplete="off"
+                autocapitalize="characters" autocorrect="off" spellcheck="false"
+                placeholder="XXXXX-XXXXX-XXXXX" required>
+            </div>
+            <div class="feld">
+              <label for="zuruecksetzen-neu">Neues Passwort (mind. 12 Zeichen)</label>
+              <input type="password" id="zuruecksetzen-neu" autocomplete="new-password" required>
+            </div>
+            <div class="feld">
+              <label for="zuruecksetzen-wdh">Neues Passwort wiederholen</label>
+              <input type="password" id="zuruecksetzen-wdh" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primaer" style="width: 100%;">Neues Passwort setzen</button>
+          </form>
+          <div id="zuruecksetzen-meldung" class="portal-hinweis"></div>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
+            Kein Code mehr da? Dann hilft nur der Weg über den Server selbst –
+            am Raspberry Pi: <code>sudo bash deploy/passwort-setzen.sh</code>
+          </p>
+        </div>
       </div>
     </section>
 
@@ -122,7 +229,7 @@
         <button id="abmelden" class="btn btn-sekundaer">Abmelden</button>
       </div>
 
-      <div class="info-kasten">
+      <div class="info-kasten" id="info-kasten">
         <strong>So funktioniert es:</strong> Änderungen mit „Vorschau speichern" testen –
         sie sind dann sofort in diesem Browser auf der Website sichtbar. Damit
         <em>alle Besucher</em> sie sehen: „Veröffentlichen" klicken und die
@@ -173,54 +280,44 @@
       </div>
 
       <div class="portal-karte">
-        <h2>🖼️ Bilder</h2>
+        <h2>⭐ Bewertungen</h2>
         <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-          Neue Bilder werden automatisch verkleinert. Sie erscheinen auf allen Seiten,
-          auf denen das jeweilige Bild verwendet wird.
+          Bewertungen schreiben eure Besucher selbst auf der
+          <a href="index.html#bewertungen" target="_blank" rel="noopener">Startseite</a> –
+          sie erscheinen dort sofort. Hier seht ihr alle und könnt einzelne löschen,
+          falls jemand Unsinn oder Werbung hinterlässt.
         </p>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_logo" src="assets/img/logo.png" alt="Logo" style="object-fit: contain; background: var(--weiss);">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_logo">Logo (Kopfzeile, Startseite, Fußzeile)</label>
-            <input type="file" id="upload-bild_logo" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_team" src="assets/img/team.jpg" alt="Teamfoto">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_team">Teamfoto (Über uns, Startseite)</label>
-            <input type="file" id="upload-bild_team" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_spielzimmer" src="assets/img/spielzimmer.jpg" alt="Spielzimmer">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_spielzimmer">Spielzimmer (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_spielzimmer" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_raum" src="assets/img/raum.jpg" alt="Spiel- und Schlafraum">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_raum">Spiel- &amp; Schlafraum (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_raum" accept="image/*">
-          </div>
-        </div>
-        <div class="bild-zeile">
-          <img id="vorschau-bild_garten" src="assets/img/garten.jpg" alt="Außengelände">
-          <div class="feld" style="margin: 0;">
-            <label for="upload-bild_garten">Außengelände (Galerie, Über uns)</label>
-            <input type="file" id="upload-bild_garten" accept="image/*">
-          </div>
-        </div>
+        <div id="bewertung-meldung" class="portal-hinweis"></div>
+        <div id="bewertung-uebersicht" style="font-weight: 700; margin-bottom: 0.8rem;"></div>
+        <div id="bewertung-liste"></div>
       </div>
 
-      <h2 style="font-size: 1.4rem; margin: 2rem 0 1rem;">📝 Alle Texte der Website</h2>
-      <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
-        Hier lässt sich jeder Text der Website bearbeiten – nach Seiten sortiert.
-        Einfach eine Seite aufklappen.
-      </p>
-      <div id="dynamische-bereiche"></div>
+      <div class="portal-karte">
+        <h2>🖼️ Galerie – Ordner &amp; Bilder</h2>
+        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+          Die <a href="galerie.html" target="_blank" rel="noopener">Galerie</a> ist in
+          Ordner unterteilt. Hier siehst du die ganze Struktur, kannst Ordner
+          anlegen, mehrere Bilder gleichzeitig hochladen und zu jedem Bild einen
+          Text schreiben – der erscheint unter dem Bild.
+        </p>
+
+        <div class="feld">
+          <label for="ordner-neu-name">Neuen Ordner anlegen</label>
+          <input type="text" id="ordner-neu-name" maxlength="80" placeholder="z. B. Sommerfest 2026">
+        </div>
+        <div class="feld">
+          <label for="ordner-neu-text">Beschreibung des Ordners (optional)</label>
+          <input type="text" id="ordner-neu-text" maxlength="500" placeholder="Kurz, was in diesem Ordner zu sehen ist">
+        </div>
+        <div class="portal-aktionen" style="margin-bottom: 1.5rem;">
+          <button id="ordner-anlegen" class="btn btn-primaer">Ordner anlegen</button>
+          <button id="galerie-exportieren" class="btn btn-sekundaer" style="display: none;">Galerie als Datei speichern</button>
+        </div>
+        <div id="galerie-meldung" class="portal-hinweis"></div>
+
+        <h3 style="font-size: 1.1rem; margin: 1.8rem 0 0.6rem;">Ordnerstruktur</h3>
+        <div id="galerie-struktur"></div>
+      </div>
 
       <div class="portal-karte">
         <h2>💾 Speichern &amp; Veröffentlichen</h2>
@@ -235,6 +332,10 @@
       <div class="portal-karte">
         <h2>🔑 Passwort ändern</h2>
         <form id="passwort-formular">
+          <div class="feld" id="passwort-alt-zeile" style="display: none;">
+            <label for="passwort-alt">Bisheriges Passwort</label>
+            <input type="password" id="passwort-alt" autocomplete="current-password">
+          </div>
           <div class="formular-reihe">
             <div class="feld">
               <label for="passwort-neu">Neues Passwort (mind. 12 Zeichen)</label>
@@ -248,17 +349,38 @@
           <button type="submit" class="btn btn-sekundaer">Neue Zugangsdatei erstellen</button>
         </form>
         <div id="passwort-meldung" class="portal-hinweis"></div>
-        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
+        <p id="passwort-hinweis" style="margin-top: 1rem; font-size: 0.9rem; color: var(--tinte-hell);">
           Die heruntergeladene Datei <code>zugang.json</code> in den Ordner
           <code>daten/</code> hochladen – erst dann gilt das neue Passwort.
           Es wird nur ein sicherer Prüfwert (Hash) gespeichert, nie das Passwort selbst.
         </p>
       </div>
 
+      <div class="portal-karte">
+        <h2>🆘 Wiederherstellungs-Codes</h2>
+        <p style="color: var(--tinte-hell); font-size: 0.95rem; margin-bottom: 1.2rem;">
+          Für den Fall, dass das Passwort einmal vergessen wird: Mit einem
+          dieser Codes lässt sich auf der Anmeldeseite ein neues Passwort
+          setzen – ohne Umweg über die Kommandozeile. Am besten ausdrucken und dorthin
+          legen, wo auch die anderen wichtigen Unterlagen liegen.
+          Jeder Code gilt <strong>genau einmal</strong>.
+        </p>
+
+        <div id="codes-status" class="portal-status"></div>
+
+        <div class="portal-aktionen">
+          <button id="codes-erzeugen" class="btn btn-primaer">Neue Codes erzeugen</button>
+          <button id="codes-speichern" class="btn btn-sekundaer" style="display: none;">Codes als Datei speichern</button>
+        </div>
+
+        <ol id="codes-liste"></ol>
+        <div id="codes-meldung" class="portal-hinweis"></div>
+      </div>
+
     </section>
 
   </main>
 
-  <script src="js/admin.js"></script>
+  <script defer src="js/admin.js?v=4"></script>
 </body>
 </html>

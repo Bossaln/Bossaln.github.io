@@ -3,14 +3,19 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"/>
+<meta content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-+oexMg2Nz/Pho01DKw5ho8iGtqc33ipapYZ/zNkGer8='; connect-src 'self'; frame-src https://www.google.com" http-equiv="Content-Security-Policy"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Galerie – Melli's Krabbelzwerge</title>
 <meta content="Einblicke in die Räume und den Alltag von Melli's Krabbelzwergen – Großtagespflege in Essen-Stoppenberg." name="description"/>
-<link href="assets/img/logo.png" rel="icon" type="image/png"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="css/style.css" rel="stylesheet"/>
+<link href="assets/img/favicon.png" rel="icon" type="image/png"/>
+<link as="font" crossorigin="" href="assets/fonts/nunito-latin.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="assets/fonts/baloo2-latin.woff2" rel="preload" type="font/woff2"/>
+<link href="css/style.css?v=11" rel="stylesheet"/>
+<script>(function(d,w){var h=d.documentElement,k="js";try{if(typeof h.animate==="function"&&w.matchMedia&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){k+=" bewegung";w.mellisNotbremse=w.setTimeout(function(){h.classList.remove("bewegung");},5000);}}catch(e){}h.className=h.className?h.className+" "+k:k;})(document,window);</script>
+<script defer src="js/vendor/motion.min.js?v=3"></script>
+<script defer src="js/cms.js?v=3"></script>
+<script defer src="js/main.js?v=5"></script>
+<script defer src="js/galerie.js?v=3"></script>
 </head>
 <body>
 <div class="regenbogen-leiste"></div>
@@ -18,7 +23,7 @@
 <div class="container">
 <nav aria-label="Hauptnavigation" class="nav">
 <a class="nav-logo" href="index.html">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async"/>
 <span class="nav-logo-text">
 <strong>Melli's Krabbelzwerge</strong>
 <span>Großtagespflege</span>
@@ -32,7 +37,9 @@
 <li><a href="ueber-uns.html">Über uns</a></li>
 <li><a href="tagesablauf.html">Tagesablauf</a></li>
 <li><a class="aktiv" href="galerie.html">Galerie</a></li>
+<li><a href="konzept.html">Unser Konzept</a></li>
 <li><a class="nav-cta" href="kontakt.html">Kontakt</a></li>
+<li class="nav-instagram-eintrag"><a class="nav-instagram" href="https://www.instagram.com/mellis_krabbelzwerge/" target="_blank" rel="noopener noreferrer" title="Melli's Krabbelzwerge auf Instagram" aria-label="Melli's Krabbelzwerge auf Instagram (öffnet in neuem Tab)"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5.4"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.3" cy="6.7" r="1.15" fill="currentColor" stroke="none"/></svg><span class="nav-instagram-text">Instagram</span></a></li>
 </ul>
 </nav>
 </div>
@@ -44,36 +51,29 @@
 <a href="index.html">Start</a> <span>›</span> <span>Galerie</span>
 </nav>
 <h1 data-cms="galerie_01">Unsere bunte Welt 📸</h1>
-<p data-cms="galerie_02" data-tippen="">Ein kleiner Einblick in unsere Räume und unseren Alltag – echte Fotos folgen bald!</p>
+<p data-cms="galerie_02" data-tippen="">Ein Einblick in unsere Räume, unseren Alltag und unsere Ausflüge – vom Bauernhof über den Zoo bis in den Schnee.</p>
 </div>
 </section>
 <section class="abschnitt abschnitt-hell">
-<div class="container">
-<div class="galerie-raster">
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser buntes Spielzimmer mit Spielteppich, Regalen und Blick in den Flur" data-cms-bild="bild_spielzimmer" src="assets/img/spielzimmer.jpg"/>
-<span class="titel" data-cms="galerie_03">Unser Spielzimmer</span>
+<div class="container container-weit">
+
+<!-- Übersicht der Ordner -->
+<div id="ordner-uebersicht">
+<div class="ordner-raster" id="ordner-raster">
+<p class="galerie-hinweis">Ordner werden geladen …</p>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Heller Spiel- und Schlafraum mit Kinderbetten und bunter Spielmatte" data-cms-bild="bild_raum" src="assets/img/raum.jpg"/>
-<span class="titel" data-cms="galerie_04">Spiel- &amp; Schlafraum</span>
 </div>
-<div class="galerie-kachel foto-kachel einblenden">
-<img alt="Unser rund 300 m² großes Außengelände mit Rutsche und Spielhäuschen" data-cms-bild="bild_garten" src="assets/img/garten.jpg"/>
-<span class="titel" data-cms="galerie_05">Unser Außengelände (300 m²)</span>
+
+<!-- Ein geöffneter Ordner -->
+<div class="ordner-ansicht" id="ordner-ansicht" hidden>
+<div class="ordner-kopf">
+<button class="btn btn-sekundaer btn-klein" id="ordner-zurueck" type="button">← Alle Ordner</button>
+<div>
+<h2 id="ordner-titel"></h2>
+<p id="ordner-beschreibung"></p>
 </div>
-<div class="galerie-kachel gk-2 einblenden">
-<span>🎨</span>
-<span class="titel" data-cms="galerie_06">Essraum – auch zum Basteln &amp; Malen</span>
 </div>
-<div class="galerie-kachel gk-5 einblenden">
-<span>🛁</span>
-<span class="titel" data-cms="galerie_07">Kinderbad mit Wickeltisch</span>
-</div>
-<div class="galerie-kachel gk-1 einblenden">
-<span>🧱</span>
-<span class="titel" data-cms="galerie_08">Bauecke &amp; Kuschelhöhle</span>
-</div>
+<div class="bilder-mauer" id="bilder-mauer"></div>
 </div>
 
 </div>
@@ -93,10 +93,10 @@
 <div class="footer-oben">
 <div>
 <div class="footer-logo">
-<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.png"/>
+<img alt="Logo von Melli's Krabbelzwerge" data-cms-bild="bild_logo" src="assets/img/logo.webp" width="768" height="520" decoding="async" loading="lazy"/>
 <strong>Melli's Krabbelzwerge</strong>
 </div>
-<p data-cms="footer_tagline">„Alles was ein Kind braucht, um glücklich zu sein." – Großtagespflege in Essen-Stoppenberg.</p>
+<p data-cms="footer_tagline">„Alles was ein Kind braucht, um glücklich zu sein.&quot; – Großtagespflege in Essen-Stoppenberg.</p>
 </div>
 <div>
 <h3>Seiten</h3>
@@ -105,13 +105,14 @@
 <li><a href="ueber-uns.html">Über uns</a></li>
 <li><a href="tagesablauf.html">Tagesablauf</a></li>
 <li><a href="galerie.html">Galerie</a></li>
+<li><a href="konzept.html">Unser Konzept</a></li>
 </ul>
 </div>
 <div>
 <h3>Kontakt</h3>
 <ul>
 <li data-cms-html="footer_adresse">📍 Im Looscheid 82<br/>45141 Essen-Stoppenberg</li>
-<li>📞 <a data-cms-tel="telefon" href="tel:+4920100000000">0201 / 00 00 00 00</a></li>
+<li>📞 <a data-cms-tel="telefon" href="tel:+4915787298121">0157 / 872 981 21</a></li>
 <li>✉️ <a data-cms-mail="email" href="mailto:info@mellis-krabbelzwerge.de">info@mellis-krabbelzwerge.de</a></li>
 </ul>
 </div>
@@ -135,7 +136,17 @@
 </div>
 </footer>
 <button aria-label="Nach oben scrollen" class="nach-oben">↑</button>
-<script src="js/cms.js"></script>
-<script src="js/main.js"></script>
+
+<!-- Großansicht eines Bildes -->
+<div aria-hidden="true" aria-modal="true" class="lupe" id="lupe" role="dialog" hidden>
+<button aria-label="Großansicht schließen" class="lupe-schliessen" id="lupe-schliessen" type="button">✕</button>
+<button aria-label="Vorheriges Bild" class="lupe-pfeil lupe-zurueck" id="lupe-zurueck" type="button">‹</button>
+<figure class="lupe-inhalt">
+<img alt="" id="lupe-bild" src=""/>
+<figcaption id="lupe-text"></figcaption>
+</figure>
+<button aria-label="Nächstes Bild" class="lupe-pfeil lupe-vor" id="lupe-vor" type="button">›</button>
+</div>
+
 </body>
 </html>

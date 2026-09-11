@@ -1,0 +1,57 @@
+#!/bin/bash
+# Zeigt, unter welcher Adresse die Website gerade im Internet steht.
+#
+#  * Benannter Tunnel  -> feste Adresse der eigenen Domain
+#  * Quick Tunnel      -> zufaellige trycloudflare.com-Adresse
+
+if ! systemctl is-active --quiet mellis-tunnel.service; then
+  echo "Der Tunnel laeuft gerade nicht."
+  echo "Starten mit:  sudo systemctl start mellis-tunnel"
+  exit 1
+fi
+
+domain=$(cat /etc/cloudflared/mellis-domain 2>/dev/null)
+
+if [ -n "$domain" ] && [ -f /etc/cloudflared/config.yml ]; then
+  echo
+  echo "  Die Website ist dauerhaft erreichbar unter:"
+  echo
+  echo "      https://$domain"
+  echo "      https://www.$domain  (leitet auf die Adresse oben)"
+  echo
+  echo "  Portal zum Pflegen der Inhalte:"
+  echo
+  echo "      https://$domain/admin.html"
+  echo
+  echo "  Diese Adresse bleibt - auch nach einem Neustart des Pi."
+  echo
+  echo "  Nicht erreichbar? Dann sagt dieser Befehl, woran es liegt:"
+  echo "      bash ~/mellis-website/deploy/domain-pruefen.sh"
+  echo
+  exit 0
+fi
+
+adresse=$(journalctl -u mellis-tunnel.service --no-pager 2>/dev/null \
+          | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1)
+
+if [ -z "$adresse" ]; then
+  echo "Noch keine Adresse gefunden - der Tunnel baut sie evtl. gerade auf."
+  echo "In ein paar Sekunden nochmal versuchen."
+  exit 1
+fi
+
+echo
+echo "  Die Website ist oeffentlich erreichbar unter:"
+echo
+echo "      $adresse"
+echo
+echo "  Portal zum Pflegen der Inhalte:"
+echo
+echo "      $adresse/admin.html"
+echo
+echo "  Achtung: Diese Adresse gilt nur, solange der Tunnel laeuft."
+echo "  Nach einem Neustart des Pi bekommt sie einen neuen Namen."
+echo
+echo "  Feste Adresse unter eigener Domain einrichten:"
+echo "      sudo bash ~/mellis-website/deploy/domain-einrichten.sh pexel.space"
+echo

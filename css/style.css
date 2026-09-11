@@ -3,6 +3,56 @@
    Farbwelt: Regenbogen (angelehnt an das Logo)
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   Schriften – liegen im Ordner assets/fonts und kommen vom eigenen Server.
+   Beides sind „variable Schriften": eine Datei deckt alle Schnitte ab.
+   Dadurch nur zwei kleine Downloads statt sieben, keine Verbindung zu
+   Google und kein Warten auf einen fremden Server beim Seitenaufbau.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../assets/fonts/baloo2-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../assets/fonts/baloo2-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("../assets/fonts/nunito-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("../assets/fonts/nunito-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root {
   --rot: #e63946;
   --orange: #f4900c;
@@ -37,6 +87,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Verstecktes bleibt versteckt – auch wenn eine Regel display setzt.
+   Sonst liegt z. B. eine unsichtbare Overlay-Fläche über der Seite. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -48,7 +102,12 @@ body {
   overflow-x: hidden;
 }
 
-img { max-width: 100%; display: block; }
+/* „height: auto" gehört zwingend zu „max-width: 100%", sobald die Bilder im
+   HTML width- und height-Angaben tragen (die brauchen wir, damit beim Laden
+   nichts springt). Ohne diese Zeile behielte ein Bild auf schmalen Displays
+   seine volle Höhe, während die Breite schrumpft – es würde in die Länge
+   gezogen. */
+img { max-width: 100%; height: auto; display: block; }
 
 h1, h2, h3, h4 { font-family: var(--schrift-titel); line-height: 1.2; }
 
@@ -57,6 +116,13 @@ a { color: var(--blau); }
 .container {
   width: min(1120px, 92%);
   margin-inline: auto;
+}
+
+/* Breitere Variante fuer Seiten mit Kachel-Rastern (Galerie). 1400px ist so
+   gewaehlt, dass genau vier Ordnerkarten nebeneinander Platz finden - mehr
+   waere auf grossen Bildschirmen unruhig. */
+.container-weit {
+  width: min(1400px, 92%);
 }
 
 /* --------------------------------------------------------------------------
@@ -225,7 +291,10 @@ a { color: var(--blau); }
   margin-bottom: 1rem;
 }
 
-.hero h1 .regenbogen-text {
+/* Regenbogenschrift. Bewusst als eigene Klasse und nicht als style-Attribut
+   im HTML: der Filter in js/cms.js wirft style-Attribute weg, sobald ein Text
+   aus dem Portal kommt – der Farbverlauf wäre dann verschwunden. */
+.regenbogen-text {
   background: var(--regenbogen);
   -webkit-background-clip: text;
   background-clip: text;
@@ -250,11 +319,25 @@ a { color: var(--blau); }
   border-radius: 50%;
   padding: 1.1rem;
   border: 5px solid transparent;
+  /* Wichtig für die ovale Form: Dieses Bild hat als einziges einen Innen-
+     abstand und einen Rahmen. Zusammen mit box-sizing: border-box würde das
+     Seitenverhältnis aus den width/height-Angaben im HTML auf den ÄUSSEREN
+     Rahmen gerechnet – die Höhe fiele dadurch rund 15 Pixel zu knapp aus und
+     das Logo wäre flachgedrückt. „auto" heißt: nimm das echte Verhältnis des
+     Bildes. Der Rand mit dem Regenbogen bleibt damit genau so oval wie
+     vorher. object-fit sorgt zusätzlich dafür, dass das Bild lieber Platz
+     frei lässt, als sich verzerren zu lassen. */
+  aspect-ratio: auto;
+  object-fit: contain;
   background:
     linear-gradient(var(--weiss), var(--weiss)) padding-box,
     var(--regenbogen) border-box;
   box-shadow: var(--schatten);
   animation: schweben 5s ease-in-out infinite;
+  /* Dauerläufer bekommen eine eigene Grafikebene: dann verschiebt die
+     Grafikeinheit nur diese Ebene, statt bei jedem Bild den Schlagschatten
+     und den Regenbogenrand neu zu zeichnen. */
+  will-change: transform;
 }
 
 @keyframes schweben {
@@ -270,6 +353,7 @@ a { color: var(--blau); }
   animation: schweben 4s ease-in-out infinite;
   user-select: none;
   pointer-events: none;
+  will-change: transform;
 }
 
 .deko:nth-of-type(1) { top: 8%; left: 4%; animation-delay: 0.4s; }
@@ -355,6 +439,222 @@ a { color: var(--blau); }
 }
 
 /* --------------------------------------------------------------------------
+   Weiche Abschnitts-Übergänge
+
+   Die Seite wechselt von Abschnitt zu Abschnitt zwischen Weiß
+   (.abschnitt-hell) und Warmweiß – dem Creme des Seitenhintergrunds bzw. dem
+   Wolkenton des Seitenkopfs. Ohne Hilfe entsteht dabei eine schnurgerade
+   Kante quer über den ganzen Bildschirm. Gerade Linien fallen dem Auge sofort
+   auf, selbst wenn die beiden Farben kaum auseinanderliegen.
+
+   Deshalb bekommt jeder Abschnitt, auf den ein andersfarbiger folgt, unten
+   eine Übergangsfläche. Wichtig: Sie liegt IM aktuellen Abschnitt, ist aber
+   in der Farbe des NÄCHSTEN gefüllt. Dadurch läuft der eigene Hintergrund –
+   beim Hero zum Beispiel die bunten Farbschleier – bis genau an die
+   geschwungene Kante heran. So bleibt nirgends eine gerade Linie übrig.
+   Andersherum (Fläche im nächsten Abschnitt, in der Farbe des vorherigen)
+   ginge das nicht: dann träfe ein einfarbiger Streifen auf die Farbschleier
+   und die gerade Kante wäre wieder da.
+
+   Fünf Formen stehen bereit. Umgeschaltet wird am <html>-Element über
+   data-uebergang="…" – zum Ausprobieren genügt ?uebergang=… an der Adresse
+   (siehe js/main.js):
+
+     wellen    zwei ineinander laufende Wellen          ← Standard
+     verlauf   reiner Farbverlauf, praktisch unsichtbar
+     bogen     ein einzelner weiter Bogen
+     wolken    runde Wolkenkuppen
+     schimmer  Farbverlauf mit warmem Farbschimmer
+
+   Ohne Attribut gilt der Standard weiter unten im „Grundgerüst".
+   -------------------------------------------------------------------------- */
+
+/* ----------------------------- Grundgerüst ------------------------------ */
+
+:where(.hero, .seiten-kopf, .abschnitt) {
+  position: relative;
+
+  /* Farbe des Abschnitts, der DANACH kommt. „transparent" heißt: kein
+     Farbwechsel an dieser Stelle – und damit auch kein Übergang. */
+  --u-farbe: transparent;
+
+  /* 1, sobald ein Übergang gezeichnet wird. Nur der Farbschimmer braucht
+     das, weil er als eigene Fläche über allem liegt. */
+  --u-an: 0;
+
+  /* Höhe: jede Form bringt ihr eigenes Maß mit, --u-skala verkleinert es
+     auf schmalen Displays. */
+  --u-mass: 96px;
+  --u-skala: 1;
+  --u-hoehe: calc(var(--u-mass) * var(--u-skala));
+}
+
+/* Danach kommt ein weißer Abschnitt. */
+:where(.hero, .seiten-kopf, .abschnitt):has(+ .abschnitt-hell) {
+  --u-farbe: var(--weiss);
+  --u-an: 1;
+}
+
+/* Weißer Abschnitt, danach geht es wieder in Creme weiter. */
+.abschnitt-hell:has(+ .abschnitt:not(.abschnitt-hell)) {
+  --u-farbe: var(--creme);
+  --u-an: 1;
+}
+
+/* Weißer Abschnitt ganz am Ende: darunter liegt der Abstand vor dem Footer,
+   und der zeigt wieder das Creme des Seitenhintergrunds. Bewusst eine eigene
+   Regel: sollte ein sehr alter Browser :has() nicht kennen, verwirft er nur
+   die beiden Regeln darüber und nicht auch noch diese hier. */
+main > .abschnitt-hell:last-child {
+  --u-farbe: var(--creme);
+  --u-an: 1;
+}
+
+/* Die Übergangsfläche selbst. Sie liegt in der unteren Innenkante des
+   Abschnitts – dort ist ohnehin nur Luft. Damit trotzdem garantiert nichts
+   verdeckt wird, hebt das Inhaltsband eine Ebene höher. */
+:where(.hero, .seiten-kopf, .abschnitt) > .container {
+  position: relative;
+  z-index: 1;
+}
+
+:where(.hero, .seiten-kopf, .abschnitt)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Der Deckel bei 55 % ist für die kurzen Abschnitte da – der Seitenkopf
+     der Unterseiten ist keine 200 Pixel hoch, ein 180 Pixel langer Verlauf
+     würde ihn fast vollständig überziehen. */
+  height: min(var(--u-hoehe), 55%);
+  pointer-events: none;
+
+  /* Standardform „wellen": eine volle Fläche in der Farbe des nächsten
+     Abschnitts, aus der die Maske die Wellen ausschneidet. Die hintere Welle
+     ist im SVG nur zu 45 % deckend – dadurch entsteht ein Zwischenton und die
+     beiden Wellen wirken wie zwei Ebenen, obwohl es nur eine Farbe ist. */
+  background: var(--u-farbe);
+  -webkit-mask: var(--u-form-wellen) 50% 100% / 100% 100% no-repeat;
+  mask: var(--u-form-wellen) 50% 100% / 100% 100% no-repeat;
+
+  --u-form-wellen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='black' fill-opacity='.45' d='M0 44 C210 90 400 12 690 42 C980 72 1200 16 1440 52 L1440 120 L0 120 Z'/%3E%3Cpath fill='black' d='M0 74 C230 36 430 104 720 76 C1010 48 1230 106 1440 68 L1440 120 L0 120 Z'/%3E%3C/svg%3E");
+}
+
+/* Auf schmalen Displays sind die Abschnitte kürzer – dann darf auch der
+   Übergang nicht mehr so viel Platz einnehmen. */
+@media (max-width: 760px) {
+  :where(.hero, .seiten-kopf, .abschnitt) { --u-skala: 0.68; }
+}
+
+@media (max-width: 520px) {
+  :where(.hero, .seiten-kopf, .abschnitt) { --u-skala: 0.52; }
+}
+
+/* Auf Papier bringt der Übergang nichts und kostet nur Farbe. */
+@media print {
+  :where(.hero, .seiten-kopf, .abschnitt)::before,
+  :where(.hero, .seiten-kopf, .abschnitt)::after { display: none; }
+}
+
+/* ------------------------ Form 2: reiner Verlauf ------------------------ */
+/* Die zurückhaltendste Variante: kein Umriss, nur ein langer Farbverlauf.
+   Die vielen Zwischenstufen sind Absicht – ein glatter Verlauf von „nichts"
+   auf die Zielfarbe wandert in der Mitte sonst sichtbar schnell. */
+
+[data-uebergang="verlauf"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 180px; }
+
+[data-uebergang="verlauf"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--u-farbe), transparent 100%) 0%,
+      color-mix(in srgb, var(--u-farbe), transparent 90%) 24%,
+      color-mix(in srgb, var(--u-farbe), transparent 66%) 46%,
+      color-mix(in srgb, var(--u-farbe), transparent 34%) 68%,
+      color-mix(in srgb, var(--u-farbe), transparent 10%) 86%,
+      var(--u-farbe) 100%);
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* --------------------------- Form 3: Bogen ------------------------------ */
+/* Ein einziger, sehr flacher Bogen über die ganze Breite. Ruhiger als die
+   Wellen: der nächste Abschnitt wölbt sich nur leicht nach oben. */
+
+[data-uebergang="bogen"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 88px; }
+
+[data-uebergang="bogen"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: var(--u-farbe);
+  -webkit-mask: var(--u-form-bogen) 50% 100% / 100% 100% no-repeat;
+  mask: var(--u-form-bogen) 50% 100% / 100% 100% no-repeat;
+
+  --u-form-bogen: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0 120 L0 92 Q720 -8 1440 92 L1440 120 Z'/%3E%3C/svg%3E");
+}
+
+/* -------------------------- Form 4: Wolken ------------------------------ */
+/* Runde Kuppen in zwei Größen, die sich überlappen – das ergibt eine
+   Wolkenkante. Ganz ohne Grafikdatei: zwei sich wiederholende Kreisverläufe
+   als Maske, darunter eine volle Fläche.
+   Die Kuppen sind in Pixeln bemessen und nicht in Prozent. So bleiben sie auf
+   jedem Bildschirm gleich groß, statt auf breiten Monitoren zu Hügeln zu
+   werden. */
+
+[data-uebergang="wolken"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 74px; }
+
+[data-uebergang="wolken"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: var(--u-farbe);
+  -webkit-mask:
+    radial-gradient(40px 28px at 50% 100%, black 98%, transparent 100%) 0 0 / 80px 46px repeat-x,
+    radial-gradient(62px 46px at 50% 100%, black 98%, transparent 100%) 0 0 / 160px 46px repeat-x,
+    linear-gradient(black, black) 0 100% / 100% calc(100% - 46px) no-repeat;
+  mask:
+    radial-gradient(40px 28px at 50% 100%, black 98%, transparent 100%) 0 0 / 80px 46px repeat-x,
+    radial-gradient(62px 46px at 50% 100%, black 98%, transparent 100%) 0 0 / 160px 46px repeat-x,
+    linear-gradient(black, black) 0 100% / 100% calc(100% - 46px) no-repeat;
+}
+
+/* ------------------------ Form 5: Farbschimmer -------------------------- */
+/* Wie „verlauf", aber der Übergang wird zur eigenen kleinen Bühne: hinter dem
+   Verlauf liegt ein warmer Schleier aus Gelb, Rosa und Blau. Der Farbwechsel
+   verschwindet damit nicht nur, er wird zu etwas Eigenem.
+   Der Schleier liegt als ::before UNTER der Verlaufsfläche und wird oben wie
+   unten weggeblendet – er darf die Kanten nicht erreichen, sonst entsteht
+   genau dort wieder ein sichtbarer Absatz. */
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt) { --u-mass: 185px; }
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt)::after {
+  background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--u-farbe), transparent 100%) 0%,
+      color-mix(in srgb, var(--u-farbe), transparent 90%) 24%,
+      color-mix(in srgb, var(--u-farbe), transparent 66%) 46%,
+      color-mix(in srgb, var(--u-farbe), transparent 34%) 68%,
+      color-mix(in srgb, var(--u-farbe), transparent 10%) 86%,
+      var(--u-farbe) 100%);
+  -webkit-mask: none;
+  mask: none;
+}
+
+[data-uebergang="schimmer"] :where(.hero, .seiten-kopf, .abschnitt)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Der Deckel bei 55 % ist für die kurzen Abschnitte da – der Seitenkopf
+     der Unterseiten ist keine 200 Pixel hoch, ein 180 Pixel langer Verlauf
+     würde ihn fast vollständig überziehen. */
+  height: min(var(--u-hoehe), 55%);
+  pointer-events: none;
+  opacity: var(--u-an);
+  background:
+    radial-gradient(42% 68% at 16% 54%, rgba(247, 201, 72, 0.30), transparent 72%),
+    radial-gradient(38% 62% at 52% 42%, rgba(242, 138, 178, 0.24), transparent 72%),
+    radial-gradient(40% 66% at 86% 56%, rgba(61, 155, 233, 0.18), transparent 72%);
+  -webkit-mask: linear-gradient(to bottom, transparent, black 48%, transparent);
+  mask: linear-gradient(to bottom, transparent, black 48%, transparent);
+}
+
+/* --------------------------------------------------------------------------
    Karten
    -------------------------------------------------------------------------- */
 .karten-raster {
@@ -399,6 +699,36 @@ a { color: var(--blau); }
 .karte.team-karte { text-align: left; }
 .karte.team-karte h3 { text-align: center; }
 .karte.team-karte p + p { margin-top: 0.7rem; }
+
+/* Die Rolle unter dem Namen – die Hauptzeile, die zuerst ins Auge fällt */
+.team-rolle {
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+/* Kleine Vorzeile darüber: der erlernte Beruf. Bewusst zurückhaltend –
+   grau statt orange, kleiner und leichter –, damit die Kindertagespflege
+   als eigentliche Rolle zuerst gelesen wird. */
+.team-vorbildung {
+  margin-bottom: 0.15rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinte-hell);
+}
+
+/* Vorzeile und Rolle sind ein Block – der Absatzabstand aus
+   „.team-karte p + p“ würde sie sonst auseinanderziehen. */
+.karte.team-karte .team-vorbildung + .team-rolle {
+  margin-top: 0;
+}
 
 /* --------------------------------------------------------------------------
    Zwei-Spalten-Layout (Bild + Text)
@@ -548,9 +878,6 @@ a { color: var(--blau); }
 
   .zeit-punkt:nth-child(odd)::before { left: auto; right: calc(-3rem - 9px); }
   .zeit-punkt:nth-child(even)::before { left: calc(-3rem - 9px); }
-
-  /* rechte Karten gleiten von rechts herein */
-  .zeit-punkt:nth-child(even).einblenden:not(.sichtbar) { transform: translateX(36px); }
 }
 
 /* --------------------------------------------------------------------------
@@ -596,11 +923,16 @@ a { color: var(--blau); }
 
 .akkordeon-punkt.offen .pfeil { transform: rotate(180deg); background: var(--gelb); }
 
+/* Die Höhe steuert das Skript (motion.dev). Eine Übergangszeit steht hier
+   bewusst nicht: „max-height" musste früher auf einen Schätzwert laufen und
+   wirkte dadurch am Anfang zäh und am Ende abgehackt. */
 .akkordeon-antwort {
-  max-height: 0;
+  height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease;
 }
+
+/* Ohne Skript sind die Antworten trotzdem lesbar */
+html:not(.js) .akkordeon-antwort { height: auto; }
 
 .akkordeon-antwort-innen {
   padding: 0 1.5rem 1.3rem;
@@ -608,56 +940,321 @@ a { color: var(--blau); }
 }
 
 /* --------------------------------------------------------------------------
-   Galerie
+   Galerie – Ordnerübersicht
    -------------------------------------------------------------------------- */
-.galerie-raster {
+.ordner-raster {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.4rem;
+  /* auto-fit mit 1fr: die Karten teilen sich die Reihe restlos auf. Wie viele
+     Spalten entstehen, ergibt sich allein aus der Breite - 260px Mindestbreite
+     plus Abstand bedeutet:
+
+       ab ~1130px Rasterbreite  ->  4 Spalten  (grosse Monitore)
+       ab  ~840px               ->  3 Spalten  (Laptop, Tablet quer)
+       ab  ~550px               ->  2 Spalten  (Tablet hoch)
+       darunter                 ->  1 Spalte   (Handy)
+
+     Keine Media Query noetig, das regelt der Browser selbst. */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.8rem;
 }
 
-.galerie-kachel {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 220px;
+.ordner-karte {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--weiss);
+  border: 2px solid var(--wolke);
   border-radius: var(--radius);
-  font-size: 4rem;
-  box-shadow: var(--schatten);
   overflow: hidden;
-  cursor: default;
-  transition: transform var(--uebergang), box-shadow var(--uebergang);
+  box-shadow: var(--schatten);
+  transition: transform var(--uebergang), box-shadow var(--uebergang),
+              border-color var(--uebergang);
 }
 
-.galerie-kachel:hover { transform: translateY(-6px) rotate(-1deg); box-shadow: var(--schatten-hover); }
-
-.galerie-kachel span.titel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  font-family: var(--schrift-titel);
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
+.ordner-karte:hover,
+.ordner-karte:focus-visible {
+  transform: translateY(-7px);
+  box-shadow: var(--schatten-hover);
+  border-color: var(--gelb);
 }
 
-.foto-kachel img {
-  position: absolute;
-  inset: 0;
+/* Vorschau-Collage: ein Blick in den Ordner, bevor er geöffnet wird */
+.ordner-vorschau {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  height: 200px;
+  background: var(--wolke);
+}
+
+.ordner-vorschau.anzahl-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.ordner-vorschau.anzahl-2 { grid-template-rows: 1fr; }
+.ordner-vorschau.anzahl-3 .vorschau-kachel:first-child { grid-row: span 2; }
+
+.ordner-vorschau.leer {
+  place-items: center;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  font-size: 3.4rem;
+}
+
+.vorschau-kachel { overflow: hidden; }
+
+.vorschau-kachel img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
-.gk-1 { background: linear-gradient(135deg, #ffe3e3, #ffd0a3); }
-.gk-2 { background: linear-gradient(135deg, #fff3c4, #d8f3b6); }
-.gk-3 { background: linear-gradient(135deg, #d0f0fd, #d5ccff); }
-.gk-4 { background: linear-gradient(135deg, #ffe0ef, #ffe9c9); }
-.gk-5 { background: linear-gradient(135deg, #d6f7f2, #fef2c0); }
-.gk-6 { background: linear-gradient(135deg, #e6dcff, #ffdcdc); }
+.ordner-karte:hover .vorschau-kachel img { transform: scale(1.06); }
+
+.ordner-text { padding: 1.2rem 1.4rem 1.4rem; }
+
+.ordner-text h3 { font-size: 1.25rem; margin-bottom: 0.3rem; }
+
+.ordner-text p {
+  color: var(--tinte-hell);
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.ordner-zahl {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: var(--wolke);
+  color: var(--tinte-hell);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Galerie – geöffneter Ordner
+   -------------------------------------------------------------------------- */
+.ordner-kopf {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.ordner-kopf h2 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
+
+.ordner-kopf p { color: var(--tinte-hell); font-size: 0.98rem; }
+
+/* Bilder-Mauer: die Höhe jeder Kachel folgt dem Seitenverhältnis des Bildes,
+   dadurch ordnen sich die Bilder von selbst unterschiedlich hoch an. */
+.bilder-mauer {
+  columns: 3;
+  column-gap: 1.2rem;
+}
+
+/* Passend zum breiteren Raster: auf grossen Bildschirmen eine Spalte mehr,
+   damit die Bilder nicht unnoetig gross werden. */
+@media (min-width: 1200px) {
+  .bilder-mauer { columns: 4; }
+}
+
+.mauer-bild {
+  break-inside: avoid;
+  margin: 0 0 1.2rem;
+  background: var(--weiss);
+  border: 2px solid var(--wolke);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--schatten);
+}
+
+.mauer-knopf {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  cursor: zoom-in;
+  background: var(--wolke);
+  aspect-ratio: 1 / var(--verhaeltnis, 0.75);
+}
+
+.mauer-knopf img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.mauer-knopf:hover img { transform: scale(1.05); }
+
+.mauer-lupe {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  opacity: 0;
+  background: rgba(61, 53, 70, 0.28);
+  transition: opacity var(--uebergang);
+}
+
+.mauer-knopf:hover .mauer-lupe,
+.mauer-knopf:focus-visible .mauer-lupe { opacity: 1; }
+
+.mauer-bild figcaption {
+  padding: 0.8rem 1rem 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+  line-height: 1.6;
+}
+
+.galerie-hinweis {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--tinte-hell);
+  font-weight: 600;
+  background: var(--wolke);
+  border-radius: var(--radius);
+}
+
+/* Das Öffnen eines Ordners, das Auffächern der Kacheln und der Bildwechsel
+   in der Großansicht laufen über motion.dev (js/galerie.js). Früher lagen
+   sie als CSS-Animationen hier – zum Neustarten musste das Skript jedes Mal
+   „void element.offsetWidth" lesen und erzwang damit mitten im Bildaufbau
+   eine komplette Neuberechnung des Layouts. Genau das war beim Öffnen
+   eines Ordners als Ruckler zu sehen. */
+
+/* --------------------------------------------------------------------------
+   Galerie – Großansicht eines Bildes
+   -------------------------------------------------------------------------- */
+.lupe {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(30, 25, 36, 0.92);
+  animation: lupe-auf 0.25s ease both;
+}
+
+@keyframes lupe-auf { from { opacity: 0; } to { opacity: 1; } }
+
+body.lupe-offen { overflow: hidden; }
+
+.lupe-inhalt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(1100px, 100%);
+  margin: 0;
+}
+
+.lupe-inhalt img {
+  max-width: 100%;
+  max-height: 76vh;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background: var(--weiss);
+}
+
+.lupe-inhalt figcaption {
+  max-width: 46rem;
+  text-align: center;
+  color: #f3eef8;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.lupe-schliessen,
+.lupe-pfeil {
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  color: var(--tinte);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transition: background var(--uebergang), transform var(--uebergang);
+}
+
+.lupe-schliessen:hover,
+.lupe-pfeil:hover { background: var(--gelb); transform: scale(1.08); }
+
+.lupe-schliessen {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  width: 2.9rem;
+  height: 2.9rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.lupe-pfeil {
+  flex-shrink: 0;
+  width: 3.2rem;
+  height: 3.2rem;
+  font-size: 2rem;
+  line-height: 1;
+  font-family: var(--schrift-titel);
+}
+
+/* --------------------------------------------------------------------------
+   Eigener Knopf zum Dateien auswählen (Portal)
+   -------------------------------------------------------------------------- */
+.datei-wahl {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.datei-versteckt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.datei-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  font-family: var(--schrift-titel);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--tinte);
+  background: var(--wolke);
+  border: 2px dashed var(--orange);
+  transition: background var(--uebergang), transform var(--uebergang);
+}
+
+.datei-knopf:hover { background: var(--gelb); transform: translateY(-2px); }
+
+.datei-versteckt:focus-visible + .datei-knopf {
+  outline: 3px solid var(--blau);
+  outline-offset: 2px;
+}
+
+.datei-name { font-size: 0.9rem; color: var(--tinte-hell); font-weight: 600; }
 
 /* --------------------------------------------------------------------------
    Kontakt
@@ -880,6 +1477,18 @@ a { color: var(--blau); }
 .brotkruemel a { color: var(--orange); text-decoration: none; }
 
 /* --------------------------------------------------------------------------
+   Kurzer Hinweis in einer Liste („wird geladen …", „noch nichts da")
+   -------------------------------------------------------------------------- */
+.hinweis-zeile {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--tinte-hell);
+  font-weight: 600;
+  background: var(--wolke);
+  border-radius: var(--radius);
+}
+
+/* --------------------------------------------------------------------------
    Footer
    -------------------------------------------------------------------------- */
 .footer {
@@ -983,25 +1592,24 @@ a { color: var(--blau); }
 
 /* --------------------------------------------------------------------------
    Scroll-Einblendung
+
+   Der Startzustand (unsichtbar) gilt nur, wenn die Animationen wirklich
+   laufen können: das Skript setzt dafür die Klasse „bewegung" am <html>.
+   Ohne JavaScript, bei einem Skriptfehler oder bei reduzierter Bewegung
+   bleibt jeder Text von Anfang an sichtbar – nichts kann unsichtbar
+   hängen bleiben.
+
+   Die Bewegung selbst übernimmt motion.dev (siehe js/main.js) und
+   läuft über die Web-Animations-API. Sie wird von der Grafikeinheit
+   berechnet und stockt deshalb auch auf schwächeren Geräten nicht.
    -------------------------------------------------------------------------- */
-.einblenden {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
+.bewegung .einblenden { opacity: 0; }
 
-/* Richtungsvarianten: Zweispalter gleiten sanft von links bzw. rechts herein */
-.zweispaltig > .einblenden:first-child { transform: translateX(-36px); }
-.zweispaltig > .einblenden:last-child { transform: translateX(36px); }
-
-/* Zeitstrahl-Punkte kommen von links, passend zur Linie */
-.zeit-punkt.einblenden { transform: translateX(-36px); }
-
-/* Galerie-Kacheln und CTA-Banner wachsen leicht auf */
-.galerie-kachel.einblenden { transform: translateY(18px) scale(0.94); }
-.cta-banner.einblenden { transform: translateY(22px) scale(0.97); }
-
-.einblenden.sichtbar { opacity: 1; transform: none; }
+/* „will-change" steht bewusst NICHT hier, sondern wird vom Skript nur für
+   das eine Element gesetzt, das gerade an der Reihe ist. Stünde es hier,
+   würde eine Seite mit dreißig Bewertungen dreißig Grafikebenen
+   auf einmal anfordern – auf einem Handy geht dabei mehr Leistung verloren,
+   als der Hinweis einbringt. */
 
 /* --------------------------------------------------------------------------
    Sanfte Einstiegs-Animation beim Seitenaufruf
@@ -1039,13 +1647,20 @@ a { color: var(--blau); }
   50% { opacity: 0; }
 }
 
+/* --------------------------------------------------------------------------
+   Wer im Betriebssystem „Bewegung reduzieren" eingestellt hat, bekommt die
+   Seite ohne jede Animation zu sehen – inhaltlich vollständig identisch.
+   Das Skript startet dann gar keine Animationen (siehe js/main.js).
+   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .einblenden { opacity: 1; transform: none; transition: none; }
-  .hero-bild img, .deko { animation: none; }
+  .bewegung .einblenden { opacity: 1; will-change: auto; }
+  .hero-bild img, .deko { animation: none; will-change: auto; }
   .hero-inhalt > div:first-child > *,
   .seiten-kopf .brotkruemel,
   .seiten-kopf h1,
   .seiten-kopf p { animation: none; }
+  .lupe { animation: none; }
+  .vorschau-kachel img, .mauer-knopf img { transition: none; }
   html { scroll-behavior: auto; }
 }
 
@@ -1084,6 +1699,8 @@ a { color: var(--blau); }
   .hero-bild img { width: min(280px, 70%); }
 
   .footer-oben { grid-template-columns: 1fr 1fr; }
+
+  .bilder-mauer { columns: 2; }
 }
 
 @media (max-width: 760px) {
@@ -1117,4 +1734,685 @@ a { color: var(--blau); }
   .footer-oben { grid-template-columns: 1fr; gap: 1.8rem; }
   .abschnitt { padding: 3rem 0; }
   .formular { padding: 1.5rem; }
+
+  .bilder-mauer { columns: 1; }
+  .ordner-vorschau { height: 170px; }
+  .lupe { padding: 0.8rem; gap: 0.2rem; }
+  .lupe-pfeil { width: 2.6rem; height: 2.6rem; font-size: 1.6rem; }
+  .lupe-inhalt img { max-height: 66vh; }
 }
+
+/* --------------------------------------------------------------------------
+   Konzept-Seite
+
+   Eine sehr lange Seite: oben ein anklickbares Inhaltsverzeichnis, darunter
+   alle Kapitel am Stück. Die Verweise springen deshalb nur innerhalb der
+   Seite (#anker) – niemand verliert den Faden durch einen Seitenwechsel.
+   -------------------------------------------------------------------------- */
+
+/* Der Kopf der Seite klebt oben – ohne diesen Abstand verschwände die
+   Kapitel-Überschrift beim Anspringen darunter. */
+.konzept-kapitel { scroll-margin-top: 96px; }
+
+.konzept-verzeichnis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.7rem;
+  max-width: 900px;
+  margin-inline: auto;
+  list-style: none;
+  counter-reset: none;
+}
+
+.konzept-verzeichnis a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  background: var(--creme);
+  color: var(--tinte);
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1.35;
+  transition: transform var(--uebergang), background var(--uebergang),
+              box-shadow var(--uebergang);
+}
+
+.konzept-verzeichnis a:hover,
+.konzept-verzeichnis a:focus-visible {
+  transform: translateX(4px);
+  background: var(--wolke);
+  box-shadow: var(--schatten);
+}
+
+.konzept-vz-nummer {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--weiss);
+  color: var(--tinte-hell);
+  font-family: var(--schrift-titel);
+  font-size: 0.95rem;
+  box-shadow: inset 0 0 0 2px var(--wolke);
+}
+
+.konzept-verzeichnis li:nth-child(6n + 1) .konzept-vz-nummer { color: var(--rot); }
+.konzept-verzeichnis li:nth-child(6n + 2) .konzept-vz-nummer { color: var(--orange); }
+.konzept-verzeichnis li:nth-child(6n + 3) .konzept-vz-nummer { color: var(--gruen); }
+.konzept-verzeichnis li:nth-child(6n + 4) .konzept-vz-nummer { color: var(--blau); }
+.konzept-verzeichnis li:nth-child(6n + 5) .konzept-vz-nummer { color: var(--lila); }
+.konzept-verzeichnis li:nth-child(6n + 6) .konzept-vz-nummer { color: var(--tuerkis); }
+
+.konzept-vz-titel small {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--tinte-hell);
+}
+
+/* ---------------------------- Ein Kapitel ------------------------------- */
+.konzept-inhalt { max-width: 780px; margin-inline: auto; }
+
+.konzept-nummer {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.konzept-inhalt h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  margin-bottom: 1.2rem;
+}
+
+.konzept-inhalt h3 {
+  font-size: 1.25rem;
+  margin: 1.8rem 0 0.5rem;
+  color: var(--tinte);
+}
+
+.konzept-inhalt p + p { margin-top: 0.9rem; }
+
+.konzept-betont {
+  font-weight: 700;
+  color: var(--tinte);
+}
+
+.konzept-liste {
+  margin: 1rem 0 0 1.2rem;
+  padding-left: 0.6rem;
+}
+
+.konzept-liste li { margin-bottom: 0.4rem; }
+
+.konzept-liste li::marker { color: var(--orange); }
+
+/* Die Leitsätze aus dem Konzept – sie dürfen ruhig auffallen. */
+.konzept-motto {
+  margin: 1.8rem 0;
+  padding: 1.4rem 1.6rem;
+  border-radius: var(--radius);
+  background: var(--wolke);
+  border-left: 6px solid var(--gelb);
+  font-family: var(--schrift-titel);
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.konzept-zeiten {
+  margin: 1.4rem 0;
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--radius);
+  background: var(--wolke);
+  box-shadow: var(--schatten);
+}
+
+.konzept-zeiten p {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.45rem 0;
+}
+
+.konzept-zeiten p + p {
+  margin-top: 0;
+  border-top: 1px dashed rgba(111, 101, 128, 0.3);
+}
+
+.konzept-bilder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: 1.8rem;
+}
+
+.konzept-bilder img {
+  width: 100%;
+  height: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+
+.konzept-zurueck {
+  display: inline-block;
+  margin-top: 1.8rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--tinte-hell);
+  text-decoration: none;
+}
+
+.konzept-zurueck:hover,
+.konzept-zurueck:focus-visible { color: var(--orange); }
+
+@media (max-width: 620px) {
+  .konzept-verzeichnis { grid-template-columns: 1fr; }
+  .konzept-bilder { grid-template-columns: 1fr; }
+  .konzept-motto { padding: 1.1rem 1.2rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Bewertungen (Startseite)
+
+   Aufbau von oben nach unten: Durchschnitt mit Sternen, Verteilung auf die
+   fünf Stufen (anklickbar – das ist zugleich ein Filter), Filterleiste,
+   die Bewertungen selbst und ganz unten das Formular.
+   -------------------------------------------------------------------------- */
+
+.bw-uebersicht {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  margin-bottom: 1.6rem;
+  background: var(--weiss);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  border-top: 6px solid var(--gelb);
+}
+
+.bw-schnitt { text-align: center; }
+
+.bw-schnitt-zahl {
+  font-family: var(--schrift-titel);
+  font-size: 3.4rem;
+  line-height: 1;
+  color: var(--orange);
+}
+
+.bw-schnitt-anzahl {
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.bw-sterne { display: inline-flex; gap: 0.1rem; }
+
+.bw-stern { color: rgba(111, 101, 128, 0.25); font-size: 1.05rem; line-height: 1; }
+.bw-stern.voll { color: var(--gelb); }
+
+.bw-sterne-gross { margin-top: 0.4rem; }
+.bw-sterne-gross .bw-stern { font-size: 1.5rem; }
+
+/* Verteilung: jede Zeile ist ein Knopf und filtert die Liste */
+.bw-verteilung { display: grid; gap: 0.35rem; }
+
+.bw-balken-zeile {
+  display: grid;
+  grid-template-columns: 3rem 1fr 2.2rem;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  color: var(--tinte-hell);
+  cursor: pointer;
+  transition: background var(--uebergang);
+}
+
+.bw-balken-zeile:hover { background: var(--wolke); }
+
+.bw-balken-stufe { font-weight: 700; color: var(--tinte); white-space: nowrap; }
+
+.bw-balken-spur {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--wolke);
+  overflow: hidden;
+}
+
+.bw-balken-fuellung {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--regenbogen);
+  transition: width 0.6s ease;
+}
+
+.bw-balken-zahl { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------ Filterleiste ---------------------------- */
+.bw-werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.bw-filter { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.bw-chip {
+  padding: 0.4rem 0.9rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--weiss);
+  box-shadow: var(--schatten);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--tinte-hell);
+  cursor: pointer;
+  transition: transform var(--uebergang), color var(--uebergang), border-color var(--uebergang);
+}
+
+.bw-chip:hover { transform: translateY(-2px); }
+.bw-chip.aktiv { color: var(--tinte); border-color: var(--gelb); }
+
+.bw-werkzeuge-rechts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+.bw-schalter, .bw-sortierung {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.bw-sortierung select {
+  padding: 0.35rem 0.6rem;
+  border: 2px solid var(--wolke);
+  border-radius: 10px;
+  background: var(--weiss);
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--tinte);
+}
+
+.bw-treffer {
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+/* -------------------------- Eine Bewertungskarte ------------------------ */
+.bw-liste { display: grid; gap: 1.2rem; }
+
+.bw-karte {
+  padding: 1.6rem;
+  background: var(--weiss);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  transition: box-shadow var(--uebergang);
+}
+
+.bw-karte:hover { box-shadow: var(--schatten-hover); }
+
+.bw-karte-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.bw-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: hsl(var(--avatar-ton, 40deg) 70% 92%);
+  color: hsl(var(--avatar-ton, 40deg) 45% 35%);
+  font-family: var(--schrift-titel);
+  font-size: 1.3rem;
+}
+
+.bw-wer { display: flex; flex-direction: column; line-height: 1.3; margin-right: auto; }
+.bw-wer strong { font-family: var(--schrift-titel); font-size: 1.1rem; }
+.bw-ort { font-size: 0.9rem; color: var(--tinte-hell); }
+.bw-zeit { font-size: 0.82rem; color: var(--tinte-hell); }
+
+.bw-text p + p { margin-top: 0.7rem; }
+
+.bw-bilder { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+
+.bw-bild-knopf {
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.bw-bild-knopf img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  transition: transform var(--uebergang);
+}
+
+.bw-bild-knopf:hover img { transform: scale(1.05); }
+
+.bw-mehr-zeile { text-align: center; margin-top: 1.4rem; }
+
+/* ------------------------------ Großansicht ----------------------------- */
+.bw-lupe {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(35, 30, 40, 0.9);
+}
+
+.bw-lupe.offen { display: grid; }
+
+.bw-lupe img {
+  max-width: min(92vw, 900px);
+  max-height: 86vh;
+  border-radius: 14px;
+}
+
+.bw-lupe-schliessen {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--weiss);
+  color: var(--tinte);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* -------------------------------- Formular ------------------------------ */
+.bw-formular-karte {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: var(--wolke);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+.bw-formular-karte h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+.bw-formular-text {
+  margin-bottom: 1.4rem;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.bw-formular { background: var(--weiss); }
+
+.bw-sterne-wahl { border: none; position: relative; }
+.bw-sterne-wahl legend { font-weight: 700; margin-bottom: 0.3rem; }
+
+/* Die Sterne sind Radioknöpfe: Tastatur und Vorlesegeräte bedienen sie
+   damit von Haus aus. Sichtbar ist nur die Beschriftung.
+   Gefüllt wird von links bis zum gewählten Stern – dafür steht die Reihe
+   in umgekehrter Richtung und CSS färbt „den gewählten und alle danach". */
+.bw-sterne-knoepfe {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 0.15rem;
+}
+
+.bw-sterne-knoepfe input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bw-sterne-knoepfe label {
+  font-size: 2.1rem;
+  line-height: 1;
+  color: rgba(111, 101, 128, 0.28);
+  cursor: pointer;
+  transition: transform var(--uebergang), color var(--uebergang);
+}
+
+.bw-sterne-knoepfe label:hover,
+.bw-sterne-knoepfe label:hover ~ label,
+.bw-sterne-knoepfe input:checked ~ label,
+.bw-sterne-knoepfe input:checked + label { color: var(--gelb); }
+
+.bw-sterne-knoepfe label:hover { transform: scale(1.12); }
+
+.bw-sterne-knoepfe input:focus-visible + label {
+  outline: 3px solid var(--blau);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.bw-versteckt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.bw-sterne-text {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.92rem;
+  color: var(--tinte-hell);
+}
+
+.bw-zaehler { display: block; margin-top: 0.3rem; color: var(--tinte-hell); font-size: 0.85rem; }
+
+.bw-vorschau { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+
+.bw-vorschau-kachel { position: relative; line-height: 0; }
+
+.bw-vorschau-kachel img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.bw-vorschau-weg {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: var(--rot);
+  color: var(--weiss);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Falle für automatische Ausfüller – für Menschen unsichtbar */
+.bw-falle {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.bw-meldung {
+  display: none;
+  margin-top: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: var(--wolke);
+  color: var(--tinte);
+}
+
+.bw-meldung.erfolg { background: #e6f6e7; color: #2f7a35; }
+.bw-meldung.fehler { background: #fde8ea; color: #b3202f; }
+
+@media (max-width: 760px) {
+  .bw-uebersicht { grid-template-columns: 1fr; gap: 1.2rem; padding: 1.5rem; }
+  .bw-werkzeuge { justify-content: flex-start; }
+  .bw-formular-karte { padding: 1.3rem; }
+  .bw-bild-knopf img { width: 96px; height: 96px; }
+}
+
+/* --------------------------------------------------------------------------
+   Instagram-Knopf in der Navigation
+   -------------------------------------------------------------------------- */
+/* Runder Knopf im Regenbogen-Verlauf der Seite (gelb -> rosa -> lila), damit
+   er neben dem orangen Kontakt-Knopf auffaellt, ohne aus dem Rahmen zu fallen.
+   Der Text „Instagram" steckt nur fuer das Handy-Menue im Markup und ist am
+   Schreibtisch ausgeblendet - dort spricht das Symbol fuer sich. */
+.nav-links a.nav-instagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: var(--weiss);
+  background: linear-gradient(135deg, var(--gelb), var(--rosa) 45%, var(--lila));
+  box-shadow: 0 4px 14px rgba(155, 93, 229, 0.32);
+}
+
+.nav-links a.nav-instagram:hover,
+.nav-links a.nav-instagram:focus-visible {
+  background: linear-gradient(135deg, var(--orange), var(--rosa) 40%, var(--lila));
+  transform: translateY(-2px);
+}
+
+.nav-instagram svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.nav-instagram-text { display: none; }
+
+@media (max-width: 760px) {
+  /* Im aufgeklappten Handy-Menue wird aus dem runden Symbol eine volle Zeile
+     mit Beschriftung - genau wie bei den uebrigen Menuepunkten. */
+  .nav-links a.nav-instagram {
+    width: auto;
+    height: auto;
+    padding: 0.8rem;
+  }
+
+  .nav-instagram-text { display: inline; }
+}
+
+/* Ab Tablet-Breite trennt eine feine Linie das Symbol von den Menuepunkten. */
+@media (min-width: 761px) {
+  .nav-instagram-eintrag {
+    display: flex;
+    align-items: center;
+    margin-left: 0.9rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid rgba(61, 53, 70, 0.12);
+  }
+}
+
+/* Auf grossen Bildschirmen wandert das Symbol aus dem Inhaltsband heraus an
+   den rechten Rand des Headers - dort steht es voellig frei neben der
+   Navigation. Erst ab 1300px ist links und rechts genug Luft neben dem
+   1120px breiten Band (mind. 90px), damit nichts mit den Menuepunkten
+   zusammenstoesst; darunter bleibt die Variante mit der Trennlinie. */
+@media (min-width: 1300px) {
+  .nav-instagram-eintrag {
+    position: absolute;
+    top: 50%;
+    right: clamp(1rem, 1.6vw, 2rem);
+    transform: translateY(-50%);
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Karten-Vorschau (Zwei-Klick-Lösung)
+   -------------------------------------------------------------------------- */
+/* Steht anstelle der Google-Karte, bis jemand sie bewusst lädt. Bewusst ohne
+   Vorschaubild von Google – sonst würde beim Aufruf schon eine Verbindung
+   dorthin aufgebaut, genau das soll die Fläche ja verhindern. */
+.karte-zustimmung {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 380px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(46, 196, 182, 0.16), transparent 45%),
+    radial-gradient(circle at 80% 75%, rgba(61, 155, 233, 0.16), transparent 45%),
+    var(--wolke);
+}
+
+.karte-symbol { font-size: 2.6rem; line-height: 1; }
+
+.karte-zustimmung h3 { font-size: 1.25rem; margin: 0; }
+
+.karte-zustimmung p {
+  max-width: 46ch;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--tinte-hell);
+}
+
+.karte-fusszeile { font-size: 0.85rem; }
+
+/* Aufzählungen in Impressum und Datenschutzerklärung */
+.rechtstext ul {
+  margin: 0.6rem 0 0.6rem 1.4rem;
+  padding: 0;
+}
+
+.rechtstext li { margin-bottom: 0.4rem; }
+
+.rechtstext li::marker { color: var(--orange); }

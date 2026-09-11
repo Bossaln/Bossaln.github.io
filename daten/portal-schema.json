@@ -1,5 +1,17 @@
 [
   {
+    "schluessel": "imp_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Impressum"
+  },
+  {
+    "schluessel": "ds_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: Datenschutzerklärung"
+  },
+  {
     "schluessel": "start_01",
     "seite": "Startseite",
     "art": "text",
@@ -246,6 +258,36 @@
     "label": "Text: Von Oktober 2012 bis August 2014 war ich als Kindertagespfle…"
   },
   {
+    "schluessel": "ueberuns_32",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Sascha Manuel Graw"
+  },
+  {
+    "schluessel": "ueberuns_33",
+    "seite": "Über uns",
+    "art": "html",
+    "label": "Text: Kindertagespflegeperson"
+  },
+  {
+    "schluessel": "ueberuns_34",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Ich wurde 1987 in Essen geboren und wohne seitdem hier …"
+  },
+  {
+    "schluessel": "ueberuns_35",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Nach meiner Ausbildung zum Kaufmann im Einzelhandel …"
+  },
+  {
+    "schluessel": "ueberuns_36",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Seit 2017 arbeite ich nun gemeinsam mit meinen Schwestern …"
+  },
+  {
     "schluessel": "ueberuns_22",
     "seite": "Über uns",
     "art": "text",
@@ -322,6 +364,24 @@
     "seite": "Über uns",
     "art": "text",
     "label": "Button/Link: Termin vereinbaren"
+  },
+  {
+    "schluessel": "ueberuns_51",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Gelernte Rechtsanwaltsfachangestellte (Melanie)"
+  },
+  {
+    "schluessel": "ueberuns_52",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Kindertagespflegeperson (Ivonne)"
+  },
+  {
+    "schluessel": "ueberuns_53",
+    "seite": "Über uns",
+    "art": "text",
+    "label": "Text: Gelernter Einzelhandelskaufmann (Sascha)"
   },
   {
     "schluessel": "tag_01",
@@ -594,42 +654,6 @@
     "label": "Text: Ein kleiner Einblick in unsere Räume und unseren Alltag – ec…"
   },
   {
-    "schluessel": "galerie_03",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Unser Spielzimmer"
-  },
-  {
-    "schluessel": "galerie_04",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Spiel- & Schlafraum"
-  },
-  {
-    "schluessel": "galerie_05",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Unser Außengelände (300 m²)"
-  },
-  {
-    "schluessel": "galerie_06",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Essraum – auch zum Basteln & Malen"
-  },
-  {
-    "schluessel": "galerie_07",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Kinderbad mit Wickeltisch"
-  },
-  {
-    "schluessel": "galerie_08",
-    "seite": "Galerie",
-    "art": "text",
-    "label": "Text: Bauecke & Kuschelhöhle"
-  },
-  {
     "schluessel": "galerie_10",
     "seite": "Galerie",
     "art": "text",
@@ -720,234 +744,6 @@
     "label": "Text: Größere Karte auf OpenStreetMap öffnen"
   },
   {
-    "schluessel": "impressum_01",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Impressum"
-  },
-  {
-    "schluessel": "impressum_02",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Angaben gemäß § 5 DDG"
-  },
-  {
-    "schluessel": "impressum_03",
-    "seite": "Impressum",
-    "art": "html",
-    "label": "Text: Melli's Krabbelzwerge – Großtagespflege Im Looscheid 82 4514…"
-  },
-  {
-    "schluessel": "impressum_04",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Vertreten durch"
-  },
-  {
-    "schluessel": "impressum_05",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Text: Melanie Graw und Ivonne Braß (Kindertagespflegepersonen)"
-  },
-  {
-    "schluessel": "impressum_06",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Kontakt"
-  },
-  {
-    "schluessel": "impressum_07",
-    "seite": "Impressum",
-    "art": "html",
-    "label": "Text: Telefon: 0201 / 00 00 00 00 E-Mail: info@mellis-krabbelzwerg…"
-  },
-  {
-    "schluessel": "impressum_08",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Aufsichtsbehörde"
-  },
-  {
-    "schluessel": "impressum_09",
-    "seite": "Impressum",
-    "art": "html",
-    "label": "Text: Die Kindertagespflege erfolgt mit Pflegeerlaubnis nach § 43 …"
-  },
-  {
-    "schluessel": "impressum_10",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV"
-  },
-  {
-    "schluessel": "impressum_11",
-    "seite": "Impressum",
-    "art": "html",
-    "label": "Text: Melanie Graw und Ivonne Braß Im Looscheid 82 45141 Essen (St…"
-  },
-  {
-    "schluessel": "impressum_12",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Haftung für Inhalte"
-  },
-  {
-    "schluessel": "impressum_13",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Text: Die Inhalte unserer Seiten wurden mit größter Sorgfalt erste…"
-  },
-  {
-    "schluessel": "impressum_14",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Haftung für Links"
-  },
-  {
-    "schluessel": "impressum_15",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Text: Unser Angebot enthält Links zu externen Websites Dritter, au…"
-  },
-  {
-    "schluessel": "impressum_16",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Überschrift: Urheberrecht"
-  },
-  {
-    "schluessel": "impressum_17",
-    "seite": "Impressum",
-    "art": "text",
-    "label": "Text: Die durch die Seitenbetreiber erstellten Inhalte und Werke a…"
-  },
-  {
-    "schluessel": "impressum_18",
-    "seite": "Impressum",
-    "art": "html",
-    "label": "Text: ⚠️ Wichtiger Hinweis: Telefonnummer und E-Mail-Adresse sind …"
-  },
-  {
-    "schluessel": "datenschutz_01",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: Datenschutzerklärung"
-  },
-  {
-    "schluessel": "datenschutz_02",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: 1. Datenschutz auf einen Blick"
-  },
-  {
-    "schluessel": "datenschutz_03",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Wir nehmen den Schutz eurer persönlichen Daten sehr ernst. W…"
-  },
-  {
-    "schluessel": "datenschutz_04",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: 2. Verantwortliche Stelle"
-  },
-  {
-    "schluessel": "datenschutz_05",
-    "seite": "Datenschutz",
-    "art": "html",
-    "label": "Text: Melli's Krabbelzwerge – Großtagespflege Melanie Graw und Ivo…"
-  },
-  {
-    "schluessel": "datenschutz_06",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: 3. Datenerfassung auf dieser Website"
-  },
-  {
-    "schluessel": "datenschutz_07",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Zwischentitel: Server-Log-Dateien"
-  },
-  {
-    "schluessel": "datenschutz_08",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Beim Besuch dieser Website erhebt der Hosting-Anbieter autom…"
-  },
-  {
-    "schluessel": "datenschutz_09",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Zwischentitel: Kontaktformular"
-  },
-  {
-    "schluessel": "datenschutz_10",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Wenn ihr uns über das Kontaktformular eine Anfrage sendet, w…"
-  },
-  {
-    "schluessel": "datenschutz_11",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Zwischentitel: Externe Schriftarten (Google Fonts)"
-  },
-  {
-    "schluessel": "datenschutz_12",
-    "seite": "Datenschutz",
-    "art": "html",
-    "label": "Text: Diese Website nutzt zur einheitlichen Darstellung Schriftart…"
-  },
-  {
-    "schluessel": "datenschutz_13",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Zwischentitel: Eingebundene Karte (OpenStreetMap)"
-  },
-  {
-    "schluessel": "datenschutz_14",
-    "seite": "Datenschutz",
-    "art": "html",
-    "label": "Text: Auf der Kontaktseite binden wir eine Karte von OpenStreetMap…"
-  },
-  {
-    "schluessel": "datenschutz_15",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: 4. Cookies"
-  },
-  {
-    "schluessel": "datenschutz_16",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Diese Website verwendet keine Tracking- oder Werbe-Cookies."
-  },
-  {
-    "schluessel": "datenschutz_17",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Überschrift: 5. Eure Rechte"
-  },
-  {
-    "schluessel": "datenschutz_18",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Ihr habt jederzeit das Recht auf unentgeltliche Auskunft übe…"
-  },
-  {
-    "schluessel": "datenschutz_19",
-    "seite": "Datenschutz",
-    "art": "text",
-    "label": "Text: Hierzu sowie zu weiteren Fragen zum Thema Datenschutz könnt …"
-  },
-  {
-    "schluessel": "datenschutz_20",
-    "seite": "Datenschutz",
-    "art": "html",
-    "label": "Text: ⚠️ Wichtiger Hinweis: Dieser Text ist ein Muster und muss vo…"
-  },
-  {
     "schluessel": "footer_tagline",
     "seite": "Fußzeile (alle Seiten)",
     "art": "text",
@@ -958,5 +754,611 @@
     "seite": "Fußzeile (alle Seiten)",
     "art": "html",
     "label": "Text: Adresse in der Fußzeile"
+  },
+  {
+    "schluessel": "neuigkeiten_01",
+    "seite": "Neuigkeiten",
+    "art": "text",
+    "label": "Text: Überschrift der Seite"
+  },
+  {
+    "schluessel": "neuigkeiten_02",
+    "seite": "Neuigkeiten",
+    "art": "text",
+    "label": "Text: Einleitungssatz"
+  },
+  {
+    "schluessel": "konzept_01",
+    "seite": "Unser Konzept",
+    "art": "text",
+    "label": "Text: Überschrift der Seite"
+  },
+  {
+    "schluessel": "konzept_02",
+    "seite": "Unser Konzept",
+    "art": "text",
+    "label": "Text: Einleitungssatz"
+  },
+  {
+    "schluessel": "ds_kurz_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 1. Datenschutz auf einen Blick"
+  },
+  {
+    "schluessel": "ds_kurz_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Der Schutz eurer Daten ist uns genauso wichtig wie das Wohl …"
+  },
+  {
+    "schluessel": "ds_verantwortlich_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 2. Verantwortliche Stelle"
+  },
+  {
+    "schluessel": "ds_verantwortlich_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Melli's Krabbelzwerge – GroßtagespflegeMelanie Graw und Ivon…"
+  },
+  {
+    "schluessel": "ds_verantwortlich_hinweis",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Verantwortliche Stelle ist, wer über Zweck und Mittel der Ve…"
+  },
+  {
+    "schluessel": "ds_betrieb_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 3. Wie diese Website betrieben wird"
+  },
+  {
+    "schluessel": "ds_server_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Eigener Server statt Hosting-Anbieter"
+  },
+  {
+    "schluessel": "ds_server_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Diese Website liegt nicht bei einem großen Hosting-Anbieter,…"
+  },
+  {
+    "schluessel": "ds_cloudflare_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Erreichbarkeit über Cloudflare"
+  },
+  {
+    "schluessel": "ds_cloudflare_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Damit die Website aus dem Internet erreichbar ist, läuft die…"
+  },
+  {
+    "schluessel": "ds_tls_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Verschlüsselte Übertragung"
+  },
+  {
+    "schluessel": "ds_tls_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Diese Seite wird ausschließlich verschlüsselt übertragen (HT…"
+  },
+  {
+    "schluessel": "ds_protokoll_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Protokolldaten auf unserem Server"
+  },
+  {
+    "schluessel": "ds_protokoll_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Unser Server führt bewusst kein vollständiges Zugriffsprotok…"
+  },
+  {
+    "schluessel": "ds_protokoll_text2",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Für den sicheren Betrieb hält der Server einzelne Ereignisse…"
+  },
+  {
+    "schluessel": "ds_kontakt_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 4. Kontaktaufnahme"
+  },
+  {
+    "schluessel": "ds_formular_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Kontaktformular"
+  },
+  {
+    "schluessel": "ds_formular_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wenn ihr uns über das Formular auf der Kontaktseite schreibt…"
+  },
+  {
+    "schluessel": "ds_formular_text2",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Sollte der Versand technisch einmal nicht möglich sein, biet…"
+  },
+  {
+    "schluessel": "ds_formular_recht",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um…"
+  },
+  {
+    "schluessel": "ds_formular_dauer",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wir bewahren eure Anfrage so lange auf, wie es zur Bearbeitu…"
+  },
+  {
+    "schluessel": "ds_direkt_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Anfragen per E-Mail, Telefon oder Post"
+  },
+  {
+    "schluessel": "ds_direkt_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Nehmt ihr auf einem anderen Weg Kontakt zu uns auf, verarbei…"
+  },
+  {
+    "schluessel": "ds_bewertung_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 5. Bewertungen auf dieser Website"
+  },
+  {
+    "schluessel": "ds_bewertung_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Auf der Startseite könnt ihr uns öffentlich bewerten. Gespei…"
+  },
+  {
+    "schluessel": "ds_bewertung_fotos",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Fotos werden bereits in eurem Browser verkleinert und neu ge…"
+  },
+  {
+    "schluessel": "ds_bewertung_recht",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Rechtsgrundlage ist ausschließlich eure Einwilligung nach Ar…"
+  },
+  {
+    "schluessel": "ds_bewertung_dauer",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Eure Bewertung bleibt sichtbar, bis ihr sie widerruft oder w…"
+  },
+  {
+    "schluessel": "ds_galerie_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 6. Fotos in unserer Galerie"
+  },
+  {
+    "schluessel": "ds_galerie_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Die Bilder in der Galerie stammen aus unserem Alltag in der …"
+  },
+  {
+    "schluessel": "ds_dritte_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 7. Eingebundene Dienste Dritter"
+  },
+  {
+    "schluessel": "ds_karte_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Kartenausschnitt von Google Maps"
+  },
+  {
+    "schluessel": "ds_karte_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Auf der Kontaktseite zeigen wir, wo ihr uns findet. Die Kart…"
+  },
+  {
+    "schluessel": "ds_instagram_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Verlinkung zu Instagram"
+  },
+  {
+    "schluessel": "ds_instagram_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Oben rechts im Menü verlinken wir unser Instagram-Profil. Da…"
+  },
+  {
+    "schluessel": "ds_schrift_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Schriftarten"
+  },
+  {
+    "schluessel": "ds_schrift_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Die verwendeten Schriftarten („Baloo 2“ und „Nunito“) liegen…"
+  },
+  {
+    "schluessel": "ds_cookies_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 8. Cookies und Speicherung auf eurem Gerät"
+  },
+  {
+    "schluessel": "ds_cookies_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Für den normalen Besuch dieser Website ist keinerlei Speiche…"
+  },
+  {
+    "schluessel": "ds_cookies_portal",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Eine Ausnahme betrifft ausschließlich uns selbst: Wer sich a…"
+  },
+  {
+    "schluessel": "ds_portal_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Verwaltungs-Portal"
+  },
+  {
+    "schluessel": "ds_portal_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Das Portal ist nur für uns bestimmt und mit einem Passwort g…"
+  },
+  {
+    "schluessel": "ds_empfaenger_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 9. Wer eure Daten sonst noch erhält"
+  },
+  {
+    "schluessel": "ds_empfaenger_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Wir verkaufen keine Daten und geben sie nicht zu Werbezwecke…"
+  },
+  {
+    "schluessel": "ds_dauer_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 10. Speicherdauer im Überblick"
+  },
+  {
+    "schluessel": "ds_dauer_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wir speichern personenbezogene Daten nur so lange, wie es fü…"
+  },
+  {
+    "schluessel": "ds_dauer_1",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Listenpunkt: Anfragen über das Kontaktformular: bis zur Erledigung eures …"
+  },
+  {
+    "schluessel": "ds_dauer_2",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Listenpunkt: Bewertungen samt Fotos: bis zu eurem Widerruf; Sicherungskop…"
+  },
+  {
+    "schluessel": "ds_dauer_3",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Listenpunkt: Einträge im Systemprotokoll: spätestens 30 Tage."
+  },
+  {
+    "schluessel": "ds_dauer_4",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Listenpunkt: IP-Adressen zum Schutz vor Missbrauch: wenige Minuten, nur i…"
+  },
+  {
+    "schluessel": "ds_dauer_5",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Listenpunkt: Sitzungs-Cookie des Verwaltungs-Portals: 30 Minuten nach der…"
+  },
+  {
+    "schluessel": "ds_rechte_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 11. Eure Rechte"
+  },
+  {
+    "schluessel": "ds_rechte_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Ihr habt uns gegenüber jederzeit folgende Rechte, die für eu…"
+  },
+  {
+    "schluessel": "ds_recht_auskunft",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Auskunft (Art. 15 DSGVO) darüber, ob und welche Daten wir zu…"
+  },
+  {
+    "schluessel": "ds_recht_berichtigung",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Berichtigung (Art. 16 DSGVO) unrichtiger oder unvollständige…"
+  },
+  {
+    "schluessel": "ds_recht_loeschung",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Löschung (Art. 17 DSGVO), soweit keine gesetzliche Aufbewahr…"
+  },
+  {
+    "schluessel": "ds_recht_einschraenkung",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Einschränkung der Verarbeitung (Art. 18 DSGVO)."
+  },
+  {
+    "schluessel": "ds_recht_uebertrag",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Datenübertragbarkeit (Art. 20 DSGVO) in einem gängigen, masc…"
+  },
+  {
+    "schluessel": "ds_recht_widerspruch",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Widerspruch (Art. 21 DSGVO) gegen Verarbeitungen, die wir au…"
+  },
+  {
+    "schluessel": "ds_recht_widerruf",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Listenpunkt: Widerruf einer Einwilligung (Art. 7 Abs. 3 DSGVO) jederzeit …"
+  },
+  {
+    "schluessel": "ds_rechte_kontakt",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Für alle diese Anliegen genügt eine formlose Nachricht an di…"
+  },
+  {
+    "schluessel": "ds_beschwerde_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Zwischentitel: Beschwerde bei der Aufsichtsbehörde"
+  },
+  {
+    "schluessel": "ds_beschwerde_text",
+    "seite": "Datenschutz",
+    "art": "html",
+    "label": "Text: Wenn ihr der Ansicht seid, dass wir eure Daten nicht rechtmä…"
+  },
+  {
+    "schluessel": "ds_automatisch_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 12. Keine automatisierte Entscheidungsfindung"
+  },
+  {
+    "schluessel": "ds_automatisch_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Eine automatisierte Entscheidungsfindung einschließlich Prof…"
+  },
+  {
+    "schluessel": "ds_kinder_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 13. Diese Website und Kinder"
+  },
+  {
+    "schluessel": "ds_kinder_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Unser Angebot richtet sich an Eltern und Sorgeberechtigte, n…"
+  },
+  {
+    "schluessel": "ds_aenderung_titel",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Überschrift: 14. Änderungen dieser Datenschutzerklärung"
+  },
+  {
+    "schluessel": "ds_aenderung_text",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Wir passen diese Erklärung an, sobald sich unsere Website od…"
+  },
+  {
+    "schluessel": "ds_stand",
+    "seite": "Datenschutz",
+    "art": "text",
+    "label": "Text: Stand: 15. August 2026"
+  },
+  {
+    "schluessel": "imp_angaben_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Angaben gemäß § 5 DDG"
+  },
+  {
+    "schluessel": "imp_angaben_text",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Melli's Krabbelzwerge – GroßtagespflegeIm Looscheid 8245141 …"
+  },
+  {
+    "schluessel": "imp_vertreten_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Vertreten durch"
+  },
+  {
+    "schluessel": "imp_vertreten_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Melanie Graw und Ivonne Braß (Kindertagespflegepersonen)"
+  },
+  {
+    "schluessel": "imp_kontakt_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Kontakt"
+  },
+  {
+    "schluessel": "imp_kontakt_text",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Telefon: 0157 / 872 981 21E-Mail: info@mellis-krabbelzwerge.…"
+  },
+  {
+    "schluessel": "imp_beruf_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Berufsbezeichnung und berufsrechtliche Regelungen"
+  },
+  {
+    "schluessel": "imp_beruf_text",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Berufsbezeichnung: Kindertagespflegeperson (verliehen in der…"
+  },
+  {
+    "schluessel": "imp_aufsicht_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Zuständige Aufsichtsbehörde"
+  },
+  {
+    "schluessel": "imp_aufsicht_text",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Jugendamt der Stadt EssenGildehofstraße 1345127 Essen"
+  },
+  {
+    "schluessel": "imp_ust_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Umsatzsteuer"
+  },
+  {
+    "schluessel": "imp_ust_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Eine Umsatzsteuer-Identifikationsnummer nach § 27 a UStG ist…"
+  },
+  {
+    "schluessel": "imp_verantwortlich_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV"
+  },
+  {
+    "schluessel": "imp_verantwortlich_text",
+    "seite": "Impressum",
+    "art": "html",
+    "label": "Text: Melanie Graw und Ivonne BraßIm Looscheid 8245141 Essen (Stop…"
+  },
+  {
+    "schluessel": "imp_streit_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Verbraucherstreitbeilegung"
+  },
+  {
+    "schluessel": "imp_streit_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Wir sind nicht bereit und nicht verpflichtet, an Streitbeile…"
+  },
+  {
+    "schluessel": "imp_haftung_inhalt_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Haftung für Inhalte"
+  },
+  {
+    "schluessel": "imp_haftung_inhalt_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Die Inhalte unserer Seiten wurden mit größter Sorgfalt erste…"
+  },
+  {
+    "schluessel": "imp_haftung_links_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Haftung für Links"
+  },
+  {
+    "schluessel": "imp_haftung_links_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Unser Angebot enthält Links zu externen Websites Dritter, au…"
+  },
+  {
+    "schluessel": "imp_nutzerinhalte_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Von Besucherinnen und Besuchern eingestellte Inhalte"
+  },
+  {
+    "schluessel": "imp_nutzerinhalte_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Bewertungen und Fotos, die über das Bewertungsformular auf d…"
+  },
+  {
+    "schluessel": "imp_urheber_titel",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Überschrift: Urheberrecht und Bildnachweis"
+  },
+  {
+    "schluessel": "imp_urheber_text",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Die durch die Seitenbetreiber erstellten Inhalte und Werke a…"
+  },
+  {
+    "schluessel": "imp_stand",
+    "seite": "Impressum",
+    "art": "text",
+    "label": "Text: Stand: 15. August 2026"
+  },
+  {
+    "schluessel": "kontakt_karte_titel",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Zwischentitel: Karte von Google Maps"
+  },
+  {
+    "schluessel": "kontakt_karte_text",
+    "seite": "Kontakt",
+    "art": "text",
+    "label": "Text: Wir laden die Karte nicht automatisch. Erst wenn ihr auf „Ka…"
   }
 ]
